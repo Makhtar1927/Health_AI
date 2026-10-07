@@ -1,0 +1,33 @@
+[
+  {
+    "email": "superadmin@sunu-sante.sn",
+    "passwordHash": "Admin123!",
+    "role": "superadmin",
+    "name": "Super Admin Sunu Santé",
+    "suspended": false,
+    "details": {
+      "mock": true
+    }
+  },
+  {
+    "email": "hopital.dakar@sunu-sante.sn",
+    "passwordHash": "Hopital123!",
+    "role": "admin_hospital",
+    "name": "Direction Hôpital Principal",
+    "suspended": false,
+    "details": {
+      "hospital": "Hôpital Principal de Dakar"
+    }
+  },
+  {
+    "email": "medecin@sunu-sante.sn",
+    "passwordHash": "Medecin123!",
+    "role": "doctor",
+    "name": "Dr. Moussa Diop",
+    "suspended": false,
+    "details": {
+      "specialty": "Généraliste",
+      "hospital": "Hôpital Principal de Dakar"
+    }
+  }
+]

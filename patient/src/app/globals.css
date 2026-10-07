@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 226, 232, 240;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 248, 250, 252;
+    --background-start-rgb: 15, 23, 42;
+    --background-end-rgb: 2, 6, 23;
+  }
+}
+
+body {
+  font-family: var(--font-outfit), sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb))
+    )
+    no-repeat fixed;
+  min-height: 100vh;
+}
+
+/* Premium smooth transitions for theme switcher */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
+/* Custom Scrollbar for modern feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Glassmorphism premium classes */
+.glass-panel, .glass-premium {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-panel, .dark .glass-premium {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.glass-premium-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-premium-hover:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  box-shadow: 0 15px 35px 0 rgba(37, 99, 235, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.dark .glass-premium-hover:hover {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.4), 0 0 15px 0 rgba(6, 182, 212, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Glowing Ambient Background Orbs */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.15; filter: blur(100px) brightness(1); }
+  50% { opacity: 0.3; filter: blur(120px) brightness(1.2); }
+}
+
+.orb-glow-cyan {
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+  animation: pulse-glow 8s infinite ease-in-out, float-slow 12s infinite ease-in-out;
+}
+
+.orb-glow-indigo {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  animation: pulse-glow 10s infinite ease-in-out 2s, float-slow 15s infinite ease-in-out;
+}
+
+.orb-glow-red {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%);
+  animation: pulse-glow 6s infinite ease-in-out, float-slow 10s infinite ease-in-out;
+}
+
+/* 3D Physical Neomorphic Button Styles */
+.btn-3d-sos {
+  box-shadow: 
+    0 15px 25px -5px rgba(239, 68, 68, 0.4),
+    inset 0 4px 4px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -4px 4px 0 rgba(0, 0, 0, 0.15);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-3d-sos:active {
+  transform: scale(0.95);
+  box-shadow: 
+    0 4px 10px -2px rgba(239, 68, 68, 0.3),
+    inset 0 8px 8px 0 rgba(0, 0, 0, 0.3),
+    inset 0 -2px 2px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Neon Pulse Indicators */
+.neon-pulse-cyan {
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+  animation: neon-pulse-cyan-anim 2s infinite;
+}
+
+@keyframes neon-pulse-cyan-anim {
+  0%, 100% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.2); }
+}
+
