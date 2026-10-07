@@ -1,267 +1,381 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/authStore';
 import { motion } from 'framer-motion';
 import { 
-  Activity, 
-  Users, 
-  Stethoscope, 
-  Image as ImageIcon, 
-  CreditCard, 
-  Smartphone, 
   ShieldCheck, 
-  ChevronRight,
-  BrainCircuit,
-  Database,
-  CloudLightning,
-  Pill
+  Lock, 
+  Mail, 
+  Phone, 
+  Eye, 
+  EyeOff, 
+  ArrowRight, 
+  Loader2, 
+  CheckCircle2, 
+  Calendar, 
+  FileText, 
+  Activity, 
+  HeartHandshake,
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
+import Link from 'next/link';
 
-export default function HomePortal() {
-  const roles = [
-    {
-      title: "Agent d'Accueil & Réception",
-      description: "Gestion de la salle d'attente en temps réel, création de fiches d'admission et planification d'agenda.",
-      icon: Users,
-      color: "from-blue-500 to-indigo-600",
-      href: "http://localhost:3003/reception/login",
-      features: ["Salle d'attente dynamique", "Admission Patient unique", "Prise de rdv fluide"]
-    },
-    {
-      title: "Médecin / Spécialiste",
-      description: "Consultation clinique, dossier médical partagé, télémédecine et aide à la prescription par Intelligence Artificielle.",
-      icon: Stethoscope,
-      color: "from-emerald-500 to-teal-600",
-      href: "http://localhost:3003/doctor/login",
-      features: ["Dossier Médical Partagé", "Assistant d'interaction IA", "Téléconsultations RTC"]
-    },
-    {
-      title: "Infirmier / Soins Cliniques",
-      description: "Suivi des constantes vitales en temps réel, planification d'administration des soins et alertes d'urgence.",
-      icon: Activity,
-      color: "from-rose-500 to-red-600",
-      href: "http://localhost:3003/nurse/login",
-      features: ["Constantes vitales en direct", "Plan de soin infirmier", "Alertes médicales instantanées"]
-    },
-    {
-      title: "Radiologue & Imagerie",
-      description: "Visionneuse DICOM 2D/3D en ligne, compte-rendu vocal et détection automatique de pathologies (fractures, pneumonies).",
-      icon: ImageIcon,
-      color: "from-purple-500 to-pink-600",
-      href: "http://localhost:3003/radiology/login",
-      features: ["Upload PACS/DICOM chiffré", "Analyse de vision Gemini", "Saisie vocale avancée"]
-    },
-    {
-      title: "Pharmacien & Dispensaire",
-      description: "Validation et délivrance d'ordonnances via QR code sécurisé, et gestion intelligente des stocks de médicaments.",
-      icon: Pill,
-      color: "from-violet-500 to-fuchsia-600",
-      href: "http://localhost:3003/pharmacist/login",
-      features: ["Scan Ordonnances QR", "Contrôle des interactions", "Gestion d'inventaire IA"]
-    },
-    {
-      title: "Caissier & Facturation",
-      description: "Gestion de la caisse, traitement du tiers-payant mutuelle/assurance et encaissements multi-modes.",
-      icon: CreditCard,
-      color: "from-amber-500 to-orange-600",
-      href: "http://localhost:3003/cashier/login",
-      features: ["Calculs Tiers-Payant", "Paiements Wave & Cash", "États financiers quotidiens"]
-    },
-    {
-      title: "Portail Patient (Mobile-First)",
-      description: "Suivi des consultations, ordonnances électroniques, carnet de santé numérique et bouton SOS Urgences.",
-      icon: Smartphone,
-      color: "from-cyan-500 to-blue-600",
-      href: "/patient/login",
-      features: ["Ordonnances avec QR Code", "SOS géolocalisé", "Installable en PWA"]
+export default function PatientDirectLogin() {
+  const router = useRouter();
+  const { login, isAuthenticated, isLoading, error, clearError, initialize } = useAuthStore();
+
+  const [authMethod, setAuthMethod] = useState<'phone' | 'email'>('email');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    initialize();
+    clearError();
+  }, [initialize, clearError]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/patient/home');
     }
-  ];
+  }, [isAuthenticated, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+
+    const trimmed = identifier.trim();
+    if (!trimmed) {
+      setLocalError(authMethod === 'email' ? 'Veuillez saisir votre adresse email.' : 'Veuillez saisir votre numéro de téléphone.');
+      return;
+    }
+
+    if (!password) {
+      setLocalError('Veuillez saisir votre mot de passe.');
+      return;
+    }
+
+    // Normaliser l'email si connexion par téléphone
+    const finalEmail = authMethod === 'email' 
+      ? trimmed 
+      : `${trimmed.replace(/[^0-9]/g, '')}@patient.sunusante.sn`;
+
+    const success = await login(finalEmail, password, 'patient');
+    if (success) {
+      router.push('/patient/home');
+    }
+  };
+
+  // Connexion démo express en 1 clic
+  const handleQuickDemo = async () => {
+    setIdentifier('moussa.diop@sunusante.sn');
+    setPassword('Patient2026!');
+    const success = await login('moussa.diop@sunusante.sn', 'Patient2026!', 'patient');
+    if (success) {
+      router.push('/patient/home');
+    }
+  };
 
   return (
-    <div className="relative min-h-screen overflow-hidden flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 text-white">
+    <main className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-900 selection:bg-teal-500 selection:text-white">
       
-      {/* Decorative Animated Circles */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
+      {/* Top Banner de Sécurité Médicale */}
+      <div className="bg-white border-b border-slate-200/80 px-4 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-medium text-slate-700">Portail Patient Officiel</span>
+            <span className="hidden sm:inline text-slate-300">•</span>
+            <span className="hidden sm:inline text-slate-500">Plateforme certifiée HDS (Santé)</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-teal-700 font-medium">
+            <ShieldCheck className="w-4 h-4 text-teal-600" />
+            <span>Chiffrement AES-256</span>
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full flex-grow flex flex-col justify-center">
-        
-        {/* Branding Header */}
-        <header className="text-center mb-16">
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-6 backdrop-blur-md"
-          >
-            <Activity className="h-5 w-5 text-blue-400 animate-pulse" />
-            <span className="text-sm font-semibold tracking-wide text-blue-200">PORTAIL CLINIQUE PROFESSIONNEL</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent"
-          >
-            Sunu Santé
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed"
-          >
-            Plateforme médicale intelligente connectée, unifiant le parcours de soins, l'analyse d'images par IA et la gestion administrative sécurisée de bout en bout.
-          </motion.p>
-        </header>
+      {/* Main Content Area : Responsive Mobile-First & Adapté aux Grands Écrans */}
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex items-center">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-        {/* Roles Dashboard Grid */}
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {roles.map((role, index) => {
-            const IconComponent = role.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-slate-700/80 p-8 shadow-glass backdrop-blur-glass transition-all duration-300 animate-fade-in"
-              >
-                {/* Background Card glow */}
-                <div className={`absolute top-0 right-0 w-32 h-32 rounded-full bg-gradient-to-br ${role.color} opacity-5 blur-3xl group-hover:opacity-10 transition-opacity duration-300 pointer-events-none`} />
+          {/* COLONNE GAUCHE (Visible sur grand écran / Desktop) : Rassurance Médicale */}
+          <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 flex-col justify-center pr-4 xl:pr-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200/60 text-teal-800 text-xs font-semibold w-fit mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+              <span>Votre santé à portée de main</span>
+            </div>
 
+            <h1 className="text-3xl xl:text-4xl font-bold tracking-tight text-slate-900 leading-tight mb-4">
+              Retrouvez toutes vos informations de santé en un seul endroit sécurisé.
+            </h1>
+
+            <p className="text-base text-slate-600 leading-relaxed mb-8 max-w-xl">
+              Accédez en toute confidentialité à vos ordonnances numériques, prenez vos rendez-vous médicaux et communiquez facilement avec vos professionnels de santé.
+            </p>
+
+            {/* Cartes d'Avantages Pro */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mb-8">
+              <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-teal-50 text-teal-700 flex-shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </div>
                 <div>
-                  <div className={`inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-to-br ${role.color} shadow-lg text-white mb-6`}>
-                    <IconComponent className="h-6 w-6" />
+                  <h2 className="text-sm font-semibold text-slate-800">Rendez-vous 24/7</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Planification directe avec rappels SMS et WhatsApp</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-blue-50 text-blue-700 flex-shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">Ordonnances QR</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Transmises instantanément à votre pharmacie</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 flex-shrink-0">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">Dossier Partagé</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Constantes, analyses labo et historique médical</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+                <div className="p-2.5 rounded-lg bg-purple-50 text-purple-700 flex-shrink-0">
+                  <HeartHandshake className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">Secret Médical</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Conformité RGPD et protection HDS des données</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Note de Confiance */}
+            <div className="flex items-center gap-3 text-xs text-slate-500 pt-2 border-t border-slate-200/60 max-w-xl">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>Plus de 45 cliniques, hôpitaux et cabinets connectés au réseau Sunu Santé au Sénégal.</span>
+            </div>
+          </div>
+
+          {/* COLONNE DROITE / CARTE MOBILE-FIRST : Espace de Connexion Direct */}
+          <div className="w-full lg:col-span-6 xl:col-span-5 flex justify-center">
+            <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-6 sm:p-8">
+              
+              {/* Header de la Carte */}
+              <div className="text-center sm:text-left mb-6">
+                <div className="inline-flex items-center gap-2 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20 font-bold text-lg">
+                    S+
                   </div>
-                  
-                  <h3 className="text-xl font-bold mb-3 text-slate-100 group-hover:text-white transition-colors duration-200">
-                    {role.title}
-                  </h3>
-                  
-                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                    {role.description}
-                  </p>
+                  <div>
+                    <span className="text-lg font-bold tracking-tight text-slate-900 block leading-tight">Sunu Santé</span>
+                    <span className="text-[11px] font-medium text-teal-700 uppercase tracking-wider">Espace Patient</span>
+                  </div>
                 </div>
 
-                <div>
-                  {/* Small Feature Pill Indicators */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {role.features.map((feat, fIndex) => (
-                      <span key={fIndex} className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-slate-300">
-                        {feat}
-                      </span>
-                    ))}
-                  </div>
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-3">
+                  Connexion Patient
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Accédez à votre espace santé sécurisé en toute simplicité.
+                </p>
+              </div>
 
-                  <a href={role.href} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 group-hover:text-blue-300 transition-colors duration-200 no-underline">
-                    Entrer dans l'espace
-                    <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
-                  </a>
+              {/* Erreur éventuelle */}
+              {(error || localError) && (
+                <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+                  <span>{error || localError}</span>
                 </div>
-              </motion.div>
-            );
-          })}
-        </main>
+              )}
 
-        {/* Administration Section */}
-        <section className="mb-16 bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-glass">
-          <div className="flex items-center gap-3 mb-6">
-            <ShieldCheck className="h-5 w-5 text-amber-400" />
-            <h2 className="text-lg font-bold text-slate-200 tracking-tight">Portails d'Administration</h2>
+              {/* Sélecteur de méthode (Email vs Téléphone) */}
+              <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('email'); setLocalError(null); }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
+                    authMethod === 'email'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Adresse Email</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('phone'); setLocalError(null); }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
+                    authMethod === 'phone'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Numéro Téléphone</span>
+                </button>
+              </div>
+
+              {/* Formulaire de Connexion */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                
+                {/* Champ Identifiant */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    {authMethod === 'email' ? 'Adresse email du patient' : 'Numéro de téléphone portable'}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      {authMethod === 'email' ? (
+                        <Mail className="w-4 h-4" />
+                      ) : (
+                        <Phone className="w-4 h-4" />
+                      )}
+                    </div>
+                    <input
+                      type={authMethod === 'email' ? 'email' : 'tel'}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      placeholder={authMethod === 'email' ? 'ex: moussa.diop@email.com' : 'ex: 77 123 45 67 ou +221'}
+                      required
+                      autoComplete={authMethod === 'email' ? 'email' : 'tel'}
+                      className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Champ Mot de passe */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      Mot de passe
+                    </label>
+                    <a
+                      href="#forgot-password"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        alert('Un SMS ou email de réinitialisation vous sera envoyé après validation de votre identifiant.');
+                      }}
+                      className="text-xs text-teal-700 hover:text-teal-800 font-medium hover:underline"
+                    >
+                      Mot de passe oublié ?
+                    </a>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      required
+                      autoComplete="current-password"
+                      className="w-full pl-10 pr-10 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                      title={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Se souvenir de moi */}
+                <div className="flex items-center justify-between pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 text-teal-600 border-slate-300 rounded focus:ring-teal-500 focus:ring-offset-0"
+                    />
+                    <span>Rester connecté sur cet appareil</span>
+                  </label>
+                </div>
+
+                {/* Bouton d'Action Principal */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3.5 px-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-xl shadow-md shadow-teal-600/20 hover:shadow-lg hover:shadow-teal-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Connexion sécurisée en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Se connecter à mon espace</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Bouton Test Rapide Démo Patient */}
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleQuickDemo}
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-3 rounded-xl bg-teal-50/70 hover:bg-teal-100/70 text-teal-800 border border-teal-200/50 text-xs font-semibold transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Tester avec le compte démo Patient (1 clic)</span>
+                </button>
+              </div>
+
+              {/* S'INSCRIRE EN BAS (Mise en avant claire exigée par l'utilisateur) */}
+              <div className="mt-6 pt-5 border-t border-slate-200/80 text-center">
+                <p className="text-xs sm:text-sm text-slate-600">
+                  Vous n'avez pas encore de compte patient ?
+                </p>
+                <Link
+                  href="/patient/register"
+                  className="inline-flex items-center justify-center gap-1.5 mt-2.5 w-full py-2.5 px-4 rounded-xl border-2 border-teal-600 text-teal-700 hover:bg-teal-50 active:bg-teal-100 font-semibold text-xs sm:text-sm transition-all"
+                >
+                  <span>Créer un compte patient gratuitement</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Super Admin */}
-            <a href="http://localhost:3001/login" className="group p-5 bg-slate-950/40 border border-slate-850 hover:border-amber-500/30 rounded-2xl flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden no-underline">
-              <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-amber-500/5 blur-xl group-hover:opacity-100 transition-opacity" />
-              <div>
-                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                  Super-Admin
-                </span>
-                <h3 className="text-sm font-bold text-slate-200 group-hover:text-amber-400 transition-colors mt-3">Système Global</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Habilitations des directions d'établissement.</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all mt-4 self-end" />
-            </a>
 
-            {/* Hospital Admin */}
-            <a href="http://localhost:3002/hospital/login" className="group p-5 bg-slate-950/40 border border-slate-850 hover:border-emerald-500/30 rounded-2xl flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden no-underline">
-              <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-emerald-500/5 blur-xl group-hover:opacity-100 transition-opacity" />
-              <div>
-                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                  Admin Clinique
-                </span>
-                <h3 className="text-sm font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mt-3">Direction Hôpital</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Gestion du personnel médical, infirmier et caissier.</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4 self-end" />
-            </a>
-
-            {/* Pharmacy Admin */}
-            <a href="http://localhost:3002/pharmacy/login" className="group p-5 bg-slate-950/40 border border-slate-850 hover:border-violet-500/30 rounded-2xl flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden no-underline">
-              <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-violet-500/5 blur-xl group-hover:opacity-100 transition-opacity" />
-              <div>
-                <span className="text-[9px] bg-violet-500/10 text-violet-400 border border-violet-500/20 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                  Admin Officine
-                </span>
-                <h3 className="text-sm font-bold text-slate-200 group-hover:text-violet-400 transition-colors mt-3">Direction Pharmacie</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Gestion des pharmaciens et habilitations QR.</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-violet-400 group-hover:translate-x-1 transition-all mt-4 self-end" />
-            </a>
-          </div>
-        </section>
-
-        {/* Infrastructure Specs Footer Banner */}
-        <section className="border-t border-slate-800/80 pt-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            
-            <div className="flex flex-col items-center bg-slate-900/30 border border-slate-950 p-5 rounded-2xl">
-              <div className="p-3 bg-blue-500/10 rounded-xl mb-3 text-blue-400">
-                <BrainCircuit className="h-5 w-5" />
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Intelligence Artificielle</h4>
-              <p className="text-sm font-semibold text-slate-200">Google Gemini 1.5</p>
-            </div>
-
-            <div className="flex flex-col items-center bg-slate-900/30 border border-slate-950 p-5 rounded-2xl">
-              <div className="p-3 bg-emerald-500/10 rounded-xl mb-3 text-emerald-400">
-                <Database className="h-5 w-5" />
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Base de Données</h4>
-              <p className="text-sm font-semibold text-slate-200">Supabase / Postgres</p>
-            </div>
-
-            <div className="flex flex-col items-center bg-slate-900/30 border border-slate-950 p-5 rounded-2xl">
-              <div className="p-3 bg-pink-500/10 rounded-xl mb-3 text-pink-400">
-                <CloudLightning className="h-5 w-5" />
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Stockage PACS/Médias</h4>
-              <p className="text-sm font-semibold text-slate-200">Cloudinary Authenticated</p>
-            </div>
-
-            <div className="flex flex-col items-center bg-slate-900/30 border border-slate-950 p-5 rounded-2xl">
-              <div className="p-3 bg-purple-500/10 rounded-xl mb-3 text-purple-400">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Protocole Sécurité</h4>
-              <p className="text-sm font-semibold text-slate-200">Conception Shift-Left</p>
-            </div>
-
-          </div>
-        </section>
-
+        </div>
       </div>
 
-      <footer className="text-center text-xs text-slate-500 mt-16">
-        &copy; {new Date().getFullYear()} Sunu Santé - Système de Santé Connecté Moderne. Tous droits réservés.
+      {/* Footer Institutionnel et Sécurisé */}
+      <footer className="bg-white border-t border-slate-200/80 py-4 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 text-center sm:text-left">
+          <p>© {new Date().getFullYear()} Sunu Santé — Système de Santé Numérique et IA Médicale.</p>
+          <div className="flex items-center gap-4">
+            <a href="#confidentialite" className="hover:text-slate-800 transition-colors">Confidentialité & Données</a>
+            <span className="text-slate-300">•</span>
+            <a href="#assistance" className="hover:text-slate-800 transition-colors">Assistance Patient 24/7</a>
+          </div>
+        </div>
       </footer>
-    </div>
+
+    </main>
   );
 }

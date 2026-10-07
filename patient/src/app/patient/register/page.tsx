@@ -6,8 +6,8 @@ import { useAuthStore } from '@/lib/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Mail, Phone, Lock, Calendar, Heart, 
-  ShieldAlert, ShieldCheck, ArrowLeft, ArrowRight, 
-  Loader2, Sparkles, Smartphone, Award
+  ShieldCheck, ArrowLeft, ArrowRight, 
+  Loader2, Sparkles, Award, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,7 +38,7 @@ export default function PatientRegister() {
   useEffect(() => {
     initialize();
     clearError();
-  }, []);
+  }, [initialize, clearError]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -103,7 +103,6 @@ export default function PatientRegister() {
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-  // Step names
   const stepTitles = [
     "Identité",
     "Coordonnées",
@@ -112,144 +111,128 @@ export default function PatientRegister() {
   ];
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-950 text-white overflow-hidden py-12">
+    <main className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-900 py-6 sm:py-10 px-4">
       
-      {/* Background Animated Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full bg-cyan-500/10 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
-      </div>
-
-      {/* Main Container - Optimized for mobile-first layout */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="w-full max-w-lg mx-auto">
         
-        {/* Back Link */}
+        {/* Back Link to Direct Login */}
         <Link 
-          href="/patient/login" 
-          className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors mb-6 cursor-pointer"
+          href="/" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors mb-6 cursor-pointer"
         >
-          <ArrowLeft className="h-4.5 w-4.5" />
-          Retour à la connexion
+          <ArrowLeft className="h-4 w-4" />
+          Retour à la connexion patient
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center justify-center p-3.5 rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg text-white mb-4"
-          >
-            <Smartphone className="h-7 w-7 animate-pulse" />
-          </motion.div>
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-teal-500 text-white shadow-md shadow-teal-500/20 mb-3">
+            <Sparkles className="h-6 w-6" />
+          </div>
           
-          <h1 className="text-2xl font-black tracking-tight mb-2">Rejoindre Sunu Santé</h1>
-          <p className="text-xs text-cyan-400 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
-            Créer mon Carnet de Santé
-            <Sparkles className="h-3 w-3" />
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Créer votre Compte Patient
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Création de votre carnet de santé numérique sécurisé Sunu Santé
           </p>
         </div>
 
         {/* Step Progress Bar */}
-        <div className="mb-6 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80">
-          <div className="flex justify-between items-center text-[10px] text-slate-400 mb-2.5 font-bold uppercase tracking-wider">
+        <div className="mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-xs text-slate-500 mb-2 font-medium">
             <span>Étape {step} sur {totalSteps}</span>
-            <span className="text-cyan-400">{stepTitles[step - 1]}</span>
+            <span className="text-teal-700 font-semibold">{stepTitles[step - 1]}</span>
           </div>
-          <div className="h-2 bg-slate-950 rounded-full overflow-hidden flex gap-1 p-0.5">
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex gap-1 p-0.5">
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div 
                 key={i} 
                 className={`h-full rounded-full transition-all duration-300 flex-1 ${
-                  i < step ? 'bg-gradient-to-r from-cyan-500 to-blue-500' : 'bg-slate-800'
+                  i < step ? 'bg-teal-600' : 'bg-slate-200'
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Card Form */}
-        <motion.div
-          layout
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-glass backdrop-blur-glass relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-xl pointer-events-none" />
-
+        {/* Card Form Light Mode First */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 relative">
+          
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/25 text-xs text-red-400 font-medium">
-              {error}
+            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             
             <AnimatePresence mode="wait">
               {/* STEP 1: IDENTITY */}
               {step === 1 && (
                 <motion.div
                   key="step1"
-                  initial={{ x: 30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -30, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Prénom</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Prénom</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="text"
                         required
                         placeholder="Aminata"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nom</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Nom de famille</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="text"
                         required
                         placeholder="Ndiaye"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Date de Naissance</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Date de Naissance</label>
                     <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="date"
                         required
                         value={birthDate}
                         onChange={(e) => setBirthDate(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-cyan-500 text-white transition-colors cursor-pointer"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all cursor-pointer"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Sexe</label>
-                    <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sexe</label>
+                    <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => setGender('M')}
-                        className={`py-3 rounded-xl border text-sm font-bold transition-all ${
+                        className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
                           gender === 'M' 
-                            ? 'bg-gradient-to-r from-cyan-600 to-blue-600 border-cyan-500 text-white' 
-                            : 'bg-slate-950/40 border-slate-850 text-slate-400'
+                            ? 'bg-teal-50 border-teal-600 text-teal-800' 
+                            : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
                         Masculin
@@ -257,10 +240,10 @@ export default function PatientRegister() {
                       <button
                         type="button"
                         onClick={() => setGender('F')}
-                        className={`py-3 rounded-xl border text-sm font-bold transition-all ${
+                        className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
                           gender === 'F' 
-                            ? 'bg-gradient-to-r from-cyan-600 to-blue-600 border-cyan-500 text-white' 
-                            : 'bg-slate-950/40 border-slate-850 text-slate-400'
+                            ? 'bg-teal-50 border-teal-600 text-teal-800' 
+                            : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
                         Féminin
@@ -274,53 +257,53 @@ export default function PatientRegister() {
               {step === 2 && (
                 <motion.div
                   key="step2"
-                  initial={{ x: 30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -30, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Adresse Email</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Adresse Email</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="email"
                         required
                         placeholder="ami.ndiaye@exemple.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">N° de Téléphone</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Numéro de Téléphone</label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="tel"
                         required
                         placeholder="+221 77 123 45 67"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">N° de Sécurité Sociale / ID Unique</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">N° National d'Identité ou Sécurité Sociale</label>
                     <div className="relative">
-                      <Award className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="text"
                         required
                         placeholder="1 92 08 38 120 493 22"
                         value={socialSecurity}
                         onChange={(e) => setSocialSecurity(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
@@ -331,69 +314,68 @@ export default function PatientRegister() {
               {step === 3 && (
                 <motion.div
                   key="step3"
-                  initial={{ x: 30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -30, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Groupe Sanguin</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Groupe Sanguin</label>
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
-                        className="w-full px-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-cyan-500 text-white transition-colors cursor-pointer appearance-none"
-                        style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`, backgroundPosition: 'right 12px center', backgroundRepeat: 'no-repeat', backgroundSize: '18px' }}
+                        className="w-full px-3 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all cursor-pointer"
                       >
                         {bloodGroups.map((g) => (
-                          <option key={g} value={g} className="bg-slate-900 text-white">
+                          <option key={g} value={g}>
                             {g}
                           </option>
                         ))}
                       </select>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Allergies Connues</label>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Allergies Connues</label>
                       <input
                         type="text"
-                        placeholder="Pénicilline, arachides (facultatif)"
+                        placeholder="ex: Pénicilline, arachides"
                         value={allergies}
                         onChange={(e) => setAllergies(e.target.value)}
-                        className="w-full px-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-slate-800/60">
-                    <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
-                      <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-                      Contact d'Urgence
+                  <div className="pt-3 border-t border-slate-200">
+                    <p className="text-xs font-semibold text-slate-800 mb-3 flex items-center gap-1.5">
+                      <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />
+                      Contact d'Urgence Recommandé
                     </p>
                     
                     <div className="space-y-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Nom du Contact</label>
+                      <div>
+                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Nom du Contact</label>
                         <input
                           type="text"
                           required
-                          placeholder="Moussa Ndiaye (Père, Époux...)"
+                          placeholder="ex: Moussa Ndiaye (Père / Époux)"
                           value={emergencyName}
                           onChange={(e) => setEmergencyName(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-slate-950/40 border border-slate-800 rounded-xl text-xs placeholder-slate-650 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                         />
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Téléphone du Contact</label>
+                      <div>
+                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Téléphone du Contact</label>
                         <input
                           type="tel"
                           required
                           placeholder="+221 77 987 65 43"
                           value={emergencyPhone}
                           onChange={(e) => setEmergencyPhone(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-slate-950/40 border border-slate-800 rounded-xl text-xs placeholder-slate-650 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                         />
                       </div>
                     </div>
@@ -405,48 +387,48 @@ export default function PatientRegister() {
               {step === 4 && (
                 <motion.div
                   key="step4"
-                  initial={{ x: 30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -30, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Mot de Passe de Sécurité</label>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Mot de Passe de Sécurité</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="password"
                         required
                         placeholder="••••••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-white transition-colors"
+                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
                     </div>
-                    <p className="text-[10px] text-slate-500">Doit contenir au moins 6 caractères.</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Au moins 6 caractères recommandés.</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-800/30 flex gap-3 text-xs text-cyan-300 leading-relaxed">
-                    <ShieldCheck className="h-6 w-6 text-cyan-400 flex-shrink-0" />
+                  <div className="p-3.5 rounded-xl bg-teal-50 border border-teal-200/60 flex items-start gap-2.5 text-xs text-teal-800 leading-relaxed">
+                    <ShieldCheck className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-cyan-200">RGPD & Confidentialité</strong> : Vos données de santé sont cryptées localement et ne sont accessibles qu'aux praticiens habilités par votre code ou dossier.
+                      <strong>Protection HDS & Secret Médical</strong> : Vos données médicales sont strictement chiffrées et protégées conformément aux exigences de confidentialité.
                     </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Form Actions */}
-            <div className="flex gap-4 pt-4 border-t border-slate-800/80">
+            {/* Form Navigation Buttons */}
+            <div className="flex gap-3 pt-4 border-t border-slate-200">
               {step > 1 && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="flex-1 h-12 rounded-xl border border-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer"
+                  className="flex-1 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Retour
+                  Précédent
                 </button>
               )}
 
@@ -455,7 +437,7 @@ export default function PatientRegister() {
                   type="button"
                   onClick={handleNext}
                   disabled={!canGoNext()}
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 text-white hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40 disabled:pointer-events-none font-bold text-sm flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer shadow-lg shadow-cyan-700/10"
+                  className="flex-1 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md shadow-teal-600/20 transition-all"
                 >
                   Suivant
                   <ArrowRight className="h-4 w-4" />
@@ -464,12 +446,12 @@ export default function PatientRegister() {
                 <button
                   type="submit"
                   disabled={isLoading || showToast || !canGoNext()}
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 text-white hover:from-cyan-500 hover:to-blue-600 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-700/10 transition-all active:scale-95 disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 transition-all disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="h-4.5 w-4.5 animate-spin" />
-                      Création...
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Création en cours...
                     </>
                   ) : (
                     <>
@@ -483,33 +465,33 @@ export default function PatientRegister() {
 
           </form>
 
-          {/* Login Link */}
+          {/* S'incrire / Connexion en bas */}
           {step === 1 && (
-            <div className="mt-6 pt-6 border-t border-slate-800/80 text-center">
-              <p className="text-[11px] text-slate-500">
-                Déjà patient ?{' '}
-                <Link href="/patient/login" className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
-                  Se connecter
+            <div className="mt-5 pt-4 border-t border-slate-200 text-center">
+              <p className="text-xs text-slate-600">
+                Vous avez déjà un compte ?{' '}
+                <Link href="/" className="text-teal-700 hover:text-teal-800 font-semibold hover:underline">
+                  Se connecter directement
                 </Link>
               </p>
             </div>
           )}
 
-        </motion.div>
+        </div>
 
       </div>
 
       {/* Success Toast */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-cyan-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 font-bold text-xs animate-bounce">
-          <Sparkles className="h-4.5 w-4.5 text-white animate-pulse" />
-          Compte patient créé ! Initialisation de votre dossier...
+        <div className="fixed bottom-6 right-6 z-50 bg-teal-600 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 font-semibold text-xs sm:text-sm">
+          <Sparkles className="h-4 w-4 text-white" />
+          <span>Compte créé avec succès ! Ouverture de votre espace...</span>
         </div>
       )}
 
-      <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Dossier Médical Individuel Sécurisé.
+      <footer className="mt-8 text-center text-xs text-slate-500">
+        &copy; {new Date().getFullYear()} Sunu Santé — Système de Santé Numérique et IA Médicale.
       </footer>
-    </div>
+    </main>
   );
 }

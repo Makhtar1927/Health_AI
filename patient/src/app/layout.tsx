@@ -4,21 +4,23 @@ import './globals.css';
 
 const outfit = Outfit({ 
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-outfit'
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-outfit',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Sunu Santé - Espace Patient et Accueil Global',
-  description: 'Système complet de gestion hospitalière et d\'intelligence artificielle médicale pour les professionnels de santé et les patients.',
-  keywords: ['santé', 'medical', 'ia', 'radiologie', 'senegal', 'dossier medical', 'pacs', 'dicom'],
-  authors: [{ name: 'Sunu Santé Team' }],
+  title: 'Sunu Santé - Espace Patient Sécurisé',
+  description: 'Portail patient médical sécurisé : vos consultations, ordonnances, carnet de santé et téléconsultations en toute simplicité.',
+  keywords: ['santé', 'medical', 'patient', 'senegal', 'dossier medical', 'sunu sante'],
+  authors: [{ name: 'Sunu Santé' }],
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
+  themeColor: '#0d9488',
 };
 
 export default function RootLayout({
@@ -28,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${outfit.variable} scroll-smooth`}>
-      <body className="font-sans antialiased text-slate-800 dark:text-slate-100 min-h-screen flex flex-col">
+      <body className="font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col selection:bg-teal-500 selection:text-white">
         {children}
       </body>
     </html>

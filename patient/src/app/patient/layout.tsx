@@ -33,10 +33,9 @@ export default function PatientLayout({
   useEffect(() => {
     initialize();
     
-    // Theme initialization
+    // Theme initialization - Mode clair par defaut (Light First)
     const stored = localStorage.getItem('sunu-sante-theme') as 'light' | 'dark' | null;
-    const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = stored || (systemIsDark ? 'dark' : 'light');
+    const initial = stored || 'light';
     setTheme(initial);
     if (initial === 'dark') {
       document.documentElement.classList.add('dark');
