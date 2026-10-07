@@ -10,12 +10,24 @@ import {
   User, 
   Bell, 
   Activity, 
-  MapPin,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  HeartPulse,
+  Pill,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  ArrowUpRight,
+  Stethoscope,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/authStore';
+
+const cardIn = {
+  hidden: { opacity: 0, y: 16 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.3 } }),
+};
 
 export default function PatientHome() {
   const { user, initialize } = useAuthStore();
@@ -24,307 +36,367 @@ export default function PatientHome() {
     initialize();
   }, [initialize]);
 
-  // Dynamically resolve patient profile fields with premium fallback structures
-  const activeName = user?.name || "Moussa Diop";
-  const activeBloodGroup = user?.details?.bloodGroup || "O+";
-  const activeAllergiesCount = user?.details?.allergies 
-    ? (user.details.allergies.toLowerCase().includes('aucune') ? 0 : 1) 
-    : 2;
-  const activeVitalId = user?.details?.vitalId || "SN-807F16";
-  const activeAge = user?.details?.birthDate 
-    ? new Date().getFullYear() - new Date(user.details.birthDate).getFullYear() 
+  // Data dynamique / démo
+  const activeName   = user?.name || 'Moussa Diop';
+  const firstName    = activeName.split(' ')[0];
+  const bloodGroup   = user?.details?.bloodGroup || 'O+';
+  const vitalId      = user?.details?.vitalId || 'SN-807F16';
+  const age          = user?.details?.birthDate
+    ? new Date().getFullYear() - new Date(user.details.birthDate).getFullYear()
     : 30;
-  const activeGender = user?.details?.gender || "M";
+  const gender       = user?.details?.gender || 'M';
+  const allergies    = user?.details?.allergies || 'Pénicilline';
 
-  const patientData = {
-    name: activeName,
-    bloodGroup: activeBloodGroup,
-    allergiesCount: activeAllergiesCount,
-    vitalId: activeVitalId,
-    age: activeAge,
-    gender: activeGender,
-    nextAppointment: {
-      doctor: "Dr. Awa Ndiaye",
-      specialty: "Cardiologue",
-      date: "25 Mai 2026",
-      time: "09:30"
-    },
-    recentPrescription: {
-      date: "12 Mai 2026",
-      doctor: "Dr. Abdoulaye Diallo",
-      drugs: ["Lisinopril 10mg", "Amlodipine 5mg"]
-    }
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+    `https://sunusante.sn/patient/${vitalId}`
+  )}&color=0d9488&bgcolor=ffffff&format=svg&qzone=2`;
+
+  const nextRdv = {
+    doctor: 'Dr. Awa Ndiaye',
+    specialty: 'Cardiologue',
+    date: '25 Mai 2026',
+    time: '09:30',
+    lieu: 'Clinique Principal, Dakar'
   };
 
+  const lastPrescription = {
+    date: '12 Mai 2026',
+    doctor: 'Dr. A. Diallo',
+    drugs: ['Lisinopril 10 mg', 'Amlodipine 5 mg']
+  };
+
+  const quickActions = [
+    { label: 'Dossier Médical', sub: 'Analyses & radiologies', href: '/patient/records',    icon: FileText,     color: 'bg-blue-50 text-blue-700 border-blue-200'  },
+    { label: 'Ordonnances',     sub: 'QR Code pharmacie',      href: '/patient/prescriptions', icon: Pill,       color: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { label: 'Rendez-vous',     sub: 'Planifier & modifier',   href: '/patient/appointments', icon: Calendar,    color: 'bg-teal-50 text-teal-700 border-teal-200'  },
+    { label: 'Mon Profil',      sub: 'Infos personnelles',     href: '/patient/profile',      icon: User,        color: 'bg-slate-100 text-slate-700 border-slate-200' },
+  ];
+
   return (
-    <div className="relative min-h-screen bg-transparent text-slate-800 dark:text-slate-100 flex flex-col justify-between max-w-md mx-auto md:max-w-none md:mx-0 md:h-full md:min-h-0 md:justify-start md:items-stretch w-full">
-      
-      {/* Mobile Top Header Bar (Hidden on desktop) */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center justify-between md:hidden">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-            <Activity className="h-5 w-5 animate-pulse" />
+    <div className="flex flex-col min-h-full w-full bg-slate-50 text-slate-900">
+
+      {/* ─── Mobile Header ─────────────────────────────────────── */}
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between lg:hidden">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            S+
           </div>
           <div>
-            <h1 className="text-base font-bold tracking-tight text-slate-800 dark:text-white">Sunu Santé</h1>
-            <p className="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wider">Carnet Digital</p>
+            <span className="text-sm font-bold text-slate-900 block leading-tight">Sunu Santé</span>
+            <span className="text-[10px] text-teal-700 font-medium uppercase tracking-wide">Espace Patient</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-            <Bell className="h-4.5 w-4.5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />
+        <div className="flex items-center gap-2">
+          <button className="relative p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+            <Bell className="h-4 w-4" />
+            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-rose-500" />
           </button>
-          <div className="h-9 w-9 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-300 dark:border-slate-700">
-            <User className="h-5 w-5 text-slate-500" />
-          </div>
+          <Link href="/patient/profile" className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200">
+            <User className="h-4 w-4 text-slate-500" />
+          </Link>
         </div>
       </header>
 
-      {/* Main Content Area - Grid responsive on desktop */}
-      <main className="flex-grow px-6 py-6 overflow-y-auto space-y-6 md:p-8 md:grid md:grid-cols-1 lg:grid-cols-3 md:gap-8 md:space-y-0 md:h-full md:overflow-y-auto w-full relative z-10">
-        
-        {/* ========================================================================= */}
-        {/* LEFT COLUMN (Takes up 2 columns on desktop)                                */}
-        {/* ========================================================================= */}
-        <div className="lg:col-span-2 space-y-6 w-full">
-          
-          {/* Welcome Patient Card - Beautiful medical gradient & ambient glow */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-400 via-cyan-600 to-indigo-600 dark:from-cyan-500 dark:via-cyan-600 dark:to-indigo-800 p-6 text-white shadow-lg shadow-cyan-500/10 dark:shadow-indigo-950/20"
+      {/* ─── Main Grid ─────────────────────────────────────────── */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+
+        {/* ══════════════════════════════════════════════════════
+            LEFT COLUMN  (2/3 width on desktop)
+        ══════════════════════════════════════════════════════ */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* ── Welcome / Patient ID Card ─────────────────────── */}
+          <motion.div
+            custom={0} variants={cardIn} initial="hidden" animate="show"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-600 to-teal-700 text-white p-5 sm:p-6 shadow-lg shadow-teal-600/20"
           >
-            {/* Card geometric details */}
-            <div className="absolute right-[-10%] top-[-10%] w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-            <div className="absolute left-[-5%] bottom-[-10%] w-24 h-24 rounded-full bg-cyan-400/20 blur-lg pointer-events-none" />
-            
-            <div className="flex justify-between items-start mb-6 relative z-10">
-              <div>
-                <p className="text-[10px] text-cyan-100 font-extrabold uppercase tracking-widest leading-none mb-1">Carnet Connecté</p>
-                <h2 className="text-2xl font-black tracking-tight">{patientData.name}</h2>
-              </div>
-              <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md border border-white/20">
-                Groupe {patientData.bloodGroup}
-              </span>
-            </div>
+            {/* Decorative circles */}
+            <div className="absolute right-0 top-0 w-48 h-48 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+            <div className="absolute right-12 bottom-0 w-28 h-28 rounded-full bg-white/5 translate-y-1/2 pointer-events-none" />
 
-            <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-4 text-sm relative z-10">
-              <div>
-                <p className="text-cyan-100 text-[10px] font-bold uppercase tracking-wider">Allergies</p>
-                <p className="font-extrabold text-base mt-0.5">{patientData.allergiesCount} connues</p>
-              </div>
-              <div>
-                <p className="text-cyan-100 text-[10px] font-bold uppercase tracking-wider">Identifiant Vital</p>
-                <p className="font-mono font-black text-base mt-0.5 tracking-wider">{patientData.vitalId}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quick Access Menu Grid - Glass-premium styles and neon glow hovers */}
-          <div className="space-y-3">
-            <h3 className="font-black text-base tracking-tight text-slate-800 dark:text-slate-100">Services Médicaux</h3>
-            <div className="grid grid-cols-2 gap-4">
-              
-              <Link href="/patient/records" className="group rounded-3xl glass-premium glass-premium-hover p-5 border border-slate-200/40 dark:border-slate-800/80 shadow-sm flex flex-col justify-between h-32 hover:border-blue-500/30 dark:hover:border-blue-500/40">
-                <div className="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 group-hover:scale-105 transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)]">
-                  <FileText className="h-5 w-5" />
-                </div>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-100">Dossier Médical</h4>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Consultez vos analyses et radiologies</p>
+                  <p className="text-teal-200 text-[11px] font-semibold uppercase tracking-widest mb-1">Bonjour 👋</p>
+                  <h1 className="text-2xl font-bold tracking-tight">{firstName}</h1>
+                  <p className="text-teal-200 text-xs mt-0.5">{activeName} · {age} ans · {gender === 'M' ? 'Homme' : 'Femme'}</p>
                 </div>
-              </Link>
-
-              <Link href="/patient/prescriptions" className="group rounded-3xl glass-premium glass-premium-hover p-5 border border-slate-200/40 dark:border-slate-800/80 shadow-sm flex flex-col justify-between h-32 hover:border-purple-500/30 dark:hover:border-purple-500/40">
-                <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center border border-purple-500/20 group-hover:scale-105 transition-all shadow-[0_0_10px_rgba(168,85,247,0.1)]">
-                  <QrCode className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-100">Ordonnances</h4>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">QR Code de retrait pharmacie</p>
-                </div>
-              </Link>
-
-            </div>
-          </div>
-
-          {/* Next Appointment Card - Translucent glass-premium */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <h3 className="font-black text-base tracking-tight text-slate-800 dark:text-slate-100">Rendez-vous à venir</h3>
-              <Link href="/patient/appointments" className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline">
-                Tout voir
-              </Link>
-            </div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="rounded-3xl glass-premium p-5 border border-slate-200/40 dark:border-slate-800/80 shadow-sm space-y-4 hover:border-cyan-500/20 dark:hover:border-cyan-500/30 transition-all duration-350"
-            >
-              <div className="flex items-start gap-4">
-                <div className="h-11 w-11 rounded-xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center border border-cyan-500/20 flex-shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.1)]">
-                  <Calendar className="h-5.5 w-5.5" />
-                </div>
-                <div className="flex-grow">
-                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{patientData.nextAppointment.doctor}</h4>
-                  <p className="text-slate-400 dark:text-slate-500 text-[11px] mt-0.5">{patientData.nextAppointment.specialty}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-[10px] border border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                    Confirmé
+                <div className="flex flex-col items-end gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-xs font-bold border border-white/20 backdrop-blur-sm">
+                    <HeartPulse className="w-3 h-3" />
+                    Groupe {bloodGroup}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-[10px] font-semibold border border-white/20">
+                    <ShieldCheck className="w-3 h-3" />
+                    {vitalId}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t border-slate-100/50 dark:border-slate-800/60 pt-4 text-xs font-bold text-slate-600 dark:text-slate-400">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-cyan-500 neon-pulse-cyan" />
-                  <span>{patientData.nextAppointment.date}</span>
-                </div>
-                <div className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800/60">{patientData.nextAppointment.time}</div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Recent Prescription Summary - Translucent glass-premium */}
-          <div className="space-y-3">
-            <h3 className="font-black text-base tracking-tight text-slate-800 dark:text-slate-100">Dernier traitement</h3>
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="rounded-3xl glass-premium p-5 border border-slate-200/40 dark:border-slate-800/80 shadow-sm space-y-4"
-            >
-              <div className="flex justify-between items-center border-b border-slate-100/50 dark:border-slate-800/60 pb-3">
+              {/* Vitals strip */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/20">
                 <div>
-                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-100">Prescrit par {patientData.recentPrescription.doctor}</h4>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-550 mt-0.5">Le {patientData.recentPrescription.date}</p>
+                  <p className="text-teal-200 text-[10px] font-semibold uppercase tracking-wider">Allergie</p>
+                  <p className="text-sm font-bold mt-0.5 truncate">{allergies}</p>
                 </div>
-                <div className="h-8 w-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center border border-purple-500/20">
-                  <QrCode className="h-4.5 w-4.5" />
+                <div>
+                  <p className="text-teal-200 text-[10px] font-semibold uppercase tracking-wider">Prochain RDV</p>
+                  <p className="text-sm font-bold mt-0.5">{nextRdv.date}</p>
+                </div>
+                <div>
+                  <p className="text-teal-200 text-[10px] font-semibold uppercase tracking-wider">Ordonnances</p>
+                  <p className="text-sm font-bold mt-0.5">2 actives</p>
                 </div>
               </div>
-              
+            </div>
+          </motion.div>
+
+          {/* ── Quick Actions Grid ────────────────────────────── */}
+          <motion.section custom={1} variants={cardIn} initial="hidden" animate="show">
+            <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+              <Activity className="w-4 h-4 text-teal-600" />
+              Services Médicaux
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action, i) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={i} href={action.href}
+                    className="group p-4 bg-white rounded-2xl border border-slate-200 hover:border-teal-400 hover:shadow-md hover:shadow-teal-500/10 transition-all duration-200 flex flex-col gap-3"
+                  >
+                    <div className={`w-10 h-10 rounded-xl border flex items-center justify-center ${action.color} group-hover:scale-105 transition-transform`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 leading-tight">{action.label}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{action.sub}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.section>
+
+          {/* ── Next Appointment ──────────────────────────────── */}
+          <motion.section custom={2} variants={cardIn} initial="hidden" animate="show">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-teal-600" />
+                Prochain Rendez-vous
+              </h2>
+              <Link href="/patient/appointments" className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-0.5 hover:underline">
+                Tout voir <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 space-y-4 hover:border-teal-300 hover:shadow-sm transition-all">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center flex-shrink-0">
+                  <Stethoscope className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-800">{nextRdv.doctor}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{nextRdv.specialty}</p>
+                  <p className="text-xs text-slate-400 mt-0.5 truncate">{nextRdv.lieu}</p>
+                </div>
+                <span className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Confirmé
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2 w-2 rounded-full bg-teal-500" />
+                  <span>{nextRdv.date}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{nextRdv.time}</span>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ── Last Prescription ─────────────────────────────── */}
+          <motion.section custom={3} variants={cardIn} initial="hidden" animate="show">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <Pill className="w-4 h-4 text-purple-600" />
+                Dernière Ordonnance
+              </h2>
+              <Link href="/patient/prescriptions" className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-0.5 hover:underline">
+                Voir QR Code <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:border-purple-200 hover:shadow-sm transition-all">
+              <div className="flex items-center justify-between mb-3.5 pb-3.5 border-b border-slate-100">
+                <div>
+                  <p className="text-xs font-bold text-slate-800">Prescrit par {lastPrescription.doctor}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Le {lastPrescription.date}</p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+                  <QrCode className="w-4 h-4" />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                {patientData.recentPrescription.drugs.map((drug, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-350">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-500 flex-shrink-0" />
-                    <span>{drug}</span>
+                {lastPrescription.drugs.map((drug, idx) => (
+                  <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 flex-shrink-0" />
+                    <span className="font-medium">{drug}</span>
                   </div>
                 ))}
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.section>
 
         </div>
 
-        {/* ========================================================================= */}
-        {/* RIGHT COLUMN (Takes up 1 column on desktop)                               */}
-        {/* ========================================================================= */}
-        <div className="space-y-6 w-full">
-          
-          {/* Vital QR Code Share Card - Futuristic dark glass & indigo halos */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.05 }}
-            className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 border border-slate-800/80 p-6 text-center space-y-4 shadow-xl shadow-indigo-950/20 w-full"
-          >
-            {/* Ambient glows inside card */}
-            <div className="absolute left-[-20%] top-[-20%] w-36 h-36 rounded-full bg-cyan-500/10 blur-2xl pointer-events-none" />
-            <div className="absolute right-[-20%] bottom-[-20%] w-36 h-36 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none" />
+        {/* ══════════════════════════════════════════════════════
+            RIGHT COLUMN  (1/3 width on desktop)
+        ══════════════════════════════════════════════════════ */}
+        <div className="space-y-5">
 
-            <div className="flex flex-col items-center space-y-2 relative z-10">
-              <div className="h-11 w-11 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-                <QrCode className="h-6 w-6" />
+          {/* ── QR Code Dossier Médical ───────────────────────── */}
+          <motion.div custom={1} variants={cardIn} initial="hidden" animate="show"
+            className="bg-white rounded-2xl border border-slate-200 p-5 text-center space-y-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center">
+                <QrCode className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-black tracking-tight text-white uppercase mt-1">Dossier Médical QR</h3>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 max-w-[240px] mx-auto leading-relaxed">
-                Présentez ce QR Code au médecin lors de votre admission pour lui partager instantanément votre dossier vital.
+              <h3 className="text-sm font-bold text-slate-800 mt-1">Mon QR Médical</h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed max-w-[200px]">
+                Présentez ce code à votre médecin pour partager votre dossier vital en admission.
               </p>
             </div>
 
-            {/* White border QR container for high scan readability */}
-            <div className="relative mx-auto w-[160px] h-[160px] bg-white p-3 rounded-2xl shadow-lg flex items-center justify-center border-4 border-cyan-500/20 relative z-10">
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
-                  `http://localhost:3003/doctor/consultation?id=${patientData.vitalId}&name=${encodeURIComponent(patientData.name)}&age=${patientData.age}&gender=${patientData.gender}&reason=Scan de dossier vital`
-                )}`} 
-                alt="QR Code Dossier Vital" 
-                className="w-full h-full object-contain"
+            <div className="mx-auto w-[160px] h-[160px] bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center overflow-hidden">
+              <img
+                src={qrUrl}
+                alt="QR Code Dossier Médical Patient"
+                width={160}
+                height={160}
+                className="w-full h-full object-contain p-1"
               />
             </div>
 
-            <div className="pt-1 text-center space-y-2.5 relative z-10">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse" />
-                <span className="text-[10px] font-mono font-bold tracking-wider text-cyan-400">{patientData.vitalId}</span>
-              </div>
-
-              <div className="pt-1">
-                <a 
-                  href={`http://localhost:3003/doctor/consultation?id=${patientData.vitalId}&name=${encodeURIComponent(patientData.name)}&age=${patientData.age}&gender=${patientData.gender}&reason=Scan de dossier vital`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 px-4 py-2 rounded-xl text-[10px] text-cyan-400 hover:text-cyan-300 font-extrabold tracking-wide uppercase transition-all duration-200 border border-cyan-500/20 hover:border-cyan-500/40"
-                >
-                  <span>Simuler le Scan</span>
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+              <span className="text-[11px] font-mono font-bold text-slate-700 tracking-wider">{vitalId}</span>
             </div>
+
+            <a
+              href={`http://localhost:3003/doctor/consultation?id=${vitalId}&name=${encodeURIComponent(activeName)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11px] text-teal-700 font-semibold hover:underline"
+            >
+              Simuler le Scan
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </motion.div>
 
-          {/* SOS Emergency Call Button Section - Glowing red gradient banner */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-3xl bg-red-500/10 dark:bg-red-500/5 border border-red-500/20 dark:border-red-500/30 p-5 flex items-center justify-between shadow-sm relative overflow-hidden"
+          {/* ── SOS Urgence ──────────────────────────────────── */}
+          <motion.div custom={2} variants={cardIn} initial="hidden" animate="show"
+            className="bg-rose-50 rounded-2xl border border-rose-200 p-4 space-y-3"
           >
-            {/* Background Red glowing halo */}
-            <div className="absolute right-[-10%] top-[-10%] w-24 h-24 rounded-full bg-red-500/10 blur-xl pointer-events-none animate-pulse" />
-            
-            <div className="flex items-center gap-3 relative z-10">
-              <div className="h-10 w-10 rounded-2xl bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-500/30 animate-pulse flex-shrink-0">
-                <AlertTriangle className="h-5 w-5 animate-bounce" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-md shadow-rose-600/30 flex-shrink-0">
+                <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-extrabold text-red-600 dark:text-red-400 text-sm">Urgence SOS</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5 font-semibold">Alerte instantanée Dakar</p>
+                <h3 className="text-sm font-bold text-rose-800">Urgence Médicale</h3>
+                <p className="text-[11px] text-rose-600 font-medium">Assistance immédiate 24/7</p>
               </div>
             </div>
-            <Link href="/patient/emergency" className="h-9 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs flex items-center justify-center transition-colors relative z-10 shadow-md shadow-red-600/20">
-              Activer
+            <Link
+              href="/patient/emergency"
+              className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm shadow-rose-600/30 transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              Activer SOS Urgence
             </Link>
           </motion.div>
 
-        </div>
+          {/* ── Données de Santé ─────────────────────────────── */}
+          <motion.div custom={3} variants={cardIn} initial="hidden" animate="show"
+            className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3"
+          >
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wide">Données Vitales</h3>
 
+            <div className="space-y-2.5">
+              {[
+                { label: 'Groupe Sanguin', value: bloodGroup, color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100' },
+                { label: 'Allergies connues', value: allergies, color: 'text-amber-700', bg: 'bg-amber-50 border-amber-100' },
+                { label: 'ID Vital Sunu Santé', value: vitalId, color: 'text-teal-700 font-mono', bg: 'bg-teal-50 border-teal-100' },
+              ].map((item, i) => (
+                <div key={i} className={`flex items-center justify-between px-3 py-2 rounded-xl border ${item.bg}`}>
+                  <span className="text-[11px] text-slate-600 font-medium">{item.label}</span>
+                  <span className={`text-[11px] font-bold ${item.color}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1.5 pt-1 text-[10px] text-slate-500">
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+              <span>Données chiffrées HDS & RGPD</span>
+            </div>
+          </motion.div>
+
+          {/* ── Liens Rapides Desktop ─────────────────────────── */}
+          <motion.div custom={4} variants={cardIn} initial="hidden" animate="show"
+            className="hidden lg:block bg-white rounded-2xl border border-slate-200 overflow-hidden"
+          >
+            {[
+              { label: 'Dossier Médical', href: '/patient/records', icon: FileText },
+              { label: 'Mes Ordonnances', href: '/patient/prescriptions', icon: Pill },
+              { label: 'Rendez-vous', href: '/patient/appointments', icon: Calendar },
+              { label: 'Mon Profil', href: '/patient/profile', icon: User },
+            ].map((link, i) => {
+              const Icon = link.icon;
+              return (
+                <Link key={i} href={link.href}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 group"
+                >
+                  <Icon className="w-4 h-4 text-slate-400 group-hover:text-teal-600 transition-colors" />
+                  <span className="text-xs font-semibold text-slate-700 flex-1">{link.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-all" />
+                </Link>
+              );
+            })}
+          </motion.div>
+
+        </div>
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Hidden on desktop) */}
-      <footer className="sticky bottom-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center justify-around text-slate-400 dark:text-slate-500 md:hidden">
-        <Link href="/patient/home" className="flex flex-col items-center gap-1 text-cyan-500">
-          <Activity className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Accueil</span>
-        </Link>
-        <Link href="/patient/records" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <FileText className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Dossier</span>
-        </Link>
-        <Link href="/patient/emergency" className="flex flex-col items-center gap-1 hover:text-red-500 transition-colors">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-          <span className="text-[9px] font-bold text-red-500">SOS</span>
-        </Link>
-        <Link href="/patient/profile" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <User className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Profil</span>
-        </Link>
-      </footer>
+      {/* ─── Mobile Bottom Navigation ──────────────────────────── */}
+      <nav className="sticky bottom-0 z-40 bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around lg:hidden">
+        {[
+          { href: '/patient/home',          icon: Activity,       label: 'Accueil',  active: true  },
+          { href: '/patient/records',       icon: FileText,       label: 'Dossier',  active: false },
+          { href: '/patient/appointments',  icon: Calendar,       label: 'RDV',      active: false },
+          { href: '/patient/prescriptions', icon: Pill,           label: 'Ordonnances', active: false },
+          { href: '/patient/profile',       icon: User,           label: 'Profil',   active: false },
+        ].map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <Link key={i} href={item.href}
+              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors ${
+                item.active 
+                  ? 'text-teal-700 bg-teal-50' 
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[9px] font-bold">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
     </div>
   );
 }
