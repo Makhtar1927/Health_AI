@@ -77,30 +77,8 @@ export default function PatientHome() {
   return (
     <div className="flex flex-col min-h-full w-full bg-slate-50 text-slate-900">
 
-      {/* ─── Mobile Header ─────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between lg:hidden">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            S+
-          </div>
-          <div>
-            <span className="text-sm font-bold text-slate-900 block leading-tight">Sunu Santé</span>
-            <span className="text-[10px] text-teal-700 font-medium uppercase tracking-wide">Espace Patient</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="relative p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-rose-500" />
-          </button>
-          <Link href="/patient/profile" className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200">
-            <User className="h-4 w-4 text-slate-500" />
-          </Link>
-        </div>
-      </header>
-
       {/* ─── Main Grid ─────────────────────────────────────────── */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
 
         {/* ══════════════════════════════════════════════════════
             LEFT COLUMN  (2/3 width on desktop)
@@ -370,35 +348,9 @@ export default function PatientHome() {
               );
             })}
           </motion.div>
-
         </div>
-      </main>
 
-      {/* ─── Mobile Bottom Navigation ──────────────────────────── */}
-      <nav className="sticky bottom-0 z-40 bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around lg:hidden">
-        {[
-          { href: '/patient/home',          icon: Activity,       label: 'Accueil',  active: true  },
-          { href: '/patient/records',       icon: FileText,       label: 'Dossier',  active: false },
-          { href: '/patient/appointments',  icon: Calendar,       label: 'RDV',      active: false },
-          { href: '/patient/prescriptions', icon: Pill,           label: 'Ordonnances', active: false },
-          { href: '/patient/profile',       icon: User,           label: 'Profil',   active: false },
-        ].map((item, i) => {
-          const Icon = item.icon;
-          return (
-            <Link key={i} href={item.href}
-              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors ${
-                item.active 
-                  ? 'text-teal-700 bg-teal-50' 
-                  : 'text-slate-400 hover:text-slate-700'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-bold">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
+      </div>
     </div>
   );
 }
