@@ -1,308 +1,400 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, 
   User, 
   Phone, 
   MapPin, 
   Shield, 
-  Activity, 
   Heart, 
-  AlertTriangle,
-  FileText,
-  Save,
-  CheckCircle2,
-  Lock
+  AlertTriangle, 
+  Save, 
+  CheckCircle2, 
+  Lock,
+  Edit3,
+  Copy,
+  Check,
+  ShieldCheck,
+  Mail,
+  Calendar,
+  Building,
+  HeartPulse,
+  Droplets,
+  AlertCircle
 } from 'lucide-react';
-import Link from 'next/link';
+import { useAuthStore } from '@/lib/authStore';
 
 export default function PatientProfile() {
-  const [profile, setProfile] = useState({
+  const { user, initialize } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [copiedVitalId, setCopiedVitalId] = useState(false);
+
+  const [formData, setFormData] = useState({
     firstName: "Moussa",
     lastName: "Diop",
     phone: "+221 77 123 45 67",
-    email: "moussa.diop@email.com",
-    address: "Fann Résidence, Dakar, Sénégal",
-    bloodType: "O+",
-    birthDate: "15 Avril 1992",
+    email: "moussa.diop@sunusante.sn",
+    address: "Fann Résidence, Rue des Ambassades, Dakar",
+    bloodGroup: "O+",
+    birthDate: "15 Avril 1996",
+    gender: "Homme",
     emergencyContactName: "Amina Diop",
+    emergencyContactRelation: "Épouse",
     emergencyContactPhone: "+221 78 987 65 43",
-    insuranceName: "IPM Dakar Aérien",
-    insuranceNumber: "POL-773-XYZ",
-    insuranceCoverage: 80, // 80% coverage
+    insuranceName: "IPM Entreprises Dakar",
+    insuranceNumber: "POL-773-DKR",
+    insuranceCoverage: "80%",
     allergies: ["Pénicilline", "Arachides"],
-    medicalHistory: ["Asthme modéré", "Appendicectomie (2018)"]
+    medicalHistory: ["Hypertension artérielle légère", "Appendicectomie (2018)"]
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  useEffect(() => {
+    initialize();
+    setMounted(true);
+  }, [initialize]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[500px] flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm animate-pulse">S+</div>
+          <p className="text-xs font-medium">Chargement du profil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const patientName = user?.name || `${formData.firstName} ${formData.lastName}`;
+  const vitalId = user?.details?.vitalId || 'SN-807F16';
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(vitalId);
+    setCopiedVitalId(true);
+    setTimeout(() => setCopiedVitalId(false), 2500);
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setIsEditing(false);
     setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setTimeout(() => setSaveSuccess(false), 4000);
   };
 
   return (
-    <div className="relative min-h-screen bg-transparent text-slate-800 dark:text-slate-100 flex flex-col justify-between max-w-md mx-auto shadow-2xl border-x border-slate-200 dark:border-slate-800 md:max-w-none md:mx-0 md:shadow-none md:border-0 md:bg-transparent md:h-full md:min-h-0 md:justify-start md:items-stretch w-full">
-      
-      {/* Mobile Header Bar (Hidden on desktop) */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center justify-between md:hidden w-full">
-        <div className="flex items-center gap-4">
-          <Link href="/patient/home" className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-            <ArrowLeft className="h-4.5 w-4.5" />
-          </Link>
+    <div className="min-h-full bg-slate-50 text-slate-900 pb-16">
+
+      {/* ─── Hero Header ────────────────────────────────────────────────── */}
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-base font-bold tracking-tight text-slate-800 dark:text-white">Mon Profil Vital</h1>
-            <p className="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wider">Identité & Urgence</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                <ShieldCheck className="w-3 h-3 text-teal-600" />
+                Identité Certifiée HDS
+              </span>
+              <span className="text-xs text-slate-400 font-mono font-medium">{vitalId}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+              Mon Profil & Dossier Vital
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+              Gérez vos données médicales d'urgence, vos coordonnées de contact et vos informations de couverture mutuelle.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isEditing
+                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm shadow-teal-700/20'
+              }`}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>{isEditing ? 'Annuler' : 'Modifier mon profil'}</span>
+            </button>
           </div>
         </div>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="text-xs font-extrabold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
-        >
-          {isEditing ? "Annuler" : "Modifier"}
-        </button>
-      </header>
 
-      {/* Main Container - Responsive column grid on desktop */}
-      <main className="flex-grow px-6 py-6 overflow-y-auto space-y-6 md:p-8 md:h-full md:overflow-y-auto w-full relative z-10">
-
-        {/* Desktop Save/Edit Toggle Button (Anchor at top of page content on desktop) */}
-        <div className="hidden md:flex justify-end mb-4 relative z-10">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="px-4 py-2 text-xs font-black rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200/40 dark:border-slate-800/80 text-cyan-500 hover:bg-white dark:hover:bg-slate-800/80 hover:text-cyan-600 shadow-sm cursor-pointer transition-all"
-          >
-            {isEditing ? "Annuler Modifications" : "Modifier Profil"}
-          </button>
+        {/* Mini stats cards */}
+        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-5 sm:mt-6">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Groupe Sanguin</span>
+            <span className="text-base sm:text-lg font-bold text-rose-600 mt-0.5 block truncate">
+              {formData.bloodGroup} Rhésus Positif
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Allergies Actives</span>
+            <span className="text-base sm:text-lg font-bold text-amber-700 mt-0.5 block truncate">
+              {formData.allergies.length} signalées
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Tiers-Payant IPM</span>
+            <span className="text-base sm:text-lg font-bold text-emerald-700 mt-0.5 block truncate">
+              Prise en charge {formData.insuranceCoverage}
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Sécurité & Chiffrement</span>
+            <span className="text-base sm:text-lg font-bold text-teal-700 mt-0.5 block truncate">
+              AES-256 Actif
+            </span>
+          </div>
         </div>
+      </div>
 
-        {/* Success Alert toast */}
+      {/* ─── Notification Toast de Succès ───────────────────────────────── */}
+      <AnimatePresence>
         {saveSuccess && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl text-xs font-bold flex items-center gap-2 max-w-lg relative z-10 shadow-sm shadow-emerald-500/5"
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4"
           >
-            <CheckCircle2 className="h-4.5 w-4.5" />
-            <span>Vos modifications ont été enregistrées sur la blockchain santé.</span>
+            <div className="p-3.5 rounded-2xl bg-emerald-700 text-white text-xs font-bold flex items-center gap-2.5 shadow-lg">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              <span>Vos informations personnelles et médicales ont été mises à jour avec succès.</span>
+            </div>
           </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Form Details wrapped in responsive layout */}
-        <form onSubmit={handleSave} className="w-full relative z-10">
-          
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start w-full relative z-10">
+      {/* ─── Formulaire & Grille Profil ─────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6">
+        <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+          {/* COLONNE GAUCHE (5 / 12) : Carte d'identité médicale ────────── */}
+          <div className="lg:col-span-5 space-y-5">
             
-            {/* ========================================================================= */}
-            {/* LEFT PROFILE PANEL (Drives identity & biologicalconstants)                */}
-            {/* ========================================================================= */}
-            <div className="md:col-span-5 space-y-6 w-full relative z-10">
-              
-              {/* User Card Profile */}
-              <div className="flex flex-col items-center text-center p-6 glass-premium border border-slate-200/40 dark:border-slate-800/80 rounded-3xl shadow-sm space-y-3 relative overflow-hidden">
-                <div className="absolute right-[-10%] top-[-10%] w-20 h-20 rounded-full bg-cyan-500/10 blur-xl pointer-events-none" />
-                <div className="relative z-10">
-                  <div className="h-20 w-20 rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-black shadow-lg">
-                    {profile.firstName[0]}{profile.lastName[0]}
-                  </div>
-                  <span className="absolute bottom-0 right-0 h-4.5 w-4.5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full" />
+            {/* Carte Identité Patient */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 text-center shadow-xs space-y-4">
+              <div className="relative inline-block mx-auto">
+                <div className="w-20 h-20 rounded-3xl bg-teal-600/10 text-teal-700 border-2 border-teal-200 flex items-center justify-center font-bold text-2xl shadow-sm">
+                  {patientName[0]}
                 </div>
-                <div className="relative z-10">
-                  <h2 className="text-lg font-black text-slate-800 dark:text-slate-100">{profile.firstName} {profile.lastName}</h2>
-                  <p className="text-xs text-slate-400 mt-0.5 font-bold">Identifiant Vital : <span className="font-mono font-bold text-cyan-600 dark:text-cyan-400">SN-807F16</span></p>
-                </div>
+                <span className="absolute bottom-0 right-0 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full" />
               </div>
 
-              {/* Informations de Santé */}
-              <div className="space-y-3">
-                <h3 className="font-extrabold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 pl-2">
-                  <Heart className="h-4 w-4 text-red-500 animate-pulse" />
-                  Données Cliniques Vitales
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="glass-premium p-4 rounded-2xl border border-slate-200/40 dark:border-slate-800/80 text-center">
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">Groupe Sanguin</span>
-                    <span className="text-2xl font-black text-red-500 mt-1 block">{profile.bloodType}</span>
-                  </div>
-                  <div className="glass-premium p-4 rounded-2xl border border-slate-200/40 dark:border-slate-800/80 text-center">
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">Né(e) le</span>
-                    <span className="text-xs font-black text-slate-700 dark:text-slate-200 mt-2 block">{profile.birthDate}</span>
-                  </div>
-                </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">{patientName}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{formData.gender} • Né le {formData.birthDate}</p>
               </div>
 
-              {/* Crypto & Blockchain security */}
-              <div className="p-4.5 bg-slate-900 dark:bg-slate-950/60 text-slate-350 rounded-3xl border border-slate-800/80 flex items-center gap-4 shadow-sm shadow-indigo-950/5">
-                <Lock className="h-8 w-8 text-cyan-400 flex-shrink-0" />
-                <div className="space-y-0.5">
-                  <h4 className="text-xs font-black text-white flex items-center gap-1.5">
-                    Chiffrement End-to-End Actif
-                  </h4>
-                  <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                    Vos données sont hachées et stockées de manière pseudonymisée conformément aux réglementations de santé en vigueur.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* ========================================================================= */}
-            {/* RIGHT PROFILE PANEL (Contact, emergency & clinical history forms)          */}
-            {/* ========================================================================= */}
-            <div className="md:col-span-7 space-y-6 w-full relative z-10">
-              
-              {/* Contact Info */}
-              <div className="space-y-4 glass-premium p-5 rounded-3xl border border-slate-200/40 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-                <div className="absolute right-[-10%] top-[-10%] w-32 h-32 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
-                
-                <h3 className="font-extrabold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2 relative z-10">
-                  <User className="h-4 w-4 text-cyan-500" />
-                  Contacts et Coordonnées
-                </h3>
-
-                <div className="space-y-3.5 text-xs relative z-10">
-                  <div className="space-y-1">
-                    <label className="text-slate-400 dark:text-slate-500 font-bold flex items-center gap-1.5 uppercase text-[9px] tracking-wider">
-                      <Phone className="h-3.5 w-3.5 text-cyan-500" /> Téléphone
-                    </label>
-                    {isEditing ? (
-                      <input 
-                        type="text"
-                        value={profile.phone}
-                        onChange={e => setProfile({...profile, phone: e.target.value})}
-                        className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-950/40 border border-slate-200/40 dark:border-slate-800/60 rounded-xl text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-bold"
-                      />
-                    ) : (
-                      <p className="font-black text-slate-750 dark:text-slate-200 pl-5 text-xs tracking-wide">{profile.phone}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-slate-400 dark:text-slate-500 font-bold flex items-center gap-1.5 uppercase text-[9px] tracking-wider">
-                      <MapPin className="h-3.5 w-3.5 text-cyan-500" /> Adresse de Résidence
-                    </label>
-                    {isEditing ? (
-                      <input 
-                        type="text"
-                        value={profile.address}
-                        onChange={e => setProfile({...profile, address: e.target.value})}
-                        className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-955/40 border border-slate-200/40 dark:border-slate-800/60 rounded-xl text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-bold"
-                      />
-                    ) : (
-                      <p className="font-black text-slate-750 dark:text-slate-200 pl-5 text-xs">{profile.address}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Urgence & Assurances */}
-              <div className="space-y-4 glass-premium p-5 rounded-3xl border border-slate-200/40 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-                <div className="absolute right-[-10%] top-[-10%] w-32 h-32 rounded-full bg-emerald-500/5 blur-2xl pointer-events-none" />
-
-                <h3 className="font-extrabold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2 relative z-10">
-                  <Shield className="h-4 w-4 text-emerald-500" />
-                  Urgence & Assurance Mutuelle
-                </h3>
-
-                <div className="space-y-3.5 text-xs relative z-10">
-                  <div className="space-y-1">
-                    <span className="text-slate-400 dark:text-slate-500 font-bold uppercase text-[9px] tracking-wider block">Contact d'Urgence (Proche)</span>
-                    <p className="font-black text-slate-750 dark:text-slate-200 text-xs">{profile.emergencyContactName} • <span className="font-mono text-cyan-600 dark:text-cyan-400 font-bold tracking-wider">{profile.emergencyContactPhone}</span></p>
-                  </div>
-
-                  <div className="space-y-1 border-t border-slate-200/40 dark:border-slate-800/60 pt-3.5">
-                    <span className="text-slate-400 dark:text-slate-500 font-bold uppercase text-[9px] tracking-wider block">Couverture Assurance</span>
-                    <div className="flex justify-between items-center mt-1">
-                      <div>
-                        <p className="font-black text-slate-750 dark:text-slate-200 text-xs">{profile.insuranceName}</p>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-0.5">Police: {profile.insuranceNumber}</p>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black rounded-xl text-xs border border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                        Tiers-payant {profile.insuranceCoverage}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Allergies & DMP */}
-              <div className="space-y-4 glass-premium p-5 rounded-3xl border border-slate-200/40 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-                <div className="absolute right-[-10%] top-[-10%] w-32 h-32 rounded-full bg-red-500/5 blur-2xl pointer-events-none" />
-
-                <h3 className="font-extrabold text-xs text-red-500 uppercase tracking-wider flex items-center gap-1.5 mb-2 relative z-10">
-                  <AlertTriangle className="h-4 w-4" />
-                  Allergies et Antécédents
-                </h3>
-
-                <div className="space-y-3.5 text-xs relative z-10">
-                  <div>
-                    <span className="text-slate-400 dark:text-slate-500 font-bold uppercase text-[9px] tracking-wider block mb-1">Allergies déclarées</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {profile.allergies.map((allergy, aIndex) => (
-                        <span key={aIndex} className="px-2.5 py-1 bg-red-500/10 text-red-600 dark:text-red-400 font-black rounded-lg text-[10px] border border-red-500/20 animate-pulse">
-                          {allergy}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-200/40 dark:border-slate-800/60 pt-3.5">
-                    <span className="text-slate-400 dark:text-slate-500 font-bold uppercase text-[9px] tracking-wider block mb-1">Antécédents médicaux</span>
-                    <ul className="space-y-1.5 pl-4 list-disc text-slate-600 dark:text-slate-350 font-bold">
-                      {profile.medicalHistory.map((history, hIndex) => (
-                        <li key={hIndex} className="tracking-wide">{history}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Save Button for Edit Mode */}
-              {isEditing && (
-                <motion.button
-                  type="submit"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="w-full h-12 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/10 border border-transparent"
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-2">
+                <span className="text-xs font-mono font-bold text-slate-700 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                  {vitalId}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyId}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  title="Copier mon identifiant"
                 >
-                  <Save className="h-4.5 w-4.5" />
-                  Sauvegarder les modifications
-                </motion.button>
-              )}
-
+                  {copiedVitalId ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
+
+            {/* Données Vitales Clés */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 shadow-xs space-y-4">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                <HeartPulse className="w-4 h-4 text-rose-500" />
+                Données Vitales d'Urgence
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200">
+                  <span className="text-[10px] font-bold text-rose-800 uppercase block">Groupe Sanguin</span>
+                  <span className="text-2xl font-black text-rose-600 mt-0.5 block">{formData.bloodGroup}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-200">
+                  <span className="text-[10px] font-bold text-teal-800 uppercase block">Statut Vital</span>
+                  <span className="text-xs font-bold text-teal-800 mt-2 block">Dossier Actif</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs space-y-1">
+                <span className="text-[10px] font-bold text-amber-800 uppercase flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                  Allergies Médicamenteuses
+                </span>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {formData.allergies.map((a, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 font-bold text-[10px]">
+                      {a}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sécurité et HDS */}
+            <div className="p-4 rounded-3xl bg-slate-900 text-white text-xs space-y-1.5 shadow-sm">
+              <div className="flex items-center gap-2 text-teal-400 font-bold">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Certification Hébergeur de Données de Santé</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Toutes vos données médicales sont pseudonymisées et chiffrées selon les protocoles hospitaliers internationaux.
+              </p>
+            </div>
+
+          </div>
+
+          {/* COLONNE DROITE (7 / 12) : Formulaire complet ─────────────── */}
+          <div className="lg:col-span-7 space-y-5">
+
+            {/* 1. Coordonnées & Adresse */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <User className="w-4 h-4 text-teal-600" />
+                Coordonnées Personnelles
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Prénom</label>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={formData.firstName}
+                    onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Nom</label>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={formData.lastName}
+                    onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Numéro de Téléphone</label>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={formData.phone}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Adresse Email</label>
+                  <input
+                    type="email"
+                    disabled={!isEditing}
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1 text-xs">
+                <label className="text-slate-500 font-bold block">Adresse de Résidence</label>
+                <input
+                  type="text"
+                  disabled={!isEditing}
+                  value={formData.address}
+                  onChange={e => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+            </div>
+
+            {/* 2. Contact d'Urgence (Personne de Confiance) */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Phone className="w-4 h-4 text-rose-600" />
+                Contact d'Urgence Déclaré
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Nom & Prénom</label>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={formData.emergencyContactName}
+                    onChange={e => setFormData({ ...formData, emergencyContactName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-500 font-bold block">Lien de parenté</label>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={formData.emergencyContactRelation}
+                    onChange={e => setFormData({ ...formData, emergencyContactRelation: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1 text-xs">
+                <label className="text-slate-500 font-bold block">Numéro Téléphone d'Urgence</label>
+                <input
+                  type="text"
+                  disabled={!isEditing}
+                  value={formData.emergencyContactPhone}
+                  onChange={e => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 disabled:bg-slate-100/60 font-semibold text-slate-800 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+            </div>
+
+            {/* 3. Assurance & Mutuelle Santé */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-600" />
+                Assurance & Couverture Médicale
+              </h3>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200 gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">{formData.insuranceName}</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">N° Police : {formData.insuranceNumber}</p>
+                </div>
+                <span className="px-3 py-1 bg-emerald-600 text-white rounded-xl text-xs font-bold text-center self-start sm:self-center">
+                  Prise en charge {formData.insuranceCoverage}
+                </span>
+              </div>
+            </div>
+
+            {/* Bouton de sauvegarde */}
+            {isEditing && (
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm shadow-teal-700/20 cursor-pointer transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Enregistrer les modifications</span>
+                </button>
+              </div>
+            )}
 
           </div>
 
         </form>
+      </div>
 
-      </main>
-
-      {/* Mobile Bottom Navigation Bar (Hidden on desktop) */}
-      <footer className="sticky bottom-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center justify-around text-slate-400 dark:text-slate-500 md:hidden">
-        <Link href="/patient/home" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <Activity className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Accueil</span>
-        </Link>
-        <Link href="/patient/records" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <FileText className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Dossier</span>
-        </Link>
-        <Link href="/patient/emergency" className="flex flex-col items-center gap-1 hover:text-red-500 transition-colors">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-          <span className="text-[9px] font-bold text-red-500">SOS</span>
-        </Link>
-        <Link href="/patient/profile" className="flex flex-col items-center gap-1 text-cyan-500">
-          <User className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Profil</span>
-        </Link>
-      </footer>
     </div>
   );
 }
