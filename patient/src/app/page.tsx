@@ -33,10 +33,12 @@ export default function PatientDirectLogin() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     initialize();
     clearError();
+    setMounted(true);
   }, [initialize, clearError]);
 
   useEffect(() => {
@@ -80,6 +82,18 @@ export default function PatientDirectLogin() {
       router.push('/patient/home');
     }
   };
+
+  // Prevent hydration mismatch: same render on server & client until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-lg animate-pulse">S+</div>
+          <p className="text-xs text-slate-500 font-medium">Connexion sécurisée...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-900 selection:bg-teal-500 selection:text-white">

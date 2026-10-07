@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/authStore';
@@ -27,22 +27,37 @@ export default function PatientLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, initialize, logout } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     initialize();
+    setMounted(true);
   }, [initialize]);
 
   useEffect(() => {
+    if (!mounted) return;
     // Redirect to root login if not authenticated and not on an auth page
     if (!isAuthenticated && pathname !== '/patient/login' && pathname !== '/patient/register') {
       router.push('/');
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [mounted, isAuthenticated, pathname, router]);
 
   // Auth pages — render without sidebar layout
   const isAuthPage = pathname === '/patient/login' || pathname === '/patient/register';
   if (isAuthPage) {
     return <>{children}</>;
+  }
+
+  // Prevent hydration mismatch: render neutral skeleton until client is ready
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm animate-pulse">S+</div>
+          <p className="text-xs font-medium">Chargement de votre espace...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleLogout = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FileText, 
@@ -31,9 +31,11 @@ const cardIn = {
 
 export default function PatientHome() {
   const { user, initialize } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     initialize();
+    setMounted(true);
   }, [initialize]);
 
   // Data dynamique / démo
