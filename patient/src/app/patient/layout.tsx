@@ -177,7 +177,7 @@ export default function PatientLayout({
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 lg:h-screen lg:overflow-hidden relative">
 
-        {/* ─── Mobile Fixed Top Bar (lg:hidden) ────────────────────────────── */}
+        {/* ─── Mobile Sticky Top Bar (lg:hidden) ────────────────────────────── */}
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between lg:hidden flex-shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.03)]">
           <Link href="/patient/home" className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-xs shadow-sm flex-shrink-0">
@@ -235,8 +235,8 @@ export default function PatientLayout({
           </div>
         </header>
 
-        {/* ─── Scrollable Main Content Area (pb-20 on mobile to clear bottom bar) ─── */}
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0 overscroll-contain">
+        {/* ─── Main Content: Natural document scroll on mobile, contained on desktop ─── */}
+        <main className="flex-1 pb-28 lg:pb-0 lg:overflow-y-auto">
           {children}
         </main>
 
