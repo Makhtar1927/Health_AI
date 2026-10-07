@@ -1,170 +1,474 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, 
   QrCode, 
-  Activity, 
   Calendar,
   Download,
-  AlertTriangle,
   FileText,
-  User,
-  CheckCircle,
-  Eye
+  CheckCircle2,
+  Clock,
+  Sparkles,
+  Pill,
+  ShieldCheck,
+  Building,
+  Check,
+  X,
+  Copy,
+  ExternalLink,
+  Search,
+  AlertCircle
 } from 'lucide-react';
-import Link from 'next/link';
+import { useAuthStore } from '@/lib/authStore';
+
+interface Drug {
+  name: string;
+  dosage: string;
+  duration: string;
+  instructions: string;
+}
+
+interface Prescription {
+  id: string;
+  date: string;
+  doctor: string;
+  specialty: string;
+  clinic: string;
+  status: 'active' | 'completed';
+  qrCodeUrl: string;
+  drugs: Drug[];
+  aiAnalysis: string;
+  pharmacyNote?: string;
+}
+
+const INITIAL_PRESCRIPTIONS: Prescription[] = [
+  {
+    id: "ORD-9201",
+    date: "12 Mai 2026",
+    doctor: "Dr. Abdoulaye Diallo",
+    specialty: "Médecine Générale",
+    clinic: "Cabinet Médical Sunu — Dakar",
+    status: "active",
+    qrCodeUrl: "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https%3A%2F%2Fsunusante.sn%2Fordonnance%2FORD-9201&color=6b21a8&bgcolor=ffffff&format=svg&qzone=2",
+    drugs: [
+      { 
+        name: "Lisinopril 10 mg", 
+        dosage: "1 comprimé chaque matin au petit-déjeuner", 
+        duration: "30 jours",
+        instructions: "Surveillance de la pression artérielle recommandée"
+      },
+      { 
+        name: "Amlodipine 5 mg", 
+        dosage: "1 comprimé chaque soir au coucher", 
+        duration: "30 jours",
+        instructions: "Ne pas interrompre sans avis médical"
+      }
+    ],
+    aiAnalysis: "Compatibilité thérapeutique vérifiée : aucune contre-indication ou interaction délétère détectée entre Lisinopril et Amlodipine.",
+    pharmacyNote: "Délivrance autorisée en pharmacie agréée IPM / Mutuelle."
+  },
+  {
+    id: "ORD-8542",
+    date: "04 Février 2026",
+    doctor: "Dr. Aminata Touré",
+    specialty: "Pneumologie",
+    clinic: "Hôpital Principal de Dakar",
+    status: "completed",
+    qrCodeUrl: "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https%3A%2F%2Fsunusante.sn%2Fordonnance%2FORD-8542&color=6b21a8&bgcolor=ffffff&format=svg&qzone=2",
+    drugs: [
+      { 
+        name: "Amoxicilline 1 g", 
+        dosage: "1 comprimé matin et soir", 
+        duration: "7 jours (terminé)",
+        instructions: "Prendre pendant les repas"
+      },
+      { 
+        name: "Sirop Hélicidine", 
+        dosage: "1 cuillère à soupe 3 fois par jour", 
+        duration: "5 jours (terminé)",
+        instructions: "En cas de toux sèche persistante"
+      }
+    ],
+    aiAnalysis: "Traitement antibiotique de première intention pour bronchite aiguë résolue.",
+    pharmacyNote: "Délivrance complétée le 04/02/2026."
+  }
+];
 
 export default function PatientPrescriptions() {
-  const prescriptions = [
-    {
-      id: "ORD-9201",
-      date: "12 Mai 2026",
-      doctor: "Dr. Abdoulaye Diallo",
-      specialty: "Médecine Générale",
-      status: "Actif",
-      qrCodeData: "https://xnezurgklbaminjlyeyx.supabase.co/prescriptions/SN-807F16-9201",
-      drugs: [
-        { name: "Lisinopril 10mg", dosage: "1 comprimé le matin", duration: "30 jours" },
-        { name: "Amlodipine 5mg", dosage: "1 comprimé le soir", duration: "30 jours" }
-      ],
-      aiAnalysis: "Aucune interaction majeure détectée entre Lisinopril et Amlodipine. Risque cardiovasculaire sous surveillance adéquate."
-    },
-    {
-      id: "ORD-8542",
-      date: "04 Février 2026",
-      doctor: "Dr. Aminata Touré",
-      specialty: "Pneumologie",
-      status: "Terminé",
-      qrCodeData: "https://xnezurgklbaminjlyeyx.supabase.co/prescriptions/SN-807F16-8542",
-      drugs: [
-        { name: "Amoxicilline 1g", dosage: "1 comprimé 2 fois par jour", duration: "7 jours" },
-        { name: "Sirop Hélicidine", dosage: "1 cuillère à soupe 3 fois par jour", duration: "5 jours" }
-      ],
-      aiAnalysis: "Traitement antibiotique standard pour bronchite. Veiller à respecter la durée complète du traitement."
+  const { user, initialize } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('active');
+  const [selectedQrModal, setSelectedQrModal] = useState<Prescription | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    initialize();
+    setMounted(true);
+  }, [initialize]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[500px] flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm animate-pulse">S+</div>
+          <p className="text-xs font-medium">Chargement de vos ordonnances...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const patientName = user?.name || 'Moussa Diop';
+  const vitalId = user?.details?.vitalId || 'SN-807F16';
+
+  const handleCopyCode = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const filtered = INITIAL_PRESCRIPTIONS.filter(p => {
+    if (activeTab === 'active' && p.status !== 'active') return false;
+    if (activeTab === 'completed' && p.status !== 'completed') return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchDoc = p.doctor.toLowerCase().includes(q);
+      const matchDrug = p.drugs.some(d => d.name.toLowerCase().includes(q));
+      const matchId = p.id.toLowerCase().includes(q);
+      if (!matchDoc && !matchDrug && !matchId) return false;
     }
-  ];
+    return true;
+  });
+
+  const activeCount = INITIAL_PRESCRIPTIONS.filter(p => p.status === 'active').length;
+  const completedCount = INITIAL_PRESCRIPTIONS.filter(p => p.status === 'completed').length;
 
   return (
-    <div className="relative min-h-screen bg-transparent text-slate-800 dark:text-slate-100 flex flex-col justify-between max-w-md mx-auto shadow-2xl border-x border-slate-200 dark:border-slate-800 md:max-w-none md:mx-0 md:shadow-none md:border-0 md:bg-transparent md:h-full md:min-h-0 md:justify-start md:items-stretch w-full">
-      
-      {/* Mobile Header Bar (Hidden on desktop) */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center gap-4 md:hidden w-full">
-        <Link href="/patient/home" className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-          <ArrowLeft className="h-4.5 w-4.5" />
-        </Link>
-        <div>
-          <h1 className="text-base font-bold tracking-tight text-slate-800 dark:text-white">Mes Ordonnances</h1>
-          <p className="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wider">Retraits en Pharmacie</p>
-        </div>
-      </header>
+    <div className="min-h-full bg-slate-50 text-slate-900 pb-16">
 
-      {/* Main Container - Fully responsive grid structures */}
-      <main className="flex-grow px-6 py-6 overflow-y-auto space-y-6 md:p-8 md:h-full md:overflow-y-auto w-full relative z-10">
-        
-        {/* Helper Banner - Maximum readable width on desktop */}
-        <div className="rounded-3xl bg-cyan-500/10 dark:bg-cyan-500/20 border border-cyan-500/20 p-5 text-xs text-slate-600 dark:text-slate-350 leading-relaxed space-y-2 max-w-3xl font-medium">
-          <p className="font-black text-cyan-600 dark:text-cyan-400 uppercase text-[10px] tracking-wider">Comment retirer vos médicaments ?</p>
-          <p>Présentez simplement le QR Code de votre ordonnance active au pharmacien pour qu'il puisse scanner et valider la délivrance en toute sécurité.</p>
+      {/* ─── Hero Header & Statistiques ─────────────────────────────────── */}
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                <Pill className="w-3 h-3 text-purple-600" />
+                Pharmacie Numérique
+              </span>
+              <span className="text-xs text-slate-400 font-mono font-medium">{vitalId}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+              Mes Ordonnances Médicales
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+              Présentez le QR Code sécurisé en pharmacie pour retirer vos médicaments. Traitements analysés et vérifiés par l'IA clinique.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200/80 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                <QrCode className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-800 block">Délivrance Rapide</span>
+                <p className="text-xs font-bold text-slate-800">Scan direct au comptoir</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Prescriptions List - Rendered as a grid on desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full relative z-10">
-          {prescriptions.map((ord, index) => (
-            <motion.div
-              key={ord.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="rounded-3xl glass-premium p-5 border border-slate-200/40 dark:border-slate-800/80 shadow-sm space-y-4 hover:border-cyan-500/10 dark:hover:border-cyan-500/20 transition-all duration-300"
+        {/* Mini stats cards */}
+        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-5 sm:mt-6">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Ordonnances Actives</span>
+            <span className="text-base sm:text-lg font-bold text-purple-700 mt-0.5 block truncate">
+              {activeCount} en cours
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Médicaments Actifs</span>
+            <span className="text-base sm:text-lg font-bold text-teal-700 mt-0.5 block truncate">
+              2 molécules
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Historique</span>
+            <span className="text-base sm:text-lg font-bold text-slate-800 mt-0.5 block truncate">
+              {completedCount} délivrance{completedCount > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block truncate">Sécurité Clinique</span>
+            <span className="text-base sm:text-lg font-bold text-emerald-700 mt-0.5 block truncate">
+              0 interaction
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Barre de filtres et recherche ─────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+          
+          {/* Tabs */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100/90 rounded-xl overflow-x-auto scrollbar-none w-full md:w-auto">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`flex-1 md:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === 'active'
+                  ? 'bg-white text-purple-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              {/* Header inside card */}
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">{ord.id}</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black ${
-                      ord.status === 'Actif' 
-                        ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25 animate-pulse' 
-                        : 'bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
-                    }`}>
-                      {ord.status}
-                    </span>
-                  </div>
-                  <h3 className="font-black text-sm text-slate-800 dark:text-slate-100 mt-1">{ord.doctor}</h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{ord.specialty}</p>
-                </div>
-                <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-xs font-bold">
-                  <Calendar className="h-3.5 w-3.5 text-cyan-500" />
-                  <span>{ord.date}</span>
-                </div>
-              </div>
+              En cours ({activeCount})
+            </button>
+            <button
+              onClick={() => setActiveTab('completed')}
+              className={`flex-1 md:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === 'completed'
+                  ? 'bg-white text-purple-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Historique ({completedCount})
+            </button>
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`flex-1 md:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === 'all'
+                  ? 'bg-white text-purple-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Toutes ({INITIAL_PRESCRIPTIONS.length})
+            </button>
+          </div>
 
-              {/* Drugs list */}
-              <div className="border-t border-slate-100/50 dark:border-slate-800/60 pt-3 space-y-2">
-                <span className="text-slate-400 dark:text-slate-500 text-[9px] font-bold uppercase tracking-wider block">Médicaments Prescrits :</span>
-                {ord.drugs.map((drug, dIndex) => (
-                  <div key={dIndex} className="p-3 bg-white/40 dark:bg-slate-950/20 rounded-xl border border-slate-200/30 dark:border-slate-850/60 text-xs space-y-1 font-bold">
-                    <div className="flex justify-between items-center text-slate-700 dark:text-slate-200">
-                      <span>{drug.name}</span>
-                      <span className="text-cyan-500 dark:text-cyan-400">{drug.duration}</span>
+          {/* Recherche */}
+          <div className="relative w-full md:w-64">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Rechercher médicament, médecin..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+        </div>
+      </div>
+
+      {/* ─── Liste des Ordonnances ────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6">
+        {filtered.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 text-center">
+            <p className="text-xs text-slate-500">Aucune ordonnance trouvée pour cette sélection.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered.map((ord) => {
+              const isActive = ord.status === 'active';
+
+              return (
+                <div
+                  key={ord.id}
+                  className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Top Bar inside Card */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleCopyCode(ord.id)}
+                          className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                          title="Copier le numéro"
+                        >
+                          <span>{ord.id}</span>
+                          {copiedId === ord.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        </button>
+                        <span className="text-xs text-slate-400">•</span>
+                        <div className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>{ord.date}</span>
+                        </div>
+                      </div>
+
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                        isActive
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-purple-600 animate-pulse' : 'bg-slate-400'}`} />
+                        <span>{isActive ? 'Active' : 'Délivrée'}</span>
+                      </span>
                     </div>
-                    <p className="text-slate-400 dark:text-slate-500 text-[11px] font-medium">{drug.dosage}</p>
+
+                    {/* Médecin Prescripteur */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        {ord.doctor.split(' ')[1] ? ord.doctor.split(' ')[1][0] : 'D'}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider block">
+                          {ord.specialty}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                          {ord.doctor}
+                        </h3>
+                        <p className="text-xs text-slate-500 truncate">{ord.clinic}</p>
+                      </div>
+                    </div>
+
+                    {/* Liste des Médicaments */}
+                    <div className="space-y-2 mb-4">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Médicaments prescrits ({ord.drugs.length}) :
+                      </span>
+                      {ord.drugs.map((drug, dIdx) => (
+                        <div key={dIdx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                          <div className="flex items-center justify-between font-bold text-slate-800">
+                            <span className="text-sm font-bold text-purple-900">{drug.name}</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-purple-100/70 text-purple-800 rounded-md">
+                              {drug.duration}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 mt-1">{drug.dosage}</p>
+                          {drug.instructions && (
+                            <p className="text-[11px] text-slate-400 italic mt-0.5">ℹ️ {drug.instructions}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* IA Clinique Note */}
+                    {ord.aiAnalysis && (
+                      <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200 text-xs text-teal-900 space-y-1 mb-4">
+                        <div className="flex items-center gap-1.5 font-bold text-[10px] text-teal-800 uppercase">
+                          <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                          <span>Analyse de Sécurité IA</span>
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-teal-950">{ord.aiAnalysis}</p>
+                      </div>
+                    )}
                   </div>
-                ))}
+
+                  {/* Actions du bas */}
+                  <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2.5">
+                    <button
+                      onClick={() => alert(`Téléchargement sécurisé PDF de l'ordonnance ${ord.id}...`)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5 text-slate-500" />
+                      <span>PDF</span>
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedQrModal(ord)}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-bold transition-all shadow-sm shadow-purple-600/20 cursor-pointer"
+                    >
+                      <QrCode className="w-4 h-4" />
+                      <span>Afficher QR Pharmacie</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ─── MODAL : QR Code Pharmacie Plein Écran ──────────────────────── */}
+      <AnimatePresence>
+        {selectedQrModal && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.98 }}
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-md w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden text-center"
+            >
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-purple-50/70 flex-shrink-0">
+                <div className="flex items-center gap-2 text-left">
+                  <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-xs">
+                    <Pill className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">QR Code de Délivrance</h3>
+                    <p className="text-[10px] text-purple-700 font-mono font-bold">{selectedQrModal.id}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedQrModal(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* AI Interaction Analysis Box - Styled beautifully */}
-              {ord.aiAnalysis && (
-                <div className="p-3 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/15 rounded-2xl text-[11px] leading-relaxed text-indigo-700 dark:text-indigo-300 font-medium">
-                  <span className="font-black block mb-0.5 uppercase text-[9px] tracking-wider text-indigo-600 dark:text-indigo-400">💡 Assistant IA Clinique :</span>
-                  {ord.aiAnalysis}
-                </div>
-              )}
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 overscroll-contain flex flex-col items-center">
+                <p className="text-xs text-slate-600 max-w-xs">
+                  Présentez ce QR Code à l'officine de pharmacie pour autoriser la dispensation de vos médicaments.
+                </p>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex gap-3">
-                <button 
-                  onClick={() => alert(`Contenu du QR Code sécurisé : ${ord.qrCodeData}`)}
-                  className="flex-1 h-11 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-transparent shadow-md shadow-cyan-600/10"
+                {/* QR Code Container */}
+                <div className="w-56 h-56 bg-slate-50 rounded-2xl border-2 border-purple-200 p-3 flex items-center justify-center shadow-inner">
+                  <img
+                    src={selectedQrModal.qrCodeUrl}
+                    alt={`QR Code ${selectedQrModal.id}`}
+                    width={220}
+                    height={220}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 w-full text-xs text-left space-y-1">
+                  <div className="flex justify-between text-slate-500 text-[11px]">
+                    <span>Patient :</span>
+                    <span className="font-bold text-slate-800">{patientName}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500 text-[11px]">
+                    <span>Prescripteur :</span>
+                    <span className="font-bold text-slate-800">{selectedQrModal.doctor}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500 text-[11px]">
+                    <span>Médicaments :</span>
+                    <span className="font-bold text-purple-700">{selectedQrModal.drugs.length} prescrits</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                  <ShieldCheck className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                  <span>Chiffrement AES-256 certifié Ordre des Pharmaciens</span>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-center flex-shrink-0">
+                <button
+                  onClick={() => setSelectedQrModal(null)}
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
-                  <QrCode className="h-4.5 w-4.5" />
-                  Scanner Ordonnance
-                </button>
-                <button 
-                  onClick={() => alert("Téléchargement sécurisé PDF de l'ordonnance lancé...")}
-                  className="h-11 w-11 rounded-xl bg-white/60 dark:bg-slate-850 text-slate-600 dark:text-slate-350 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-white transition-colors flex items-center justify-center cursor-pointer border border-slate-200 dark:border-slate-800 shadow-sm"
-                  title="Télécharger PDF"
-                >
-                  <Download className="h-4.5 w-4.5" />
+                  Fermer
                 </button>
               </div>
             </motion.div>
-          ))}
-        </div>
+          </div>
+        )}
+      </AnimatePresence>
 
-      </main>
-
-      {/* Mobile Bottom Navigation Bar (Hidden on desktop) */}
-      <footer className="sticky bottom-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800/80 px-6 py-4 flex items-center justify-around text-slate-400 dark:text-slate-500 md:hidden">
-        <Link href="/patient/home" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <Activity className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Accueil</span>
-        </Link>
-        <Link href="/patient/records" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <FileText className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Dossier</span>
-        </Link>
-        <Link href="/patient/emergency" className="flex flex-col items-center gap-1 hover:text-red-500 transition-colors">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-          <span className="text-[9px] font-bold text-red-500">SOS</span>
-        </Link>
-        <Link href="/patient/profile" className="flex flex-col items-center gap-1 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <User className="h-5 w-5" />
-          <span className="text-[9px] font-bold">Profil</span>
-        </Link>
-      </footer>
     </div>
   );
 }
