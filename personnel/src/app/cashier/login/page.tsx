@@ -177,7 +177,7 @@ export default function CashierLogin() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Module Comptable Certifié.
+        &copy; {new Date().getFullYear()} Health AI - Module Comptable Certifié.
       </footer>
     </div>
   );

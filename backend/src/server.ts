@@ -10,6 +10,7 @@ import { errorHandler } from './middlewares/error.middleware';
 import aiRoutes from './routes/ai.routes';
 import mediaRoutes from './routes/media.routes';
 import authRoutes from './routes/auth.routes';
+import radiologyRoutes from './routes/radiology.routes';
 
 const app = express();
 
@@ -89,6 +90,7 @@ app.get('/health', (req, res) => {
 app.use('/api/ai', aiRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/radiology', radiologyRoutes);
 
 // =====================================================================
 // GESTION GLOBALE DES ERREURS

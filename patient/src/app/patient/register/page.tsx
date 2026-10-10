@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Mail, Phone, Lock, Calendar, Heart, 
+  User, Mail, Phone, Lock, Calendar, 
   ShieldCheck, ArrowLeft, ArrowRight, 
-  Loader2, Sparkles, Award, AlertCircle
+  Loader2, Sparkles, Award, AlertCircle,
+  Eye, EyeOff, Check, X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,11 +28,32 @@ export default function PatientRegister() {
   const [socialSecurity, setSocialSecurity] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [bloodGroup, setBloodGroup] = useState('O+');
+  const [bloodGroup, setBloodGroup] = useState('Non renseigné');
   const [allergies, setAllergies] = useState('');
   const [emergencyName, setEmergencyName] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Règles de sécurité du mot de passe
+  const passwordCriteria = {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+  };
+
+  const isPasswordValid = 
+    passwordCriteria.minLength &&
+    passwordCriteria.hasUpper &&
+    passwordCriteria.hasLower &&
+    passwordCriteria.hasNumber &&
+    passwordCriteria.hasSpecial;
+
+  const isPasswordMatch = password.length > 0 && password === confirmPassword;
   
   const [showToast, setShowToast] = useState(false);
 
@@ -55,9 +77,10 @@ export default function PatientRegister() {
       return email.trim() !== '' && phone.trim() !== '' && socialSecurity.trim() !== '';
     }
     if (step === 3) {
-      return emergencyName.trim() !== '' && emergencyPhone.trim() !== '';
+      // Groupe sanguin, allergies et contact d'urgence sont facultatifs
+      return true;
     }
-    return password.trim().length >= 6;
+    return isPasswordValid && isPasswordMatch;
   };
 
   const handleNext = () => {
@@ -84,11 +107,11 @@ export default function PatientRegister() {
       gender,
       socialSecurity,
       phone,
-      bloodGroup,
-      allergies: allergies || 'Aucune connue',
+      bloodGroup: bloodGroup !== 'Non renseigné' ? bloodGroup : 'Non renseigné',
+      allergies: allergies.trim() !== '' ? allergies : 'Aucune connue',
       emergencyContact: {
-        name: emergencyName,
-        phone: emergencyPhone
+        name: emergencyName.trim() !== '' ? emergencyName : 'Non renseigné',
+        phone: emergencyPhone.trim() !== '' ? emergencyPhone : 'Non renseigné'
       }
     };
 
@@ -101,7 +124,7 @@ export default function PatientRegister() {
     }
   };
 
-  const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  const bloodGroups = ['Non renseigné', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
   const stepTitles = [
     "Identité",
@@ -134,7 +157,7 @@ export default function PatientRegister() {
             Créer votre Compte Patient
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Création de votre carnet de santé numérique sécurisé Sunu Santé
+            Création de votre carnet de santé numérique sécurisé Health AI
           </p>
         </div>
 
@@ -349,17 +372,18 @@ export default function PatientRegister() {
                   </div>
 
                   <div className="pt-3 border-t border-slate-200">
-                    <p className="text-xs font-semibold text-slate-800 mb-3 flex items-center gap-1.5">
-                      <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />
-                      Contact d'Urgence Recommandé
-                    </p>
+                    <div className="mb-3">
+                      <p className="text-xs font-semibold text-slate-800">
+                        Contact d'Urgence Recommandé
+                      </p>
+                      <span className="text-[10px] text-slate-400">Facultatif — peut être renseigné ou modifié plus tard</span>
+                    </div>
                     
                     <div className="space-y-3">
                       <div>
                         <label className="block text-[11px] font-medium text-slate-600 mb-1">Nom du Contact</label>
                         <input
                           type="text"
-                          required
                           placeholder="ex: Moussa Ndiaye (Père / Époux)"
                           value={emergencyName}
                           onChange={(e) => setEmergencyName(e.target.value)}
@@ -371,7 +395,6 @@ export default function PatientRegister() {
                         <label className="block text-[11px] font-medium text-slate-600 mb-1">Téléphone du Contact</label>
                         <input
                           type="tel"
-                          required
                           placeholder="+221 77 987 65 43"
                           value={emergencyPhone}
                           onChange={(e) => setEmergencyPhone(e.target.value)}
@@ -393,26 +416,111 @@ export default function PatientRegister() {
                   transition={{ duration: 0.15 }}
                   className="space-y-4"
                 >
+                  {/* Champ 1: Mot de passe */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Mot de Passe de Sécurité</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Mot de Passe de Sécurité
+                    </label>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         required
                         placeholder="••••••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
+                        className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 focus:bg-white transition-all"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1">Au moins 6 caractères recommandés.</p>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-teal-50 border border-teal-200/60 flex items-start gap-2.5 text-xs text-teal-800 leading-relaxed">
-                    <ShieldCheck className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                  {/* Checklist des exigences du mot de passe */}
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                    <p className="font-semibold text-slate-700 text-[11px] mb-1">
+                      Exigences obligatoires de sécurité :
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      <div className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors ${passwordCriteria.minLength ? 'text-emerald-700' : 'text-slate-500'}`}>
+                        {passwordCriteria.minLength ? <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                        <span>8 caractères minimum</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors ${passwordCriteria.hasUpper ? 'text-emerald-700' : 'text-slate-500'}`}>
+                        {passwordCriteria.hasUpper ? <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                        <span>1 majuscule (A-Z)</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors ${passwordCriteria.hasLower ? 'text-emerald-700' : 'text-slate-500'}`}>
+                        {passwordCriteria.hasLower ? <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                        <span>1 minuscule (a-z)</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors ${passwordCriteria.hasNumber ? 'text-emerald-700' : 'text-slate-500'}`}>
+                        {passwordCriteria.hasNumber ? <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                        <span>1 chiffre (0-9)</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-[11px] font-medium sm:col-span-2 transition-colors ${passwordCriteria.hasSpecial ? 'text-emerald-700' : 'text-slate-500'}`}>
+                        {passwordCriteria.hasSpecial ? <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                        <span>1 caractère spécial (@, #, $, !, %, ...)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Champ 2: Confirmer le Mot de Passe */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Confirmer le Mot de Passe
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        placeholder="••••••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className={`w-full pl-10 pr-10 py-3 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:bg-white transition-all ${
+                          confirmPassword.length > 0
+                            ? isPasswordMatch
+                              ? 'border-emerald-500 focus:border-emerald-600 focus:ring-emerald-500/20'
+                              : 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20'
+                            : 'border-slate-300 focus:border-teal-600 focus:ring-teal-500/20'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+
+                    {confirmPassword.length > 0 && (
+                      <p className={`text-[11px] mt-1.5 flex items-center gap-1 font-medium ${isPasswordMatch ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {isPasswordMatch ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Les mots de passe correspondent parfaitement.</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            <span>Les mots de passe ne correspondent pas.</span>
+                          </>
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-teal-50 border border-teal-200/60 flex items-start gap-2.5 text-xs text-teal-800 leading-relaxed">
+                    <ShieldCheck className="h-4 w-4 text-teal-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong>Protection HDS & Secret Médical</strong> : Vos données médicales sont strictement chiffrées et protégées conformément aux exigences de confidentialité.
+                      <strong>Protection HDS & Secret Médical</strong> : Vos données médicales sont strictement chiffrées et protégées.
                     </div>
                   </div>
                 </motion.div>
@@ -490,7 +598,7 @@ export default function PatientRegister() {
       )}
 
       <footer className="mt-8 text-center text-xs text-slate-500">
-        &copy; {new Date().getFullYear()} Sunu Santé — Système de Santé Numérique et IA Médicale.
+        &copy; {new Date().getFullYear()} Health AI — Système de Santé Numérique et IA Médicale.
       </footer>
     </main>
   );

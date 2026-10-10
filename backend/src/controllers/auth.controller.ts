@@ -46,7 +46,7 @@ export class AuthController {
       const loginSchema = z.object({
         email: z.string().email(),
         password: z.string(),
-        role: z.enum(['doctor', 'nurse', 'radiology', 'pharmacist', 'reception', 'cashier', 'patient', 'admin_hospital', 'admin_pharmacy', 'superadmin'])
+        role: z.enum(['doctor', 'nurse', 'radiology', 'pharmacist', 'reception', 'cashier', 'patient', 'admin_hospital', 'admin_pharmacy', 'superadmin']).optional()
       });
 
       const parsed = loginSchema.safeParse(req.body);
@@ -64,7 +64,7 @@ export class AuthController {
         matchedUser = {
           email,
           passwordHash: password, // Store in plain text for mock simplicity
-          role,
+          role: role || 'doctor',
           name: defaultName,
           suspended: false,
           details: { mock: true }
@@ -78,7 +78,7 @@ export class AuthController {
         return res.status(403).json({ error: 'Ce compte a été suspendu par un administrateur.' });
       }
 
-      if (matchedUser.role !== role) {
+      if (role && matchedUser.role !== role) {
         return res.status(400).json({ error: `Identifiants corrects, mais ce compte n'a pas le rôle de ${role}.` });
       }
 

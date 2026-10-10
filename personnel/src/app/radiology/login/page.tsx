@@ -177,7 +177,7 @@ export default function RadiologyLogin() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Sécurisation PACS DICOM v3.
+        &copy; {new Date().getFullYear()} Health AI - Sécurisation PACS DICOM v3.
       </footer>
     </div>
   );

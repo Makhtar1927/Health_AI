@@ -10,10 +10,15 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Sunu Santé - Espace Patient Sécurisé',
+  title: 'Health AI - Espace Patient Sécurisé',
   description: 'Portail patient médical sécurisé : vos consultations, ordonnances, carnet de santé et téléconsultations en toute simplicité.',
-  keywords: ['santé', 'medical', 'patient', 'senegal', 'dossier medical', 'sunu sante'],
-  authors: [{ name: 'Sunu Santé' }],
+  keywords: ['santé', 'medical', 'patient', 'senegal', 'dossier medical', 'health ai'],
+  authors: [{ name: 'Health AI' }],
+  icons: {
+    icon: '/HealthAI_symbole.png',
+    shortcut: '/HealthAI_symbole.png',
+    apple: '/HealthAI_symbole.png',
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,8 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${outfit.variable} scroll-smooth`}>
-      <body className="font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col selection:bg-teal-500 selection:text-white">
+    <html lang="fr" className={`${outfit.variable} scroll-smooth`} suppressHydrationWarning>
+      <body className="font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col selection:bg-teal-500 selection:text-white" suppressHydrationWarning>
         {children}
       </body>
     </html>

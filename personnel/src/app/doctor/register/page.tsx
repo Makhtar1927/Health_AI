@@ -98,7 +98,7 @@ export default function DoctorRegister() {
           </motion.div>
           
           <h1 className="text-3xl font-black tracking-tight mb-2">Inscription Praticien</h1>
-          <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest">Rejoindre le Réseau Sunu Santé</p>
+          <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest">Rejoindre le Réseau Health AI</p>
         </div>
 
         {/* Card Form */}
@@ -292,7 +292,7 @@ export default function DoctorRegister() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Dossier Clinique Soumis au Secret Médical.
+        &copy; {new Date().getFullYear()} Health AI - Dossier Clinique Soumis au Secret Médical.
       </footer>
     </div>
   );

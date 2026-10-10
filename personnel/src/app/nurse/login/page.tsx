@@ -177,7 +177,7 @@ export default function NurseLogin() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Gestion des Dossiers de Soins Infirmiers.
+        &copy; {new Date().getFullYear()} Health AI - Gestion des Dossiers de Soins Infirmiers.
       </footer>
     </div>
   );

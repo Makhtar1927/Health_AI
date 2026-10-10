@@ -22,6 +22,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import HealthAILogo from '@/components/HealthAILogo';
 
 export default function PatientDirectLogin() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function PatientDirectLogin() {
     // Normaliser l'email si connexion par téléphone
     const finalEmail = authMethod === 'email' 
       ? trimmed 
-      : `${trimmed.replace(/[^0-9]/g, '')}@patient.sunusante.sn`;
+      : `${trimmed.replace(/[^0-9]/g, '')}@patient.healthai.sn`;
 
     const success = await login(finalEmail, password, 'patient');
     if (success) {
@@ -75,23 +76,23 @@ export default function PatientDirectLogin() {
 
   // Connexion démo express en 1 clic
   const handleQuickDemo = async () => {
-    setIdentifier('moussa.diop@sunusante.sn');
+    setIdentifier('moussa.diop@healthai.sn');
     setPassword('Patient2026!');
-    const success = await login('moussa.diop@sunusante.sn', 'Patient2026!', 'patient');
+    const success = await login('moussa.diop@healthai.sn', 'Patient2026!', 'patient');
     if (success) {
       router.push('/patient/home');
     }
   };
 
-  // Prevent hydration mismatch: same render on server & client until mounted
+  // Prevent hydration mismatch: same root tag <main> on server & client
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-lg animate-pulse">S+</div>
+          <HealthAILogo size="lg" pulse />
           <p className="text-xs text-slate-500 font-medium">Connexion sécurisée...</p>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -179,7 +180,7 @@ export default function PatientDirectLogin() {
             {/* Note de Confiance */}
             <div className="flex items-center gap-3 text-xs text-slate-500 pt-2 border-t border-slate-200/60 max-w-xl">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Plus de 45 cliniques, hôpitaux et cabinets connectés au réseau Sunu Santé au Sénégal.</span>
+              <span>Plus de 45 cliniques, hôpitaux et cabinets connectés au réseau Health AI au Sénégal.</span>
             </div>
           </div>
 
@@ -189,12 +190,10 @@ export default function PatientDirectLogin() {
               
               {/* Header de la Carte */}
               <div className="text-center sm:text-left mb-6">
-                <div className="inline-flex items-center gap-2 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20 font-bold text-lg">
-                    S+
-                  </div>
+                <div className="inline-flex items-center gap-2.5 mb-2">
+                  <HealthAILogo size="md" />
                   <div>
-                    <span className="text-lg font-bold tracking-tight text-slate-900 block leading-tight">Sunu Santé</span>
+                    <span className="text-lg font-bold tracking-tight text-slate-900 block leading-tight">Health AI</span>
                     <span className="text-[11px] font-medium text-teal-700 uppercase tracking-wider">Espace Patient</span>
                   </div>
                 </div>
@@ -381,7 +380,7 @@ export default function PatientDirectLogin() {
       {/* Footer Institutionnel et Sécurisé */}
       <footer className="bg-white border-t border-slate-200/80 py-4 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Sunu Santé — Système de Santé Numérique et IA Médicale.</p>
+          <p>© {new Date().getFullYear()} Health AI — Système de Santé Numérique et IA Médicale.</p>
           <div className="flex items-center gap-4">
             <a href="#confidentialite" className="hover:text-slate-800 transition-colors">Confidentialité & Données</a>
             <span className="text-slate-300">•</span>

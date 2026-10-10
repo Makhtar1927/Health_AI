@@ -188,7 +188,7 @@ function LoginContent() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Espace Médical Sécurisé HIPAA/RGPD.
+        &copy; {new Date().getFullYear()} Health AI - Espace Médical Sécurisé HIPAA/RGPD.
       </footer>
     </div>
   );

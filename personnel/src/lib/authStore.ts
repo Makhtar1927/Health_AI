@@ -24,7 +24,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string, role: UserSession['role']) => Promise<boolean>;
+  login: (email: string, password: string, role?: UserSession['role']) => Promise<boolean>;
   register: (email: string, password: string, role: UserSession['role'], name: string, details: Record<string, any>) => Promise<boolean>;
   logout: () => void;
   initialize: () => void;
@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (!error && data?.user) {
             const name = data.user.user_metadata?.name || email.split('@')[0];
             const details = data.user.user_metadata?.details || {};
-            const userRole = data.user.user_metadata?.role || role;
+            const userRole = data.user.user_metadata?.role || role || 'doctor';
             const suspended = data.user.user_metadata?.suspended || false;
 
             if (suspended) {
@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               return false;
             }
 
-            if (userRole !== role) {
+            if (role && userRole !== role) {
               set({ 
                 error: `Ce compte n'est pas enregistré en tant que ${role}.`, 
                 isLoading: false 
@@ -123,7 +123,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
+        body: JSON.stringify({ email, password, ...(role ? { role } : {}) })
       });
 
       const data = await res.json();

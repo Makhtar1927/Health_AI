@@ -113,7 +113,7 @@ export default function CashierBilling() {
           </Link>
           <div>
             <h1 className="text-lg font-bold tracking-tight">Facturation & Caisse</h1>
-            <p className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Sunu Santé &bull; Passerelle Wave & Bizao</p>
+            <p className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Health AI &bull; Passerelle Wave & Bizao</p>
           </div>
         </div>
 
@@ -235,7 +235,7 @@ export default function CashierBilling() {
               >
                 {/* Branding header receipt */}
                 <div className="text-center space-y-1 pb-6 border-b border-slate-200">
-                  <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Sunu Santé</h2>
+                  <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Health AI</h2>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Clinique Médicale Dakar Plateau</p>
                   <p className="text-[9px] text-slate-400">Date : {new Date().toLocaleDateString('fr-FR')} &bull; Heure : {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
@@ -463,7 +463,7 @@ export default function CashierBilling() {
       </main>
 
       <footer className="text-center text-xs text-slate-500 py-6 border-t border-slate-800">
-        &copy; {new Date().getFullYear()} Sunu Santé - Caisse & Facturation Connectée.
+        &copy; {new Date().getFullYear()} Health AI - Caisse & Facturation Connectée.
       </footer>
     </div>
   );

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/authStore';
+import HealthAILogo from '@/components/HealthAILogo';
 
 export default function PatientHome() {
   const { user, initialize } = useAuthStore();
@@ -43,7 +44,7 @@ export default function PatientHome() {
     return (
       <div className="min-h-[500px] flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3 text-slate-400">
-          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm animate-pulse">S+</div>
+          <HealthAILogo size="lg" pulse />
           <p className="text-xs font-medium">Chargement de votre tableau de bord...</p>
         </div>
       </div>
@@ -61,7 +62,7 @@ export default function PatientHome() {
   const allergies    = user?.details?.allergies || 'Pénicilline';
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-    `https://sunusante.sn/patient/${vitalId}`
+    `https://healthai.sn/patient/${vitalId}`
   )}&color=0d9488&bgcolor=ffffff&format=svg&qzone=2`;
 
   const nextRdv = {
@@ -144,7 +145,7 @@ export default function PatientHome() {
                       <ShieldCheck className="w-3 h-3 text-emerald-300" />
                       Espace Sécurisé HDS
                     </span>
-                    <span className="text-teal-200/80 text-xs hidden sm:inline">• Sunu Santé SN</span>
+                    <span className="text-teal-200/80 text-xs hidden sm:inline">• Health AI SN</span>
                   </div>
                   <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                     Bonjour, {firstName} 👋
@@ -351,7 +352,7 @@ export default function PatientHome() {
             <div className="mx-auto w-[180px] h-[180px] bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center overflow-hidden p-2">
               <img
                 src={qrUrl}
-                alt="QR Code Dossier Patient Sunu Santé"
+                alt="QR Code Dossier Patient Health AI"
                 width={180}
                 height={180}
                 className="w-full h-full object-contain"

@@ -177,7 +177,7 @@ export default function ReceptionLogin() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Espace Administratif Central.
+        &copy; {new Date().getFullYear()} Health AI - Espace Administratif Central.
       </footer>
     </div>
   );

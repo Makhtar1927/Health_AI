@@ -5,26 +5,13 @@
 :root {
   --foreground-rgb: 15, 23, 42;
   --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 226, 232, 240;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 248, 250, 252;
-    --background-start-rgb: 15, 23, 42;
-    --background-end-rgb: 2, 6, 23;
-  }
+  --background-end-rgb: 241, 245, 249;
 }
 
 body {
   font-family: var(--font-outfit), sans-serif;
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    )
-    no-repeat fixed;
+  background-color: #f8fafc;
   min-height: 100vh;
 }
 

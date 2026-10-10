@@ -9,10 +9,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Sunu Santé - Personnel Hospitalier et Officinal',
+  title: 'Health AI - Personnel Hospitalier et Officinal',
   description: 'Système complet de gestion hospitalière et d\'intelligence artificielle médicale pour les professionnels de santé et les patients.',
   keywords: ['santé', 'medical', 'ia', 'radiologie', 'senegal', 'dossier medical', 'pacs', 'dicom'],
-  authors: [{ name: 'Sunu Santé Team' }],
+  authors: [{ name: 'Health AI Team' }],
 };
 
 export const viewport: Viewport = {
@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${outfit.variable} scroll-smooth`}>
-      <body className="font-sans antialiased text-slate-800 dark:text-slate-100 min-h-screen flex flex-col">
+    <html lang="fr" className={`${outfit.variable} scroll-smooth`} suppressHydrationWarning>
+      <body className="font-sans antialiased text-slate-900 bg-slate-50 min-h-screen flex flex-col" suppressHydrationWarning>
         {children}
       </body>
     </html>

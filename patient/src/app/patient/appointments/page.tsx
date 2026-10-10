@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/authStore';
+import HealthAILogo from '@/components/HealthAILogo';
 
 interface Appointment {
   id: string;
@@ -141,7 +142,7 @@ export default function PatientAppointments() {
     return (
       <div className="min-h-[500px] flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3 text-slate-400">
-          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm animate-pulse">S+</div>
+          <HealthAILogo size="lg" pulse />
           <p className="text-xs font-medium">Chargement de vos rendez-vous...</p>
         </div>
       </div>
@@ -195,7 +196,7 @@ export default function PatientAppointments() {
       id: `RDV-${Math.floor(100 + Math.random() * 900)}`,
       doctor: bookingDoctor,
       specialty: bookingSpecialty,
-      hospital: matchedDoc?.hospital || "Clinique Sunu Santé",
+      hospital: matchedDoc?.hospital || "Clinique Health AI",
       location: bookingType === 'teleconsult' ? "Téléconsultation Vidéo Sécurisée" : (matchedDoc?.hospital || "Dakar"),
       type: bookingType,
       date: formattedDate,
@@ -204,7 +205,7 @@ export default function PatientAppointments() {
       reason: bookingReason,
       preparation: bookingType === 'teleconsult' 
         ? "Assurez-vous d'avoir une connexion stable et un microphone activé 5 min avant."
-        : "Présentez-vous 10 minutes avant muni de votre identifiant Sunu Santé.",
+        : "Présentez-vous 10 minutes avant muni de votre identifiant Health AI.",
       phone: matchedDoc?.phone || "+221 33 800 00 00"
     };
 
@@ -294,7 +295,7 @@ export default function PatientAppointments() {
                 <CalendarCheck className="w-3 h-3 text-teal-600" />
                 Planning Médical
               </span>
-              <span className="text-xs text-slate-400 font-medium">• Sunu Santé Direct</span>
+              <span className="text-xs text-slate-400 font-medium">• Health AI Direct</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Mes Rendez-vous
@@ -528,7 +529,7 @@ export default function PatientAppointments() {
                     <div className="flex items-center gap-2 ml-auto">
                       {isTeleconsult && (app.status === 'confirmed' || app.status === 'pending') && (
                         <button
-                          onClick={() => alert(`Connexion à la salle de téléconsultation vidéo pour ${app.doctor}...\nLe lien de salle sécurisée Sunu Santé s'active 10 min avant le créneau.`)}
+                          onClick={() => alert(`Connexion à la salle de téléconsultation vidéo pour ${app.doctor}...\nLe lien de salle sécurisée Health AI s'active 10 min avant le créneau.`)}
                           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold transition-colors shadow-sm"
                         >
                           <Video className="w-3.5 h-3.5" />
@@ -573,9 +574,7 @@ export default function PatientAppointments() {
               {/* Header fixe */}
               <div className="flex-shrink-0 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                    S+
-                  </div>
+                  <HealthAILogo size="sm" />
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">Détails de la consultation</h3>
                     <p className="text-[10px] text-teal-700 font-mono font-bold">{detailModalApp.id}</p>
@@ -623,7 +622,7 @@ export default function PatientAppointments() {
                     {detailModalApp.type === 'teleconsult' ? (
                       <>
                         <Video className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                        <span>Téléconsultation Vidéo Sunu Santé (HD)</span>
+                        <span>Téléconsultation Vidéo Health AI (HD)</span>
                       </>
                     ) : (
                       <>
@@ -711,7 +710,7 @@ export default function PatientAppointments() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">Prendre un rendez-vous</h3>
-                    <p className="text-[10px] text-teal-700 font-medium">Plateforme médicale Sunu Santé</p>
+                    <p className="text-[10px] text-teal-700 font-medium">Plateforme médicale Health AI</p>
                   </div>
                 </div>
                 <button

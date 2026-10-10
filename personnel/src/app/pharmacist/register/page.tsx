@@ -87,7 +87,7 @@ export default function PharmacistRegister() {
           </motion.div>
           
           <h1 className="text-3xl font-black tracking-tight mb-2">Inscription Pharmacien</h1>
-          <p className="text-xs text-violet-400 font-bold uppercase tracking-widest">Rejoindre le Réseau d'Officines Sunu Santé</p>
+          <p className="text-xs text-violet-400 font-bold uppercase tracking-widest">Rejoindre le Réseau d'Officines Health AI</p>
         </div>
 
         {/* Card Form */}
@@ -280,7 +280,7 @@ export default function PharmacistRegister() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Sécurisation des Prescriptions Électroniques.
+        &copy; {new Date().getFullYear()} Health AI - Sécurisation des Prescriptions Électroniques.
       </footer>
     </div>
   );
