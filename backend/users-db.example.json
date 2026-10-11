@@ -10,13 +10,23 @@
     }
   },
   {
-    "email": "hopital.dakar@sunu-sante.sn",
-    "passwordHash": "Hopital123!",
+    "email": "admin.hopital@sunu-sante.sn",
+    "passwordHash": "Hopital2026!",
     "role": "admin_hospital",
-    "name": "Direction Hôpital Principal",
+    "name": "Dr. Amadou Fall",
     "suspended": false,
     "details": {
       "hospital": "Hôpital Principal de Dakar"
+    }
+  },
+  {
+    "email": "admin.pharmacie@sunu-sante.sn",
+    "passwordHash": "Pharmacie2026!",
+    "role": "admin_pharmacy",
+    "name": "Dr. Fatou Ndiaye",
+    "suspended": false,
+    "details": {
+      "pharmacyName": "Pharmacie Centrale de Dakar"
     }
   },
   {
