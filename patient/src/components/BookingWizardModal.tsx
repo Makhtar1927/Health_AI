@@ -227,12 +227,12 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/70 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, y: 40, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 40, scale: 0.98 }}
-        className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-2xl w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
+        className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-2xl w-full h-[88dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
       >
         {/* Mobile handle */}
         <div className="pt-2 sm:hidden flex justify-center">
@@ -784,13 +784,13 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
           )}
         </div>
 
-        {/* Footer avec boutons de navigation de l'assistant */}
-        <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-200/80 bg-slate-50 flex items-center justify-between flex-shrink-0 gap-2">
+        {/* Footer avec boutons de navigation de l'assistant surélevés */}
+        <div className="p-4 sm:p-5 pb-[max(2rem,env(safe-area-inset-bottom)+1rem)] border-t border-slate-200/90 bg-slate-50 flex items-center justify-between flex-shrink-0 gap-2 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
           {currentStep > 1 && currentStep < 5 ? (
             <button
               type="button"
               onClick={() => setCurrentStep((currentStep - 1) as any)}
-              className="px-3.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer flex-shrink-0"
+              className="px-4 py-2.5 min-h-[46px] rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer flex-shrink-0"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Précédent</span>
@@ -804,7 +804,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
               type="button"
               disabled={!selectedFacility}
               onClick={() => setCurrentStep(2)}
-              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
+              className="px-5 py-2.5 min-h-[46px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
             >
               <span>Choisir la spécialité</span>
               <ArrowRight className="h-4 w-4" />
@@ -816,7 +816,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
               type="button"
               disabled={!selectedSpecialty}
               onClick={() => setCurrentStep(3)}
-              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
+              className="px-5 py-2.5 min-h-[46px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
             >
               <span>Choisir le créneau</span>
               <ArrowRight className="h-4 w-4" />
@@ -828,7 +828,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
               type="button"
               disabled={!selectedDate || !selectedTimeSlot || !slotsData?.isDayAvailable}
               onClick={() => setCurrentStep(4)}
-              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
+              className="px-5 py-2.5 min-h-[46px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer ml-auto"
             >
               <span>Voir le ticket & tarif</span>
               <ArrowRight className="h-4 w-4" />
@@ -840,10 +840,10 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={handleConfirmBooking}
-              className="px-5 sm:px-6 py-2.5 min-h-[44px] rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-teal-600/20 disabled:opacity-50 cursor-pointer ml-auto"
+              className="px-6 py-3 min-h-[48px] rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs sm:text-sm font-black flex items-center gap-2 transition-all shadow-lg shadow-teal-600/30 disabled:opacity-50 cursor-pointer ml-auto"
             >
               <span>{isSubmitting ? 'Confirmation...' : 'Confirmer le Rendez-vous'}</span>
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4 stroke-[2.5]" />
             </button>
           )}
 
@@ -851,7 +851,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 min-h-[46px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Terminer & Voir mes rendez-vous
             </button>

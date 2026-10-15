@@ -69,12 +69,12 @@ body {
   animation: loading-slide 1.8s ease-in-out infinite;
 }
 
-/* Transitions de page fluides */
+/* Transitions de page fluides sans transform persistant pour préserver le positionnement fixed des modales */
 @keyframes fade-slide-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0);   }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .page-enter {
-  animation: fade-slide-in 0.3s ease-out forwards;
+  animation: fade-slide-in 0.2s ease-out;
 }

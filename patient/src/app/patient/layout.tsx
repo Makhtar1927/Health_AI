@@ -200,7 +200,7 @@ export default function PatientLayout({
       <div className="flex-1 flex flex-col min-w-0 lg:h-screen lg:overflow-hidden relative">
 
         {/* ─── Mobile Sticky Top Bar (lg:hidden) ────────────────────────────── */}
-        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between lg:hidden flex-shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.03)]">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between lg:hidden flex-shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.03)]">
           <Link href="/patient/home" className="flex items-center gap-2.5 min-w-0">
             <HealthAILogo size="sm" />
             <div className="min-w-0">
@@ -283,7 +283,7 @@ export default function PatientLayout({
         </main>
 
         {/* ─── Mobile Fixed Bottom Navigation Bar (lg:hidden) ──────────────── */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex items-center justify-around lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex items-center justify-around lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
           {navLinks.filter(l => !l.isSos && !l.isBell && !l.isProfile).map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;

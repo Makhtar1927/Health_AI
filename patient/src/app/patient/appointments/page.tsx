@@ -578,13 +578,13 @@ export default function PatientAppointments() {
       {/* ─── MODAL : Détails d'un rendez-vous (Responsive Mobile Bottom-Sheet & Desktop Centered) ─── */}
       <AnimatePresence>
         {detailModalApp && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/70 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full h-[88dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
             >
               {/* Mobile grab handle */}
               <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
@@ -694,12 +694,12 @@ export default function PatientAppointments() {
                 )}
               </div>
 
-              {/* Footer fixe */}
-              <div className="flex-shrink-0 p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2">
+              {/* Footer fixe surélevé */}
+              <div className="flex-shrink-0 p-4 sm:p-5 pb-[max(2rem,env(safe-area-inset-bottom)+1rem)] border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
                 {(detailModalApp.status === 'confirmed' || detailModalApp.status === 'pending') ? (
                   <button
                     onClick={() => handleCancelAppointment(detailModalApp.id)}
-                    className="py-2.5 px-3 min-h-[44px] text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-center cursor-pointer"
+                    className="py-2.5 px-3 min-h-[46px] text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-center cursor-pointer"
                   >
                     Annuler ce rendez-vous
                   </button>
@@ -709,7 +709,7 @@ export default function PatientAppointments() {
 
                 <button
                   onClick={() => setDetailModalApp(null)}
-                  className="py-2.5 px-5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors text-center cursor-pointer"
+                  className="py-2.5 px-6 min-h-[46px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs sm:text-sm font-bold transition-colors text-center cursor-pointer shadow-sm"
                 >
                   Fermer
                 </button>

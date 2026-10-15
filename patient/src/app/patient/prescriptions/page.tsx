@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -543,7 +543,7 @@ export default function PatientPrescriptions() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-900/70 backdrop-blur-sm"
             onClick={() => setSelectedQr(null)}
           >
             <motion.div
@@ -551,10 +551,10 @@ export default function PatientPrescriptions() {
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 60, scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-sm w-full max-h-[88dvh] sm:max-h-[88vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-violet-50/70">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-violet-50/70 flex-shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center">
                     <QrCode className="w-5 h-5" />
@@ -572,7 +572,7 @@ export default function PatientPrescriptions() {
                 </button>
               </div>
 
-              <div className="p-5 flex flex-col items-center gap-4">
+              <div className="p-5 flex-1 min-h-0 overflow-y-auto flex flex-col items-center gap-4 overscroll-contain">
                 <p className="text-xs text-slate-500 text-center max-w-[260px]">
                   Presentez ce QR Code a l&apos;officine pour autoriser la dispensation securisee de vos medicaments.
                 </p>
@@ -607,10 +607,10 @@ export default function PatientPrescriptions() {
                 </div>
               </div>
 
-              <div className="px-5 pb-5">
+              <div className="px-5 pb-[max(2rem,env(safe-area-inset-bottom)+1rem)] pt-2 border-t border-slate-100 bg-slate-50 flex-shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
                 <button
                   onClick={() => setSelectedQr(null)}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-extrabold transition-colors cursor-pointer"
+                  className="w-full py-3 min-h-[46px] bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs sm:text-sm font-extrabold transition-colors cursor-pointer shadow-sm"
                 >
                   Fermer
                 </button>
