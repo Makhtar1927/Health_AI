@@ -93,7 +93,7 @@ export const HospitalBadgeModal: React.FC<Props> = ({ isOpen, onClose, onPunch }
           <div className="py-8 text-center space-y-3">
             <CheckCircle2 className="h-14 w-14 text-emerald-600 mx-auto animate-bounce" />
             <p className="text-sm font-bold text-slate-900">{successMsg}</p>
-            <p className="text-xs text-slate-500">Horodatage cryptographique certifié Sunu Santé</p>
+            <p className="text-xs text-slate-500">Horodatage cryptographique certifié Health AI</p>
           </div>
         ) : (
           <div className="space-y-6 pt-4">

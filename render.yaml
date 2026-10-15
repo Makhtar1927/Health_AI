@@ -1,10 +1,10 @@
 # ==============================================================================
-# 🚀 SUNU SANTÉ / HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Racine Monorepo)
+# 🚀 HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Racine Monorepo)
 # ==============================================================================
 
 services:
   - type: web
-    name: sunu-sante-backend
+    name: health-ai-backend
     runtime: node
     rootDir: backend
     plan: starter # Recommandé pour éviter la mise en veille sur une app médicale critique

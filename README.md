@@ -1,6 +1,6 @@
-# 🏥 Sunu Santé — Plateforme Médicale Intelligente
+# 🏥 Health AI — Plateforme Médicale Intelligente
 
-**Sunu Santé** est un écosystème de santé numérique moderne, sécurisé et adapté au contexte ouest-africain (Sénégal). La plateforme interconnecte les patients, les professionnels de santé, les centres hospitaliers, les pharmacies et les régulateurs au sein d'une architecture multi-applications unifiée.
+**Health AI** est un écosystème de santé numérique moderne, sécurisé et adapté au contexte ouest-africain (Sénégal). La plateforme interconnecte les patients, les professionnels de santé, les centres hospitaliers, les pharmacies et les régulateurs au sein d'une architecture multi-applications unifiée.
 
 ---
 
@@ -73,4 +73,4 @@ cd personnel && npm run dev
 ---
 
 ## 📄 Licence
-Propriété exclusive de **Sunu Santé** - Tous droits réservés.
+Propriété exclusive de **Health AI** - Tous droits réservés.

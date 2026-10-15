@@ -218,7 +218,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
         setErrorMsg(data.error || 'Impossible de confirmer ce rendez-vous.');
       }
     } catch (e) {
-      setErrorMsg('Erreur de connexion au serveur Sunu Santé.');
+      setErrorMsg('Erreur de connexion au serveur Health AI.');
     } finally {
       setIsSubmitting(false);
     }
@@ -254,7 +254,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
                   {currentStep === 4 && "Étape 4 : Validation du Ticket & Tarification"}
                   {currentStep === 5 && "Étape 5 : Rendez-vous Confirmé & Parcours"}
                 </h3>
-                <p className="text-[10px] text-slate-500">Parcours intelligent Sunu Santé</p>
+                <p className="text-[10px] text-slate-500">Parcours intelligent Health AI</p>
               </div>
             </div>
 
@@ -637,7 +637,7 @@ export const BookingWizardModal: React.FC<BookingWizardProps> = ({
                 Vérifiez le récapitulatif de votre rendez-vous et le tarif officiel fixé par l'établissement :
               </p>
 
-              {/* TICKET VIRTUEL SUNU SANTÉ */}
+              {/* TICKET VIRTUEL HEALTH AI */}
               <div className="bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 text-white rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden border border-teal-800">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-3 pb-4 border-b border-white/10">
                   <div className="flex-1 min-w-0">

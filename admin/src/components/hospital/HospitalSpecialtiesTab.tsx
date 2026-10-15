@@ -142,7 +142,7 @@ export const HospitalSpecialtiesTab: React.FC<Props> = ({ hospitalName = "Hôpit
         showToast(err.error || 'Erreur lors de la sauvegarde.', 'error');
       }
     } catch (e) {
-      showToast('Impossible de contacter le serveur Sunu Santé.', 'error');
+      showToast('Impossible de contacter le serveur Health AI.', 'error');
     } finally {
       setIsSaving(false);
     }

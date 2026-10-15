@@ -367,7 +367,7 @@ export default function AdminHospitalDashboard() {
                 Poste de Commandement
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium">Hôpital Principal de Dakar · Sunu Santé</p>
+            <p className="text-[11px] text-slate-500 font-medium">Hôpital Principal de Dakar · Health AI</p>
           </div>
         </div>
         
@@ -516,7 +516,7 @@ export default function AdminHospitalDashboard() {
         {activeTab === 'reports' && (
           <HospitalReportsTab
             reports={reports}
-            currentHospitalName="Hôpital Principal de Dakar - Sunu Santé"
+            currentHospitalName="Hôpital Principal de Dakar - Health AI"
           />
         )}
 
@@ -572,7 +572,7 @@ export default function AdminHospitalDashboard() {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900">Habilitation d'un Nouveau Soignant</h3>
-                    <p className="text-[10px] text-slate-500">Formulaire d'enregistrement certifié Sunu Santé</p>
+                    <p className="text-[10px] text-slate-500">Formulaire d'enregistrement certifié Health AI</p>
                   </div>
                 </div>
                 <button 
@@ -935,7 +935,7 @@ export default function AdminHospitalDashboard() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 px-4 sm:px-8 py-4 bg-white text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-        <p>© 2026 Sunu Santé · Direction Hospitalière & Gouvernance Médicale Numérique · République du Sénégal</p>
+        <p>© 2026 Health AI · Direction Hospitalière & Gouvernance Médicale Numérique · République du Sénégal</p>
         <p className="flex items-center gap-2 text-slate-600 font-medium">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
           Système HDS & RGPD / CDP Conforme · Version Pro 3.4

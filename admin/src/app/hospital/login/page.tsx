@@ -165,7 +165,7 @@ export default function AdminHospitalLogin() {
       )}
 
       <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Module de Direction Hôpital Sécurisé.
+        &copy; {new Date().getFullYear()} Health AI - Module de Direction Hôpital Sécurisé.
       </footer>
     </div>
   );

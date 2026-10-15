@@ -1,7 +1,7 @@
 {
   "name": "sunu-sante-superadmin",
   "version": "1.0.0",
-  "description": "Portail web et mobile-first haut de gamme pour la plateforme médicale intelligente Sunu Santé",
+  "description": "Portail web et mobile-first haut de gamme pour la plateforme médicale intelligente Health AI",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3002",

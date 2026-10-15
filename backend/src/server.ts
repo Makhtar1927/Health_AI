@@ -30,7 +30,7 @@ app.use(helmet({
   }
 }));
 
-// CORS multi-port et multi-environnement pour l'écosystème Sunu Santé
+// CORS multi-port et multi-environnement pour l'écosystème Health AI
 const baseLocalOrigins = [
   'http://localhost:3000', // Patient
   'http://localhost:3001', // Admin (Hôpital/Pharmacie)
@@ -62,7 +62,7 @@ app.use(cors({
       return callback(null, true);
     }
     
-    callback(new Error(`Bloqué par la politique CORS de Sunu Santé : ${origin}`));
+    callback(new Error(`Bloqué par la politique CORS de Health AI : ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -111,7 +111,7 @@ const PORT = env.PORT;
 const server = app.listen(PORT, () => {
   console.log(`
   🚀 ==========================================================
-  💡 Sunu Santé - API Principale Connectée
+  💡 Health AI - API Principale Connectée
   🛡️  Mode Sécurité Actif (Helmet & Rate-Limits chargés)
   🌍 Environnement : ${env.NODE_ENV}
   🔌 Port d'écoute : http://localhost:${PORT}

@@ -15,7 +15,7 @@ export class AIService {
       const drugsString = drugs.map(d => `${d.name} (${d.dosage || 'Dosage non spécifié'})`).join(', ');
       
       const prompt = `
-        En tant qu'assistant de pharmacologie clinique senior de Sunu Santé, analysez de manière critique les interactions négatives ou contre-indications potentielles pour la liste de médicaments suivante prescrite à un même patient :
+        En tant qu'assistant de pharmacologie clinique senior de Health AI, analysez de manière critique les interactions négatives ou contre-indications potentielles pour la liste de médicaments suivante prescrite à un même patient :
         
         Médicaments : [ ${drugsString} ]
         
@@ -54,7 +54,7 @@ export class AIService {
         alternativesText = 'Co-prescription impérative d\'un IPP protecteur gastrique (Oméprazole 20mg).';
       }
 
-      return `### 🛡️ Contrôle d'Interactions Médicamenteuses (IA Sunu Santé)
+      return `### 🛡️ Contrôle d'Interactions Médicamenteuses (IA Health AI)
 
 * **Niveau d'alerte global** : **${alertLevel}** (${alertLevel === 'VERT' ? 'Association sûre et validée' : alertLevel === 'ORANGE' ? 'Surveillance et précaution requises' : 'Contre-indication absolue'})
 * **Molécules analysées** : ${drugs.map(d => `\`${d.name} ${d.dosage || ''}\``).join(' + ')}
@@ -94,7 +94,7 @@ ${interactionsText}
       };
 
       const prompt = `
-        Vous êtes un système d'intelligence artificielle spécialisé en radiologie clinique pour la plateforme Sunu Santé.
+        Vous êtes un système d'intelligence artificielle spécialisé en radiologie clinique pour la plateforme Health AI.
         Analysez ce cliché médical de type [ ${examType} ] et fournissez une évaluation clinique détaillée et structurée.
         
         Renvoyez obligatoirement un format JSON valide avec les clés suivantes :
@@ -145,7 +145,7 @@ ${interactionsText}
       const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
       
       const systemInstruction = `
-        Vous êtes l'Assistant Clinique Intelligent de Sunu Santé. Vous interagissez avec des médecins, des infirmiers et des radiologues.
+        Vous êtes l'Assistant Clinique Intelligent de Health AI. Vous interagissez avec des médecins, des infirmiers et des radiologues.
         Votre rôle est de fournir des résumés d'informations scientifiques, des définitions, des protocoles de soins de référence, et des conseils basés sur la médecine factuelle (Evidence-Based Medicine).
         
         Règles cruciales :
@@ -176,7 +176,7 @@ ${interactionsText}
       const isFever = q.includes('fièvre') || q.includes('fébrile') || q.includes('température') || q.includes('palu');
 
       if (isRespiratory || isFever) {
-        return `### 🩺 Synthèse d'Aide Diagnostique (Co-Pilote Médical Sunu Santé)
+        return `### 🩺 Synthèse d'Aide Diagnostique (Co-Pilote Médical Health AI)
 
 #### 1. Hypothèses Diagnostiques Différentielles
 1. **Bronchite aiguë infectieuse** (Probabilité : Forte) : Tableau clinique fébrile avec toux productive sans détresse respiratoire aiguë.
@@ -197,7 +197,7 @@ ${interactionsText}
 * Apparition d'une polypnée (>24/min), d'un tirage intercostal ou d'une SpO2 < 94% à l'air ambiant.
 * Altération de l'état général ou vomissements incoercibles.`;
       } else if (isCardio) {
-        return `### 🩺 Synthèse d'Aide Diagnostique Cardiologique (Sunu Santé)
+        return `### 🩺 Synthèse d'Aide Diagnostique Cardiologique (Health AI)
 
 #### 1. Hypothèses Diagnostiques Prioritaires
 1. **Syndrome Coronarien Aigu (SCA)** : À éliminer en priorité devant toute douleur rétrosternale constrictive.
@@ -210,7 +210,7 @@ ${interactionsText}
 * **Surveillance monitorée** : TA, SpO2, Fréquence cardiaque continue.`;
       }
 
-      return `### 🩺 Synthèse Clinique & Conduite à Tenir (Sunu Santé)
+      return `### 🩺 Synthèse Clinique & Conduite à Tenir (Health AI)
 
 #### 1. Démarche Diagnostique Initiale
 * Examen physique complet (constantes hémodynamiques, examen des appareils ciblés).

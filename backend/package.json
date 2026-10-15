@@ -1,7 +1,7 @@
 {
   "name": "sunu-sante-backend",
   "version": "1.0.0",
-  "description": "API Backend sécurisée pour la plateforme médicale intelligente Sunu Santé",
+  "description": "API Backend sécurisée pour la plateforme médicale intelligente Health AI",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

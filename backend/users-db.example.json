@@ -3,7 +3,7 @@
     "email": "superadmin@sunu-sante.sn",
     "passwordHash": "Admin123!",
     "role": "superadmin",
-    "name": "Super Admin Sunu Santé",
+    "name": "Super Admin Health AI",
     "suspended": false,
     "details": {
       "mock": true

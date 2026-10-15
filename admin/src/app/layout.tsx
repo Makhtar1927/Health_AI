@@ -9,10 +9,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Sunu Santé - Direction Administrative',
+  title: 'Health AI - Direction Administrative',
   description: 'Système complet de gestion hospitalière et d\'intelligence artificielle médicale pour les professionnels de santé et les patients.',
   keywords: ['santé', 'medical', 'ia', 'radiologie', 'senegal', 'dossier medical', 'pacs', 'dicom'],
-  authors: [{ name: 'Sunu Santé Team' }],
+  authors: [{ name: 'Health AI Team' }],
 };
 
 export const viewport: Viewport = {

@@ -248,7 +248,7 @@ export const MONTHLY_REPORTS: MonthlyReportMetric[] = [
   {
     month: '2026-10',
     monthLabel: 'Octobre 2026',
-    hospitalName: 'Hôpital Principal de Dakar - Sunu Santé',
+    hospitalName: 'Hôpital Principal de Dakar - Health AI',
     admissionsTotal: 1845,
     emergencyAdmissions: 890,
     plannedAdmissions: 955,
@@ -284,7 +284,7 @@ export const MONTHLY_REPORTS: MonthlyReportMetric[] = [
   {
     month: '2026-09',
     monthLabel: 'Septembre 2026',
-    hospitalName: 'Hôpital Principal de Dakar - Sunu Santé',
+    hospitalName: 'Hôpital Principal de Dakar - Health AI',
     admissionsTotal: 2110,
     emergencyAdmissions: 1020,
     plannedAdmissions: 1090,
@@ -320,7 +320,7 @@ export const MONTHLY_REPORTS: MonthlyReportMetric[] = [
   {
     month: '2026-08',
     monthLabel: 'Août 2026',
-    hospitalName: 'Hôpital Principal de Dakar - Sunu Santé',
+    hospitalName: 'Hôpital Principal de Dakar - Health AI',
     admissionsTotal: 1980,
     emergencyAdmissions: 940,
     plannedAdmissions: 1040,

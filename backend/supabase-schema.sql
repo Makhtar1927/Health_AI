@@ -1,7 +1,5 @@
 -- ==============================================================================
--- 🏥 SUNU SANTÉ / HEALTH AI — SCHÉMA POSTGRESQL OFFICIEL SUPABASE
--- Description : Schéma complet avec types, contraintes d'intégrité, RLS, 
---               indexes optimisés et injection des structures sénégalaises.
+-- 🏥 HEALTH AI — SCHÉMA POSTGRESQL OFFICIEL SUPABASE
 -- ==============================================================================
 
 -- Activation des extensions nécessaires

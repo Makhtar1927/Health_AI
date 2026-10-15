@@ -113,7 +113,7 @@ export const HospitalAttendanceTab: React.FC<Props> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] bg-white/20 text-white font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-white/30">
-                Horodatage Certifié Sunu Santé
+                Horodatage Certifié Health AI
               </span>
               <span className="text-xs text-emerald-100">Date du jour : {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>

@@ -1,10 +1,10 @@
 # ==============================================================================
-# 🚀 SUNU SANTÉ / HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Blueprint)
+# 🚀 HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Blueprint)
 # ==============================================================================
 
 services:
   - type: web
-    name: sunu-sante-backend
+    name: health-ai-backend
     runtime: node
     plan: starter # Recommandé pour éviter la mise en veille (spin-down) sur une app médicale critique
     region: frankfurt # Plus proche de l'Afrique de l'Ouest (faible latence pour le Sénégal)
