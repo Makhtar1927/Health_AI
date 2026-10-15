@@ -278,7 +278,7 @@ export default function PatientLayout({
         </header>
 
         {/* ─── Main Content: Natural document scroll on mobile, contained on desktop ─── */}
-        <main className="flex-1 pb-28 lg:pb-0 lg:overflow-y-auto">
+        <main key={pathname} className="flex-1 pb-28 lg:pb-0 lg:overflow-y-auto page-enter">
           {children}
         </main>
 

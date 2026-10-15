@@ -22,7 +22,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
-import StaffHeader from '@/components/StaffHeader';
+import ReceptionShell from '@/components/reception/ReceptionShell';
 
 interface PatientQueue {
   id: string;
@@ -109,19 +109,12 @@ export default function ReceptionWaitingRoom() {
   const criticalCases = queue.filter(p => p.priority >= 3).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
-      
-      {/* Header */}
-      <StaffHeader
-        title="Gestion File d'Attente Générale"
-        subtitle="Accueil & Admissions Centrales"
-        roleBadge="Réception"
-        badgeColor="bg-blue-50 text-blue-700 border-blue-200"
-        icon={<Users className="w-5 h-5" />}
-      />
-
-      {/* Main Container Dashboard */}
-      <main className="max-w-7xl mx-auto w-full flex-grow px-4 sm:px-6 py-6 space-y-6">
+    <ReceptionShell
+      onOpenNewPatientModal={() => setIsNewPatientModalOpen(true)}
+      title="Supervision de la Salle d'Attente"
+      subtitle="File d'attente clinique en direct & orientation box"
+    >
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 space-y-6">
         
         {/* Top banner navigation between Reception and Doctor Box */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
@@ -325,7 +318,7 @@ export default function ReceptionWaitingRoom() {
 
         </section>
 
-      </main>
+      </div>
 
       {/* Modal Nouveau Patient */}
       <AnimatePresence>
@@ -440,9 +433,6 @@ export default function ReceptionWaitingRoom() {
         )}
       </AnimatePresence>
 
-      <footer className="text-center text-xs text-slate-400 py-4 border-t border-slate-200">
-        &copy; {new Date().getFullYear()} Health AI - Système de File d'Attente & Triage Central.
-      </footer>
-    </div>
+    </ReceptionShell>
   );
 }

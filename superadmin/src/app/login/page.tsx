@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Mail, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
+import { Lock, Mail, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 export default function SuperAdminLogin() {
   const router = useRouter();
@@ -39,90 +40,116 @@ export default function SuperAdminLogin() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-50 via-amber-50/30 to-slate-100 text-slate-800 overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-50 via-amber-50/40 to-slate-100 text-slate-800 overflow-hidden">
       
-      {/* Background Animated Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[20%] left-[10%] w-[45vw] h-[45vw] rounded-full bg-amber-400/10 blur-[100px] animate-pulse" />
-        <div className="absolute bottom-[20%] right-[10%] w-[45vw] h-[45vw] rounded-full bg-yellow-500/10 blur-[100px] animate-pulse" style={{ animationDelay: '2.5s' }} />
+      {/* Halos de lumière doux et lumineux */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] left-[10%] w-[45vw] h-[45vw] rounded-full bg-amber-400/10 blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full bg-yellow-500/10 blur-[90px] animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35vw] h-[35vw] rounded-full bg-amber-200/20 blur-3xl" />
       </div>
 
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-sm">
         
-        {/* Back Link to global portal switcher on port 3000 */}
+        {/* Retour au portail */}
         <a 
           href="http://localhost:3000" 
-          className="inline-flex items-center gap-2 text-xs text-slate-600 hover:text-slate-800 transition-colors mb-6 cursor-pointer no-underline font-bold"
+          className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors mb-6 no-underline font-bold"
         >
-          <ArrowLeft className="h-4.5 w-4.5" />
+          <ArrowLeft className="h-4 w-4" />
           Retour au portail
         </a>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center justify-center p-4 rounded-3xl bg-gradient-to-br from-amber-500 to-yellow-600 shadow-lg text-white mb-4"
-          >
-            <Shield className="h-8 w-8 text-white font-extrabold" />
-          </motion.div>
-          
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2 text-slate-900">Super-Administration</h1>
-          <p className="text-xs text-amber-600 font-bold uppercase tracking-widest flex items-center justify-center gap-1">
-            Contrôle Global Écosystème
-            <Sparkles className="h-3 w-3" />
-          </p>
-        </div>
+        {/* Logo Health AI + Badge Superadmin */}
+        <motion.div
+          initial={{ scale: 0.85, opacity: 0, y: -10 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center mb-6 gap-3.5"
+        >
+          {/* Logo animé avec badge Shield */}
+          <div className="relative">
+            <span className="absolute inset-0 rounded-2xl animate-ping bg-amber-400/20" style={{ animationDuration: '2s' }} />
+            <div className="relative w-20 h-20 rounded-2xl bg-white border border-slate-200 shadow-xl flex items-center justify-center p-2">
+              <Image
+                src="/HealthAI_symbole.png"
+                alt="Health AI"
+                width={64}
+                height={64}
+                className="w-full h-full object-contain"
+                priority
+              />
+            </div>
+            {/* Badge shield */}
+            <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-md border border-white">
+              <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
 
-        {/* Card Form */}
+          {/* Nom */}
+          <div className="text-center">
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">
+              Health <span className="text-amber-600">AI</span>
+            </h1>
+            <div className="mt-1.5 inline-flex items-center gap-1.5 bg-amber-100/80 border border-amber-200 text-amber-900 rounded-full px-3 py-0.5 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Super-Administration</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Card Formulaire Mode Clair */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="bg-white/85 border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-md relative overflow-hidden"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-white/95 border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-md relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-amber-500/5 blur-xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-28 h-28 rounded-full bg-amber-500/5 blur-xl pointer-events-none" />
+
+          <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-6 text-center">
+            Console de Contrôle Global Système
+          </p>
 
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-semibold leading-relaxed">
-              {error}
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-semibold leading-relaxed">
+              ⚠️ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             
             {/* Email */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Email Super-Administrateur</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Email Super-Administrateur</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="email"
                   required
-                  placeholder="superadmin@sunusante.sn"
+                  placeholder="superadmin@healthai.sn"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 transition-colors shadow-sm focus:shadow-md"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50/80 border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white text-slate-900 transition-all shadow-sm"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mot de Passe</label>
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Mot de Passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="password"
                   required
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500 text-slate-900 transition-colors shadow-sm focus:shadow-md"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50/80 border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white text-slate-900 transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -131,41 +158,44 @@ export default function SuperAdminLogin() {
             <button
               type="submit"
               disabled={isLoading || showToast}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white hover:from-amber-600 hover:to-yellow-500 font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 border-0"
+              className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white hover:from-amber-600 hover:to-yellow-500 font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 border-0 mt-3"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Authentification...
                 </>
               ) : (
-                'Accéder au Contrôle Global'
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944z" clipRule="evenodd" />
+                  </svg>
+                  Accéder au Contrôle Global
+                </>
               )}
             </button>
 
           </form>
-
         </motion.div>
 
-        {/* Demo Alert */}
-        <div className="mt-6 p-4 rounded-2xl bg-amber-50/50 border border-amber-200/60 text-center shadow-sm">
+        {/* Note sécurité */}
+        <div className="mt-5 p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/70 text-center">
           <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-            💡 <strong className="text-amber-700">Mode Maquette</strong> : Saisissez n'importe quelle adresse email et mot de passe pour tester. Le compte sera créé automatiquement s'il n'existe pas encore.
+            🔒 <span className="text-amber-800 font-bold">Accès restreint</span> — Console réservée aux super-administrateurs habilités du système Health AI.
           </p>
         </div>
-
       </div>
 
-      {/* Success Toast */}
+      {/* Toast de succès */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-amber-600 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 font-extrabold text-xs animate-bounce border border-amber-500/10">
-          <Shield className="h-4.5 w-4.5 text-white animate-pulse" />
-          Super-Admin Certifié ! Chargement de la console système...
+        <div className="fixed bottom-6 right-6 z-50 bg-amber-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 font-bold text-xs border border-amber-500/20 animate-bounce">
+          <Sparkles className="h-4 w-4 text-white animate-pulse" />
+          Super-Admin vérifié · Chargement de la console...
         </div>
       )}
 
-      <footer className="mt-12 text-center text-[10px] text-slate-600 font-bold relative z-10">
-        &copy; {new Date().getFullYear()} Sunu Santé - Noyau de Super-Administration Global.
+      <footer className="mt-10 text-center text-[10px] text-slate-500 font-bold relative z-10">
+        &copy; {new Date().getFullYear()} Health AI — Noyau de Super-Administration Global
       </footer>
     </div>
   );

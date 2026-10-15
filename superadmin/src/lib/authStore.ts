@@ -36,6 +36,12 @@ interface AuthState {
   toggleUserSuspension: (email: string) => Promise<boolean>;
   transferUserAffiliation: (email: string, newAffiliation: string) => Promise<boolean>;
   deleteUser: (email: string) => Promise<boolean>;
+
+  // Facilities Management (Hôpitaux & Pharmacies)
+  getFacilities: () => Promise<any[]>;
+  createFacility: (facility: any) => Promise<boolean>;
+  updateFacility: (id: string, updates: any) => Promise<boolean>;
+  deleteFacility: (id: string) => Promise<boolean>;
 }
 
 const isClient = typeof window !== 'undefined';
@@ -263,6 +269,58 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return res.ok;
     } catch (e) {
       console.error('Error deleting user', e);
+      return false;
+    }
+  },
+
+  getFacilities: async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.facilities || [];
+    } catch (e) {
+      console.error('Error fetching facilities', e);
+      return [];
+    }
+  },
+
+  createFacility: async (facility) => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(facility)
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Error creating facility', e);
+      return false;
+    }
+  },
+
+  updateFacility: async (id, updates) => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Error updating facility', e);
+      return false;
+    }
+  },
+
+  deleteFacility: async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities/${id}`, {
+        method: 'DELETE'
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Error deleting facility', e);
       return false;
     }
   }

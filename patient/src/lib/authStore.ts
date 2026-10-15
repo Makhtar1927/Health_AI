@@ -82,44 +82,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email, password, role) => {
     set({ isLoading: true, error: null });
     try {
-      // 1. Attempt Supabase login if client is configured
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-          
-          if (!error && data?.user) {
-            const name = data.user.user_metadata?.name || email.split('@')[0];
-            const details = data.user.user_metadata?.details || {};
-            const userRole = data.user.user_metadata?.role || role;
-            const suspended = data.user.user_metadata?.suspended || false;
-
-            if (suspended) {
-              set({ error: 'Ce compte a été suspendu par un administrateur.', isLoading: false });
-              return false;
-            }
-
-            if (userRole !== role) {
-              set({ 
-                error: `Ce compte n'est pas enregistré en tant que ${role}.`, 
-                isLoading: false 
-              });
-              return false;
-            }
-
-            const session: UserSession = { email, role: userRole, name, details };
-            saveLocalSession(session);
-            set({ user: session, isAuthenticated: true, isLoading: false });
-            return true;
-          }
-        } catch (supabaseErr) {
-          console.warn('Supabase Auth failed, falling back to backend API', supabaseErr);
-        }
-      }
-
-      // 2. Call Central Backend API
+      // Authentification centralisée via le backend (users-db.json / Supabase profiles).
+      // On n'appelle PAS supabase.auth.signInWithPassword car les comptes officiels
+      // ne sont pas dans auth.users GoTrue → évite l'erreur 400 en console.
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

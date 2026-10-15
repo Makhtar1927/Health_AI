@@ -1,0 +1,40 @@
+# ==============================================================================
+# 🚀 SUNU SANTÉ / HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Racine Monorepo)
+# ==============================================================================
+
+services:
+  - type: web
+    name: sunu-sante-backend
+    runtime: node
+    rootDir: backend
+    plan: starter # Recommandé pour éviter la mise en veille sur une app médicale critique
+    region: frankfurt # Faible latence pour l'Afrique de l'Ouest
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

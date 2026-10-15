@@ -27,6 +27,9 @@ import {
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/authStore';
 import HealthAILogo from '@/components/HealthAILogo';
+import { BookingWizardModal } from '@/components/BookingWizardModal';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 interface Appointment {
   id: string;
@@ -39,6 +42,7 @@ interface Appointment {
   time: string;
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
   reason: string;
+  ticketPrice?: number;
   preparation?: string;
   phone?: string;
 }
@@ -46,20 +50,36 @@ interface Appointment {
 const INITIAL_APPOINTMENTS: Appointment[] = [
   { 
     id: "RDV-501", 
+    doctor: "Dr. Oumy Aidara", 
+    specialty: "Dentisterie & Odontologie", 
+    hospital: "Hôpital Principal de Dakar",
+    location: "1 Avenue Nelson Mandela, Dakar Plateau",
+    type: "in_person",
+    date: "13 Octobre 2026", 
+    time: "09:00", 
+    status: "confirmed", 
+    ticketPrice: 2000,
+    reason: "Contrôle annuel & détartrage",
+    preparation: "Présentez-vous 10 min avant à l'accueil pour le pointage et le ticket caisse.",
+    phone: "+221 33 839 50 50"
+  },
+  { 
+    id: "RDV-502", 
     doctor: "Dr. Awa Ndiaye", 
     specialty: "Cardiologie", 
-    hospital: "Clinique du Cap",
+    hospital: "Hôpital Principal de Dakar",
     location: "Avenue Pasteur, Dakar Plateau",
     type: "in_person",
-    date: "25 Mai 2026", 
-    time: "09:30", 
+    date: "14 Octobre 2026", 
+    time: "10:30", 
     status: "confirmed", 
+    ticketPrice: 5000,
     reason: "Suivi de tension artérielle & électrocardiogramme",
     preparation: "Venir avec les ordonnances précédentes et le carnet de tension",
     phone: "+221 33 889 12 34"
   },
   { 
-    id: "RDV-502", 
+    id: "RDV-503", 
     doctor: "Dr. Abdoulaye Diallo", 
     specialty: "Médecine Générale", 
     hospital: "Cabinet Médical Sunu",
@@ -68,23 +88,10 @@ const INITIAL_APPOINTMENTS: Appointment[] = [
     date: "12 Mai 2026", 
     time: "11:15", 
     status: "completed", 
+    ticketPrice: 1500,
     reason: "Renouvellement d'ordonnance et contrôle biologique",
     preparation: "Consultation vidéo effectuée avec succès. Ordonnance générée.",
     phone: "+221 33 824 50 00"
-  },
-  { 
-    id: "RDV-503", 
-    doctor: "Dr. Aminata Touré", 
-    specialty: "Pneumologie", 
-    hospital: "Hôpital Principal de Dakar",
-    location: "Pavillon Médical, Plateau",
-    type: "in_person",
-    date: "14 Février 2026", 
-    time: "15:00", 
-    status: "completed", 
-    reason: "Exploration fonctionnelle respiratoire suite à toux",
-    preparation: "Bilan radiologique consulté par le spécialiste.",
-    phone: "+221 33 839 50 50"
   }
 ];
 
@@ -99,6 +106,7 @@ const DOCTORS_CATALOG = [
 
 const SPECIALTIES = [
   "Tous",
+  "Dentisterie & Odontologie",
   "Médecine Générale",
   "Cardiologie",
   "Pneumologie",
@@ -122,20 +130,49 @@ export default function PatientAppointments() {
 
   // Booking Modal State
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [bookingType, setBookingType] = useState<'in_person' | 'teleconsult'>('in_person');
-  const [bookingSpecialty, setBookingSpecialty] = useState('Cardiologie');
-  const [bookingDoctor, setBookingDoctor] = useState('Dr. Awa Ndiaye');
-  const [bookingDate, setBookingDate] = useState('');
-  const [bookingTime, setBookingTime] = useState('09:30');
-  const [bookingReason, setBookingReason] = useState('');
   const [bookingSuccessToast, setBookingSuccessToast] = useState(false);
 
   // Detail Modal State
   const [detailModalApp, setDetailModalApp] = useState<Appointment | null>(null);
 
+  const fetchBackendAppointments = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities/appointments/all`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.appointments && Array.isArray(data.appointments)) {
+          const mapped: Appointment[] = data.appointments.map((a: any) => ({
+            id: a.id,
+            doctor: a.doctorName || 'Médecin Praticien',
+            specialty: a.specialtyName || 'Consultation',
+            hospital: a.facilityName || 'Hôpital Principal de Dakar',
+            location: a.facilityAddress || 'Dakar',
+            type: 'in_person' as const,
+            date: a.date,
+            time: a.timeSlot,
+            status: a.status || 'confirmed',
+            ticketPrice: a.ticketPrice || 2000,
+            reason: a.reason,
+            preparation: 'Présentez-vous à l\'accueil de l\'établissement avec ce ticket.',
+            phone: '+221 33 839 50 50'
+          }));
+
+          setAppointments(prev => {
+            const apiIds = new Set(mapped.map(m => m.id));
+            const remaining = prev.filter(p => !apiIds.has(p.id));
+            return [...mapped, ...remaining];
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Backend appointments fetch error', e);
+    }
+  };
+
   useEffect(() => {
     initialize();
     setMounted(true);
+    fetchBackendAppointments();
   }, [initialize]);
 
   if (!mounted) {
@@ -171,50 +208,26 @@ export default function PatientAppointments() {
     return true;
   });
 
-  // Gestion du choix de spécialité dans le formulaire
-  const handleSpecialtyChange = (spec: string) => {
-    setBookingSpecialty(spec);
-    const matchingDoc = DOCTORS_CATALOG.find(d => d.specialty === spec);
-    if (matchingDoc) {
-      setBookingDoctor(matchingDoc.name);
-    }
-  };
-
-  // Soumission de réservation
-  const handleBookSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bookingDate || !bookingReason.trim()) return;
-
-    const matchedDoc = DOCTORS_CATALOG.find(d => d.name === bookingDoctor);
-    const formattedDate = new Date(bookingDate).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-
-    const newApp: Appointment = {
-      id: `RDV-${Math.floor(100 + Math.random() * 900)}`,
-      doctor: bookingDoctor,
-      specialty: bookingSpecialty,
-      hospital: matchedDoc?.hospital || "Clinique Health AI",
-      location: bookingType === 'teleconsult' ? "Téléconsultation Vidéo Sécurisée" : (matchedDoc?.hospital || "Dakar"),
-      type: bookingType,
-      date: formattedDate,
-      time: bookingTime,
+  const handleNewAppointmentBooked = (newAppt: any) => {
+    const mapped: Appointment = {
+      id: newAppt.id,
+      doctor: newAppt.doctorName || 'Médecin Praticien',
+      specialty: newAppt.specialtyName,
+      hospital: newAppt.facilityName,
+      location: newAppt.facilityAddress || 'Dakar',
+      type: 'in_person',
+      date: newAppt.date,
+      time: newAppt.timeSlot,
       status: 'confirmed',
-      reason: bookingReason,
-      preparation: bookingType === 'teleconsult' 
-        ? "Assurez-vous d'avoir une connexion stable et un microphone activé 5 min avant."
-        : "Présentez-vous 10 minutes avant muni de votre identifiant Health AI.",
-      phone: matchedDoc?.phone || "+221 33 800 00 00"
+      ticketPrice: newAppt.ticketPrice,
+      reason: newAppt.reason,
+      preparation: 'Rendez-vous confirmé. Présentez-vous à l\'accueil pour le pointage et le ticket caisse.',
+      phone: '+221 33 839 50 50'
     };
 
-    setAppointments(prev => [newApp, ...prev]);
-    setIsBookingOpen(false);
-    setBookingReason('');
-    setBookingDate('');
+    setAppointments(prev => [mapped, ...prev]);
     setBookingSuccessToast(true);
-    setTimeout(() => setBookingSuccessToast(false), 5000);
+    setTimeout(() => setBookingSuccessToast(false), 6000);
   };
 
   // Annuler un rendez-vous
@@ -515,6 +528,13 @@ export default function PatientAppointments() {
                         <span className="text-[11px] sm:text-xs">{app.time}</span>
                       </div>
                     </div>
+
+                    {app.ticketPrice && (
+                      <div className="mt-2.5 flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-50/80 border border-amber-200/90 text-xs">
+                        <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">Prix Ticket Fixé :</span>
+                        <span className="font-black text-amber-900">{app.ticketPrice.toLocaleString()} FCFA</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions Bar - Responsive wrap on small screens */}
@@ -564,10 +584,10 @@ export default function PatientAppointments() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
             >
               {/* Mobile grab handle */}
-              <div className="pt-2 sm:hidden flex justify-center">
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
                 <div className="w-10 h-1 rounded-full bg-slate-300" />
               </div>
 
@@ -590,7 +610,7 @@ export default function PatientAppointments() {
               </div>
 
               {/* Corps défilable */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3.5 text-xs overscroll-contain">
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-3.5 text-xs overscroll-contain">
                 {/* Médecin & Établissement */}
                 <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-teal-50/60 border border-teal-100">
                   <div className="w-11 h-11 rounded-xl bg-teal-600/10 text-teal-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
@@ -614,6 +634,19 @@ export default function PatientAppointments() {
                     <p className="text-xs font-bold text-slate-800 mt-0.5">{detailModalApp.time}</p>
                   </div>
                 </div>
+
+                {/* Prix du Ticket Fixé */}
+                {detailModalApp.ticketPrice && (
+                  <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide block">Tarif Ticket Consultation</span>
+                      <span className="text-[11px] text-amber-700">Fixé officiellement par l'établissement</span>
+                    </div>
+                    <span className="text-sm font-black text-amber-900 bg-white border border-amber-300 px-3 py-1 rounded-lg shadow-xs">
+                      {detailModalApp.ticketPrice.toLocaleString()} FCFA
+                    </span>
+                  </div>
+                )}
 
                 {/* Lieu / Canal */}
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -662,11 +695,11 @@ export default function PatientAppointments() {
               </div>
 
               {/* Footer fixe */}
-              <div className="flex-shrink-0 p-3.5 sm:p-4 border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2">
+              <div className="flex-shrink-0 p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2">
                 {(detailModalApp.status === 'confirmed' || detailModalApp.status === 'pending') ? (
                   <button
                     onClick={() => handleCancelAppointment(detailModalApp.id)}
-                    className="py-2.5 px-3 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-center cursor-pointer"
+                    className="py-2.5 px-3 min-h-[44px] text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-center cursor-pointer"
                   >
                     Annuler ce rendez-vous
                   </button>
@@ -676,7 +709,7 @@ export default function PatientAppointments() {
 
                 <button
                   onClick={() => setDetailModalApp(null)}
-                  className="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors text-center cursor-pointer"
+                  className="py-2.5 px-5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors text-center cursor-pointer"
                 >
                   Fermer
                 </button>
@@ -686,183 +719,15 @@ export default function PatientAppointments() {
         )}
       </AnimatePresence>
 
-      {/* ─── MODAL : Prise de Rendez-vous (Responsive Mobile Bottom-Sheet & Desktop Centered) ─── */}
-      <AnimatePresence>
-        {isBookingOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/50 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden"
-            >
-              {/* Mobile grab handle */}
-              <div className="pt-2 sm:hidden flex justify-center">
-                <div className="w-10 h-1 rounded-full bg-slate-300" />
-              </div>
-
-              {/* Header fixe */}
-              <div className="flex-shrink-0 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-teal-50/70">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">Prendre un rendez-vous</h3>
-                    <p className="text-[10px] text-teal-700 font-medium">Plateforme médicale Health AI</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsBookingOpen(false)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 active:bg-slate-200 transition-colors cursor-pointer"
-                  aria-label="Fermer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Formulaire défilable avec inputs accessibles */}
-              <form onSubmit={handleBookSubmit} className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 overscroll-contain">
-                  
-                  {/* 1. Mode de consultation */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">1. Modalité de consultation</label>
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setBookingType('in_person')}
-                        className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
-                          bookingType === 'in_person'
-                            ? 'bg-teal-50 border-teal-500 text-teal-900 ring-2 ring-teal-500/20'
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white'
-                        }`}
-                      >
-                        <Building className={`w-4 h-4 mt-0.5 flex-shrink-0 ${bookingType === 'in_person' ? 'text-teal-600' : 'text-slate-400'}`} />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold truncate">En Présentiel</p>
-                          <p className="text-[10px] text-slate-500 truncate">Cabinet / Clinique</p>
-                        </div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setBookingType('teleconsult')}
-                        className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
-                          bookingType === 'teleconsult'
-                            ? 'bg-blue-50 border-blue-500 text-blue-900 ring-2 ring-blue-500/20'
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white'
-                        }`}
-                      >
-                        <Video className={`w-4 h-4 mt-0.5 flex-shrink-0 ${bookingType === 'teleconsult' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold truncate">Téléconsultation</p>
-                          <p className="text-[10px] text-slate-500 truncate">Vidéo sécurisée</p>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 2. Spécialité médicale */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">2. Spécialité requise</label>
-                    <select
-                      value={bookingSpecialty}
-                      onChange={e => handleSpecialtyChange(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-teal-500 focus:bg-white cursor-pointer"
-                    >
-                      {SPECIALTIES.filter(s => s !== 'Tous').map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* 3. Choix du médecin */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">3. Médecin spécialiste</label>
-                    <select
-                      value={bookingDoctor}
-                      onChange={e => setBookingDoctor(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-teal-500 focus:bg-white cursor-pointer"
-                    >
-                      {DOCTORS_CATALOG.filter(d => d.specialty === bookingSpecialty).map(d => (
-                        <option key={d.name} value={d.name}>
-                          {d.name} — {d.hospital}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* 4. Date & Heure */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">4. Date souhaitée</label>
-                      <input
-                        type="date"
-                        required
-                        min={new Date().toISOString().split('T')[0]}
-                        value={bookingDate}
-                        onChange={e => setBookingDate(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-teal-500 focus:bg-white min-h-[42px]"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">Créneau horaire</label>
-                      <select
-                        value={bookingTime}
-                        onChange={e => setBookingTime(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:border-teal-500 focus:bg-white cursor-pointer min-h-[42px]"
-                      >
-                        {TIME_SLOTS.map(t => (
-                          <option key={t} value={t}>{t}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* 5. Motif de consultation */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">5. Motif de consultation</label>
-                    <textarea
-                      required
-                      rows={2}
-                      placeholder="Ex: Suivi tensionnel, maux de tête récurrents, renouvellement ordonnance..."
-                      value={bookingReason}
-                      onChange={e => setBookingReason(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-teal-500 focus:bg-white resize-none"
-                    />
-                  </div>
-
-                  {/* Badge de réassurance */}
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-[11px] text-slate-500">
-                    <ShieldCheck className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                    <span>Données de santé chiffrées & certifiées HDS. Confirmation SMS instantanée.</span>
-                  </div>
-                </div>
-
-                {/* Footer fixe avec boutons ergonomiques */}
-                <div className="flex-shrink-0 p-3.5 sm:p-4 border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsBookingOpen(false)}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition-colors cursor-pointer text-center"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs font-bold transition-all shadow-sm shadow-teal-700/20 cursor-pointer text-center"
-                  >
-                    Confirmer le rendez-vous
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ─── MODAL : Assistant de Prise de Rendez-vous en 5 étapes ─── */}
+      <BookingWizardModal
+        isOpen={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
+        patientName={user?.name || 'Moussa Diop'}
+        patientPhone={user?.details?.phone || '+221 77 123 45 67'}
+        patientEmail={user?.email || 'moussa.diop@sunusante.sn'}
+        onAppointmentBooked={handleNewAppointmentBooked}
+      />
 
     </div>
   );

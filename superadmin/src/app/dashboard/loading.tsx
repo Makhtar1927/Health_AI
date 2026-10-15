@@ -1,0 +1,75 @@
+'use client';
+
+import Image from 'next/image';
+
+export default function DashboardLoading() {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-amber-50/40 to-slate-100 animate-in fade-in duration-300">
+      
+      {/* Halos décoratifs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-yellow-500/15 blur-3xl" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-amber-200/20 blur-2xl" />
+      </div>
+
+      {/* Conteneur central */}
+      <div className="relative flex flex-col items-center gap-8 z-10">
+        <div className="relative flex items-center justify-center">
+          <span className="absolute inline-flex w-28 h-28 rounded-full bg-amber-400/20 animate-ping" style={{ animationDuration: '1.8s' }} />
+          <span className="absolute inline-flex w-24 h-24 rounded-full bg-yellow-500/15 animate-ping" style={{ animationDuration: '2.2s', animationDelay: '0.4s' }} />
+
+          <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-2xl border border-slate-200/90 flex items-center justify-center p-2 z-10">
+            <Image
+              src="/HealthAI_symbole.png"
+              alt="Health AI"
+              width={64}
+              height={64}
+              className="w-full h-full object-contain"
+              priority
+            />
+          </div>
+
+          <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-md z-20 border border-white">
+            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944z" clipRule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="text-center space-y-1.5">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Health <span className="text-amber-600">AI</span>
+          </h1>
+          <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 border border-amber-200 rounded-full px-3 py-0.5 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Console Système</span>
+          </div>
+        </div>
+
+        <div className="w-52 h-1 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 rounded-full sa-loading-bar" />
+        </div>
+
+        <div className="flex items-center gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-2 h-2 rounded-full bg-amber-500"
+              style={{
+                animation: `sa-bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <p className="absolute bottom-8 text-[11px] text-slate-500 font-medium tracking-wide flex items-center gap-1.5">
+        <svg className="w-3.5 h-3.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+        </svg>
+        SYNCHRONISATION DES FLUX HÔPITAUX & MÉDECINS
+      </p>
+    </div>
+  );
+}

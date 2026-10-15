@@ -10,7 +10,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import Link from 'next/link';
-import StaffHeader from '@/components/StaffHeader';
+import ReceptionShell from '@/components/reception/ReceptionShell';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -38,12 +38,12 @@ interface Appointment {
 // ─── Shared state via localStorage (simulating cross-tab sync) ─────────────
 const QUEUE_KEY = 'sunu_cashier_queue';
 
-export const getCashierQueue = (): Appointment[] => {
+const getCashierQueue = (): Appointment[] => {
   if (typeof window === 'undefined') return [];
   try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; }
 };
 
-export const addToCashierQueue = (appt: Appointment) => {
+const addToCashierQueue = (appt: Appointment) => {
   if (typeof window === 'undefined') return;
   const existing = getCashierQueue();
   if (!existing.find(a => a.id === appt.id)) {
@@ -140,6 +140,8 @@ export default function ReceptionDashboard() {
   const [newDoctor, setNewDoctor] = useState('Dr. Oumy Aidara');
   const [newReason, setNewReason] = useState('');
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     const update = () => setCurrentTime(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
     update();
@@ -147,11 +149,58 @@ export default function ReceptionDashboard() {
     return () => clearInterval(iv);
   }, []);
 
+  // Charger les rendez-vous confirmés du backend central
+  useEffect(() => {
+    const fetchApiAppointments = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/facilities/appointments/all`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.appointments && Array.isArray(data.appointments)) {
+            const mapped: Appointment[] = data.appointments.map((a: any) => ({
+              id: a.id,
+              patientId: `P-${a.id.slice(-3)}`,
+              patientName: a.patientName,
+              patientAge: 35,
+              patientGender: 'M',
+              patientPhone: a.patientPhone,
+              doctor: a.doctorName || 'Dr. Oumy Aidara',
+              doctorBox: 'Box 4',
+              specialty: a.specialtyName,
+              time: a.timeSlot,
+              reason: a.reason,
+              type: 'in_person',
+              status: (a.status === 'confirmed' ? 'scheduled' : a.status) as AppointmentStatus,
+              priority: 2
+            }));
+
+            setAppointments(prev => {
+              const apiIds = new Set(mapped.map(m => m.id));
+              const existingFiltered = prev.filter(p => !apiIds.has(p.id));
+              return [...mapped, ...existingFiltered];
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Reception fetch error', e);
+      }
+    };
+    fetchApiAppointments();
+  }, []);
+
   // ── Validate arrival → send to cashier ────────────────────────────────────
   const handleValidateArrival = (appt: Appointment) => {
     const now = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     const updated = { ...appt, status: 'sent_to_cashier' as AppointmentStatus, arrivedAt: now, sentToCashierAt: now };
     setAppointments(prev => prev.map(a => a.id === appt.id ? updated : a));
+    
+    // Sync with central backend
+    fetch(`${API_URL}/api/facilities/appointments/${appt.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'sent_to_cashier' })
+    }).catch(() => {});
+
     // Push to shared cashier queue (localStorage)
     addToCashierQueue(updated);
     setJustSentId(appt.id);
@@ -221,16 +270,12 @@ export default function ReceptionDashboard() {
   const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      <StaffHeader
-        title="Tableau de Bord — Réception"
-        subtitle="Accueil & Admissions Centrales"
-        roleBadge="Accueil"
-        badgeColor="bg-blue-50 text-blue-700 border-blue-200"
-        icon={<Building2 className="h-5 w-5" />}
-      />
-
-      <main className="flex-grow max-w-7xl mx-auto w-full px-3 sm:px-5 lg:px-8 py-5 space-y-5">
+    <ReceptionShell
+      onOpenNewPatientModal={() => setIsNewPatientOpen(true)}
+      title="Tableau de Bord des Admissions"
+      subtitle="Gestion en direct des flux patients & guichet d'accueil"
+    >
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-5 lg:px-8 py-5 space-y-5">
 
         {/* ── Top bar ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -454,7 +499,7 @@ export default function ReceptionDashboard() {
             })}
           </AnimatePresence>
         </div>
-      </main>
+      </div>
 
       {/* ── Modal: Patient sans RDV ──────────────────────────────────────────── */}
       <AnimatePresence>
@@ -540,9 +585,6 @@ export default function ReceptionDashboard() {
         )}
       </AnimatePresence>
 
-      <footer className="border-t border-slate-200 py-3 text-center text-[11px] text-slate-400">
-        © {new Date().getFullYear()} Health AI · Accueil & Admissions
-      </footer>
-    </div>
+    </ReceptionShell>
   );
 }

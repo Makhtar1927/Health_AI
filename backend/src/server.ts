@@ -11,6 +11,7 @@ import aiRoutes from './routes/ai.routes';
 import mediaRoutes from './routes/media.routes';
 import authRoutes from './routes/auth.routes';
 import radiologyRoutes from './routes/radiology.routes';
+import facilityRoutes from './routes/facility.routes';
 
 const app = express();
 
@@ -23,14 +24,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"]
+      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://*.cloudinary.com", "https://res.cloudinary.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.supabase.co"]
     }
   }
 }));
 
-// CORS multi-port pour l'écosystème Sunu Santé
-const allowedOrigins = [
+// CORS multi-port et multi-environnement pour l'écosystème Sunu Santé
+const baseLocalOrigins = [
   'http://localhost:3000', // Patient
   'http://localhost:3001', // Admin (Hôpital/Pharmacie)
   'http://localhost:3002', // Superadmin
@@ -39,27 +40,34 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Permettre les requêtes sans origine (comme Postman, curl, serveurs)
+    // Permettre les requêtes sans origine (comme Postman, curl, webhooks)
     if (!origin) return callback(null, true);
     
-    // En développement, autoriser toutes les variantes de localhost
-    if (env.NODE_ENV === 'development') {
-      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-        return callback(null, true);
-      }
-    }
-    
-    // En production, vérifier la liste autorisée
-    if (allowedOrigins.includes(origin) || origin === env.FRONTEND_URL) {
+    // 1. Autoriser toutes les variantes locales (localhost & 127.0.0.1)
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
       return callback(null, true);
     }
     
-    callback(new Error('Bloqué par la politique CORS de Sunu Santé'));
+    // 2. Autoriser les déploiements Vercel (production & previews *.vercel.app)
+    if (/^https:\/\/([a-zA-Z0-9_-]+\.)?vercel\.app$/.test(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // 3. Origines configurées explicitement via l'environnement
+    const customOrigins = env.ALLOWED_ORIGINS 
+      ? env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) 
+      : [];
+    
+    if (baseLocalOrigins.includes(origin) || origin === env.FRONTEND_URL || customOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    callback(new Error(`Bloqué par la politique CORS de Sunu Santé : ${origin}`));
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true,
-  maxAge: 5 // Évite la mise en cache prolongée des requêtes OPTIONS dans le navigateur en dev
+  maxAge: 86400 // Cache preflight 24h
 }));
 
 // Limitation globale des requêtes
@@ -91,6 +99,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/radiology', radiologyRoutes);
+app.use('/api/facilities', facilityRoutes);
 
 // =====================================================================
 // GESTION GLOBALE DES ERREURS

@@ -40,7 +40,6 @@ export default function HealthAILogo({
         width={dimension}
         height={dimension}
         className="w-full h-full object-contain p-1"
-        priority
       />
     </div>
   );

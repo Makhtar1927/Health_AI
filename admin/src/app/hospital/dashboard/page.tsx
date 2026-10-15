@@ -24,8 +24,9 @@ import { HospitalReportsTab } from '@/components/hospital/HospitalReportsTab';
 import { HospitalDepartmentsTab } from '@/components/hospital/HospitalDepartmentsTab';
 import { HospitalStaffTab } from '@/components/hospital/HospitalStaffTab';
 import { HospitalBadgeModal } from '@/components/hospital/HospitalBadgeModal';
+import { HospitalSpecialtiesTab } from '@/components/hospital/HospitalSpecialtiesTab';
 
-type ActiveTab = 'overview' | 'attendance' | 'reports' | 'departments' | 'staff';
+type ActiveTab = 'overview' | 'attendance' | 'reports' | 'departments' | 'specialties' | 'staff';
 
 export default function AdminHospitalDashboard() {
   const router = useRouter();
@@ -37,7 +38,8 @@ export default function AdminHospitalDashboard() {
     getUsersByRoles, 
     createStaffAccount, 
     toggleUserSuspension, 
-    transferUserAffiliation 
+    transferUserAffiliation,
+    getFacilities
   } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
@@ -70,14 +72,17 @@ export default function AdminHospitalDashboard() {
   
   // Custom role details
   const [rpps, setRpps] = useState('');
-  const [specialty, setSpecialty] = useState('Généraliste');
-  const [hospitalName, setHospitalName] = useState('Hôpital Principal de Dakar');
-  const [department, setDepartment] = useState('Urgences');
+  const [specialty, setSpecialty] = useState('');
+  const [hospitalName, setHospitalName] = useState('');
+  const [department, setDepartment] = useState('');
   const [imagingCenter, setImagingCenter] = useState('Centre Radiologique Central');
   const [primaryMachinery, setPrimaryMachinery] = useState('IRM Siemens 3T');
   const [matricule, setMatricule] = useState('');
   const [deskAssignment, setDeskAssignment] = useState('Bureau A-101');
   const [posCode, setPosCode] = useState('CAISSE-01');
+
+  // Facilities (hospitals) loaded from API
+  const [facilities, setFacilities] = useState<any[]>([]);
 
   // Notification Toast states
   const [showToast, setShowToast] = useState(false);
@@ -86,6 +91,15 @@ export default function AdminHospitalDashboard() {
 
   useEffect(() => {
     initialize();
+    // Load facilities for the selects
+    getFacilities().then(data => {
+      const hospitalFacilities = data.filter((f: any) => f.type !== 'pharmacie');
+      setFacilities(hospitalFacilities);
+      if (hospitalFacilities.length > 0) {
+        setHospitalName(hospitalFacilities[0].name);
+        setNewHospitalName(hospitalFacilities[0].name);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -99,6 +113,13 @@ export default function AdminHospitalDashboard() {
       router.push('/hospital/login');
     }
   }, [isAuthenticated, user, router]);
+
+  const handleAddDepartment = (dept: DepartmentInfo) => {
+    setDepartments(prev => [...prev, dept]);
+    // Auto-select first department/specialty for new accounts if empty
+    if (!department) setDepartment(dept.name);
+    if (!specialty) setSpecialty(dept.name);
+  };
 
   const loadStaff = async () => {
     try {
@@ -440,6 +461,18 @@ export default function AdminHospitalDashboard() {
           </button>
 
           <button
+            onClick={() => setActiveTab('specialties')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border-0 ${
+              activeTab === 'specialties'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200'
+            }`}
+          >
+            <Stethoscope className="h-4 w-4" />
+            Spécialités & Planning
+          </button>
+
+          <button
             onClick={() => setActiveTab('staff')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border-0 ${
               activeTab === 'staff'
@@ -491,6 +524,13 @@ export default function AdminHospitalDashboard() {
           <HospitalDepartmentsTab
             departments={departments}
             onUpdateBeds={handleUpdateBeds}
+            onAddDepartment={handleAddDepartment}
+          />
+        )}
+
+        {activeTab === 'specialties' && (
+          <HospitalSpecialtiesTab
+            hospitalName={user?.details?.hospital || "Hôpital Principal de Dakar"}
           />
         )}
 
@@ -625,14 +665,30 @@ export default function AdminHospitalDashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Clinique / Hôpital d'Affectation</label>
-                  <input
-                    type="text"
-                    required
-                    value={hospitalName}
-                    onChange={(e) => setHospitalName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-600 focus:bg-white text-slate-900 font-medium"
-                  />
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                    Établissement d'Affectation <span className="text-rose-500">*</span>
+                  </label>
+                  {facilities.length > 0 ? (
+                    <select
+                      required
+                      value={hospitalName}
+                      onChange={(e) => setHospitalName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-600 focus:bg-white text-slate-900 font-medium cursor-pointer"
+                    >
+                      {facilities.map((f: any) => (
+                        <option key={f.id} value={f.name}>{f.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      value={hospitalName}
+                      onChange={(e) => setHospitalName(e.target.value)}
+                      placeholder="Hôpital Principal de Dakar"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-600 focus:bg-white text-slate-900 font-medium"
+                    />
+                  )}
                 </div>
 
                 {/* DYNAMIC ROLE FIELDS */}
@@ -652,14 +708,30 @@ export default function AdminHospitalDashboard() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] text-slate-500 uppercase font-bold">Spécialité</label>
-                        <input
-                          type="text"
-                          placeholder="Cardiologie, Urgences..."
-                          value={specialty}
-                          onChange={(e) => setSpecialty(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
-                        />
+                        <label className="text-[9px] text-slate-500 uppercase font-bold">Spécialité / Service <span className="text-rose-500">*</span></label>
+                        {departments.length > 0 ? (
+                          <select
+                            required
+                            value={specialty}
+                            onChange={(e) => setSpecialty(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 cursor-pointer"
+                          >
+                            <option value="">-- Choisir un service --</option>
+                            {departments.map(d => (
+                              <option key={d.id} value={d.name}>{d.name}</option>
+                            ))}
+                            <option value="Médecine Générale">Médecine Générale</option>
+                            <option value="Généraliste">Généraliste</option>
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder="Cardiologie, Urgences..."
+                            value={specialty}
+                            onChange={(e) => setSpecialty(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
+                          />
+                        )}
                       </div>
                     </div>
                   )}
@@ -677,14 +749,28 @@ export default function AdminHospitalDashboard() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] text-slate-500 uppercase font-bold">Service clinique</label>
-                        <input
-                          type="text"
-                          placeholder="Urgences, Soins Intensifs..."
-                          value={department}
-                          onChange={(e) => setDepartment(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
-                        />
+                        <label className="text-[9px] text-slate-500 uppercase font-bold">Service d'affectation <span className="text-rose-500">*</span></label>
+                        {departments.length > 0 ? (
+                          <select
+                            required
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 cursor-pointer"
+                          >
+                            <option value="">-- Choisir un service --</option>
+                            {departments.map(d => (
+                              <option key={d.id} value={d.name}>{d.name}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder="Urgences, Soins Intensifs..."
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
+                          />
+                        )}
                       </div>
                     </div>
                   )}
@@ -802,15 +888,28 @@ export default function AdminHospitalDashboard() {
 
               <form onSubmit={handleTransferSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Nouvel Établissement</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ex: Hôpital Aristide Le Dantec, Clinique de la Madeleine..."
-                    value={newHospitalName}
-                    onChange={(e) => setNewHospitalName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
-                  />
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Nouvel Établissement <span className="text-rose-500">*</span></label>
+                  {facilities.length > 0 ? (
+                    <select
+                      required
+                      value={newHospitalName}
+                      onChange={(e) => setNewHospitalName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white cursor-pointer"
+                    >
+                      {facilities.map((f: any) => (
+                        <option key={f.id} value={f.name}>{f.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Hôpital Aristide Le Dantec..."
+                      value={newHospitalName}
+                      onChange={(e) => setNewHospitalName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                    />
+                  )}
                 </div>
 
                 <div className="pt-2 flex justify-end gap-2">

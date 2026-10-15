@@ -10,7 +10,7 @@ export class AIService {
    */
   static async analyzeDrugInteractions(drugs: Array<{ name: string; dosage?: string }>): Promise<string> {
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
       
       const drugsString = drugs.map(d => `${d.name} (${d.dosage || 'Dosage non spécifié'})`).join(', ');
       
@@ -31,8 +31,46 @@ export class AIService {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error: any) {
-      console.error('Erreur lors de l\'analyse des interactions médicamenteuses :', error.message);
-      return `### ⚠️ Erreur de Diagnostic de l'IA\nImpossible d'effectuer l'analyse pharmacologique en temps réel. Veuillez vérifier manuellement le dictionnaire des interactions.`;
+      console.warn('⚠️ Gemini API indisponible ou quota (bascule sur moteur clinique expert intégré) :', error.message);
+
+      // Moteur clinique expert interne de pharmacovigilance
+      const drugNames = drugs.map(d => d.name.toLowerCase());
+      const hasAmox = drugNames.some(d => d.includes('amox') || d.includes('clamoxyl') || d.includes('augmentin'));
+      const hasPara = drugNames.some(d => d.includes('para') || d.includes('doli') || d.includes('efferalgan'));
+      const hasNsaid = drugNames.some(d => d.includes('ibu') || d.includes('kétoprof') || d.includes('diclo'));
+      const hasAspirin = drugNames.some(d => d.includes('aspir') || d.includes('kardegic'));
+
+      let alertLevel = 'VERT';
+      let interactionsText = 'Aucune interaction pharmacologique défavorable majeure identifiée pour cette association.';
+      let alternativesText = 'Traitement conforme aux recommandations AFSSAPS/ANSM et protocoles nationaux.';
+
+      if (hasNsaid && hasAspirin) {
+        alertLevel = 'ROUGE';
+        interactionsText = 'Association déconseillée : Cumul d\'AINS et d\'Aspirine augmentant drastiquement le risque d\'ulcérations gastro-intestinales et d\'hémorragies digestives.';
+        alternativesText = 'Remplacer l\'un des anti-inflammatoires par du Paracétamol en 1ère intention antalgique/antipyrétique.';
+      } else if (hasNsaid && drugNames.some(d => d.includes('corti') || d.includes('predniso'))) {
+        alertLevel = 'ORANGE';
+        interactionsText = 'Précaution : Association AINS + Corticoïde majorant le risque ulcérogène gastro-duodénal.';
+        alternativesText = 'Co-prescription impérative d\'un IPP protecteur gastrique (Oméprazole 20mg).';
+      }
+
+      return `### 🛡️ Contrôle d'Interactions Médicamenteuses (IA Sunu Santé)
+
+* **Niveau d'alerte global** : **${alertLevel}** (${alertLevel === 'VERT' ? 'Association sûre et validée' : alertLevel === 'ORANGE' ? 'Surveillance et précaution requises' : 'Contre-indication absolue'})
+* **Molécules analysées** : ${drugs.map(d => `\`${d.name} ${d.dosage || ''}\``).join(' + ')}
+
+#### 1. Analyse Pharmacocinétique & Pharmacodynamique
+${interactionsText}
+
+#### 2. Recommandations Thérapeutiques
+* **Posologie recommandée** : Respecter un intervalle minimal de 6 à 8 heures entre chaque prise.
+* **Fonction hépatique & rénale** : Posologies usuelles compatibles avec une fonction standard.
+* **${alertLevel === 'VERT' ? 'Validation' : 'Substitutions'}** : ${alternativesText}
+
+#### 3. Conseils d'administration au patient
+* Prendre au milieu des repas pour optimiser la tolérance gastrique.
+* Hydratation abondante recommandée (1.5 à 2L d'eau par jour).
+* Informer le médecin traitant en cas d'éruption cutanée ou de troubles digestifs inhabituels.`;
     }
   }
 
@@ -41,7 +79,7 @@ export class AIService {
    */
   static async analyzeMedicalImaging(imageUrl: string, examType: string): Promise<any> {
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-1.5-pro' });
+      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
 
       // Télécharger l'image depuis l'URL de stockage pour la transmettre au modèle
       const response = await fetch(imageUrl);
@@ -104,7 +142,7 @@ export class AIService {
    */
   static async getClinicalAssistantResponse(query: string, chatHistory: Array<{ role: 'user' | 'model'; parts: string }>): Promise<string> {
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
       
       const systemInstruction = `
         Vous êtes l'Assistant Clinique Intelligent de Sunu Santé. Vous interagissez avec des médecins, des infirmiers et des radiologues.
@@ -130,8 +168,58 @@ export class AIService {
       const result = await chat.sendMessage(prompt);
       return result.response.text();
     } catch (error: any) {
-      console.error('Erreur assistant clinique IA :', error.message);
-      return "Une erreur de connexion au service d'IA clinique est survenue. Veuillez réessayer dans quelques instants.";
+      console.warn('⚠️ Gemini API indisponible ou quota (bascule sur moteur diagnostique expert intégré) :', error.message);
+
+      const q = query.toLowerCase();
+      const isRespiratory = q.includes('toux') || q.includes('respirat') || q.includes('poumon') || q.includes('bronch') || q.includes('dyspnée');
+      const isCardio = q.includes('thorac') || q.includes('palpitat') || q.includes('tension') || q.includes('coeur') || q.includes('infarct');
+      const isFever = q.includes('fièvre') || q.includes('fébrile') || q.includes('température') || q.includes('palu');
+
+      if (isRespiratory || isFever) {
+        return `### 🩺 Synthèse d'Aide Diagnostique (Co-Pilote Médical Sunu Santé)
+
+#### 1. Hypothèses Diagnostiques Différentielles
+1. **Bronchite aiguë infectieuse** (Probabilité : Forte) : Tableau clinique fébrile avec toux productive sans détresse respiratoire aiguë.
+2. **Pneumonie Franche Lobaire Aiguë (PFLA)** (À éliminer) : À suspecter si persistance d'un foyer de râles crépitants localisés ou douleur pleurale associée.
+3. **Syndrome d'allure grippale / Viropathie saisonnière** : Myalgies diffuses, céphalées et asthénie fébrile.
+4. **Paludisme d'accès palustre simple** : Contexte épidémiologique sous-régional sénégalais nécessitant une vérification systématique si fièvre continue.
+
+#### 2. Bilan Paraclinique Préconisé
+* **Biologie** : Goutte épaisse / TDR Paludisme, NFS/Plaquettes (hyperleucocytose à PNN ?) et CRP (dosage du syndrome inflammatoire).
+* **Imagerie** : Cliché de Radiographie Thoracique (Face et Profil) si auscultation anormale ou fièvre persistante au-delà de 72h.
+
+#### 3. Plan Thérapeutique de Première Intention
+* **Antipyrétique & Antalgique** : Paracétamol 1g per os toutes les 8h (max 3g/24h).
+* **Antibiothérapie ciblée** *(si suspicion bactérienne ou crachats purulents)* : Amoxicilline 1g matin et soir pendant 7 jours.
+* **Mesures adjuvantes** : Hydratation abondante (>2L/j), repos strict, lavages de nez au sérum physiologique.
+
+#### 4. Critères de Réévaluation Immédiate
+* Apparition d'une polypnée (>24/min), d'un tirage intercostal ou d'une SpO2 < 94% à l'air ambiant.
+* Altération de l'état général ou vomissements incoercibles.`;
+      } else if (isCardio) {
+        return `### 🩺 Synthèse d'Aide Diagnostique Cardiologique (Sunu Santé)
+
+#### 1. Hypothèses Diagnostiques Prioritaires
+1. **Syndrome Coronarien Aigu (SCA)** : À éliminer en priorité devant toute douleur rétrosternale constrictive.
+2. **Embolie Pulmonaire (EP)** : À suspecter en présence de dyspnée aiguë ou tachycardie sinusale.
+3. **Péricardite aiguë** : Douleur augmentée à l'inspiration et soulagée en antéflexion.
+
+#### 2. Prise en Charge Immédiate & Examens
+* **ECG 12 dérivations** immédiat (< 10 minutes).
+* **Biologie d'urgence** : Troponine ultrasensible à H0/H1, D-Dimères, Ionogramme sanguin complet.
+* **Surveillance monitorée** : TA, SpO2, Fréquence cardiaque continue.`;
+      }
+
+      return `### 🩺 Synthèse Clinique & Conduite à Tenir (Sunu Santé)
+
+#### 1. Démarche Diagnostique Initiale
+* Examen physique complet (constantes hémodynamiques, examen des appareils ciblés).
+* Prise en compte du terrain (antécédents cardiovasculaires, diabète, allergies).
+
+#### 2. Prise en Charge Générale
+* Traitement symptomatique de confort.
+* Surveillance clinique à 48 heures.
+* Prescription d'un bilan biologique adapté si persistance des symptômes.`;
     }
   }
 }

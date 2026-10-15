@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import fs from 'fs';
-import path from 'path';
 import { z } from 'zod';
-
-const DB_PATH = path.join(__dirname, '../../users-db.json');
+import { DbService } from '../services/db.service';
 
 export interface LocalUserRecord {
   email: string;
@@ -14,28 +11,9 @@ export interface LocalUserRecord {
   details: any;
 }
 
-// Helpers for file reading/writing
-const readDb = (): LocalUserRecord[] => {
-  try {
-    if (!fs.existsSync(DB_PATH)) {
-      fs.writeFileSync(DB_PATH, JSON.stringify([]));
-      return [];
-    }
-    const data = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(data || '[]');
-  } catch (e) {
-    console.error('Error reading auth database', e);
-    return [];
-  }
-};
-
-const writeDb = (users: LocalUserRecord[]) => {
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(users, null, 2));
-  } catch (e) {
-    console.error('Error writing auth database', e);
-  }
-};
+// Helpers avec persistance locale et synchronisation
+const readDb = (): LocalUserRecord[] => DbService.readLocalUsers();
+const writeDb = (users: LocalUserRecord[]) => DbService.writeLocalUsers(users);
 
 export class AuthController {
   /**
@@ -216,6 +194,7 @@ export class AuthController {
 
       users.push(newRecord);
       writeDb(users);
+      await DbService.syncUserToSupabase(newRecord);
 
       return res.status(200).json({ success: true });
     } catch (error) {
@@ -247,6 +226,7 @@ export class AuthController {
 
       users[userIdx].suspended = !users[userIdx].suspended;
       writeDb(users);
+      await DbService.syncUserToSupabase(users[userIdx]);
 
       return res.status(200).json({ success: true, suspended: users[userIdx].suspended });
     } catch (error) {
@@ -291,6 +271,7 @@ export class AuthController {
       }
 
       writeDb(users);
+      await DbService.syncUserToSupabase(user);
 
       return res.status(200).json({ success: true });
     } catch (error) {
@@ -323,6 +304,7 @@ export class AuthController {
       // Supprimer l'utilisateur de la base locale
       users.splice(userIdx, 1);
       writeDb(users);
+      await DbService.deleteUserFromSupabase(email);
 
       return res.status(200).json({ success: true });
     } catch (error) {

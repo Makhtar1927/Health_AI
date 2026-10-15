@@ -1081,47 +1081,72 @@ export default function PatientRecords() {
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-2xl w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
             >
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-purple-50/70 flex-shrink-0">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">{selectedImagingModal.type}</h3>
-                  <p className="text-[10px] text-purple-700 font-medium">Examen {selectedImagingModal.id} • {selectedImagingModal.date}</p>
+              {/* Mobile grab handle */}
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-purple-50/70 flex-shrink-0">
+                <div className="min-w-0 flex-1 pr-3">
+                  <h3 className="text-sm font-bold text-slate-900 truncate">{selectedImagingModal.type}</h3>
+                  <p className="text-[10px] text-purple-700 font-medium truncate">Examen {selectedImagingModal.id} • {selectedImagingModal.date}</p>
                 </div>
                 <button
                   onClick={() => setSelectedImagingModal(null)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer flex-shrink-0"
+                  aria-label="Fermer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs overscroll-contain">
-                {/* Visualiseur */}
-                <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center max-h-72 shadow-inner">
-                  <img
-                    src={selectedImagingModal.imageUrl}
-                    alt={selectedImagingModal.type}
-                    className="max-h-72 w-auto object-contain"
-                  />
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3.5 text-xs overscroll-contain">
+                {/* Visualiseur - seulement si une image est disponible */}
+                {selectedImagingModal.imageUrl && (
+                  <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center max-h-64 shadow-inner">
+                    <img
+                      src={selectedImagingModal.imageUrl}
+                      alt={selectedImagingModal.type}
+                      className="max-h-64 w-auto object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* Infos basiques */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase block">Clinique</span>
+                    <p className="font-semibold text-slate-800 mt-0.5 text-[11px] truncate">{selectedImagingModal.clinic}</p>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase block">Prescripteur</span>
+                    <p className="font-semibold text-slate-800 mt-0.5 text-[11px] truncate">{selectedImagingModal.doctor}</p>
+                  </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Description détaillée des clichés</span>
-                  <p className="text-slate-700 leading-relaxed text-xs">{selectedImagingModal.findings}</p>
-                </div>
+                {selectedImagingModal.findings && (
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Description détaillée des clichés</span>
+                    <p className="text-slate-700 leading-relaxed text-xs">{selectedImagingModal.findings}</p>
+                  </div>
+                )}
 
                 <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Conclusion du Radiologue</span>
                   <p className="text-xs font-semibold leading-relaxed">{selectedImagingModal.conclusion}</p>
+                  {selectedImagingModal.radiologist && (
+                    <p className="text-[10px] text-purple-800 font-bold pt-1">Validé par : {selectedImagingModal.radiologist}</p>
+                  )}
                 </div>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between flex-shrink-0">
-                <span className="text-[11px] text-slate-500 font-medium">{selectedImagingModal.doctor}</span>
+              <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex items-center justify-between flex-shrink-0">
+                <span className="text-[11px] text-slate-500 font-medium truncate pr-3">{selectedImagingModal.doctor}</span>
                 <button
                   onClick={() => setSelectedImagingModal(null)}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-5 py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex-shrink-0"
                 >
                   Fermer
                 </button>
@@ -1139,22 +1164,28 @@ export default function PatientRecords() {
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-xl w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
             >
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-blue-50/70 flex-shrink-0">
+              {/* Mobile grab handle */}
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="px-5 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-blue-50/70 flex-shrink-0">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">{selectedLabModal.title}</h3>
                   <p className="text-[10px] text-blue-700 font-medium">{selectedLabModal.lab}</p>
                 </div>
                 <button
                   onClick={() => setSelectedLabModal(null)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  aria-label="Fermer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-5 space-y-3 text-xs overscroll-contain">
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs overscroll-contain">
                 <div className="flex items-center justify-between text-slate-500 text-[11px] pb-2 border-b border-slate-100">
                   <span>Prélèvement : {selectedLabModal.date}</span>
                   <span>Biologiste : {selectedLabModal.biologist}</span>
@@ -1162,14 +1193,14 @@ export default function PatientRecords() {
 
                 <div className="space-y-2.5">
                   {selectedLabModal.results.map((r, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div>
-                        <p className="font-bold text-slate-800">{r.test}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Valeurs de référence : {r.minRange} - {r.maxRange} {r.unit}</p>
+                    <div key={idx} className="flex items-center justify-between gap-2 p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 overflow-hidden">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-slate-800 text-xs truncate">{r.test}</p>
+                        <p className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 truncate">Référence : {r.minRange}–{r.maxRange} {r.unit}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <span className={`font-black text-sm ${r.status === 'normal' ? 'text-slate-900' : 'text-amber-700'}`}>
-                          {r.displayValue} {r.unit}
+                          {r.displayValue} <span className="text-[10px] font-semibold">{r.unit}</span>
                         </span>
                         <span className={`block text-[9px] font-bold ${r.status === 'normal' ? 'text-emerald-600' : 'text-amber-600'}`}>
                           {r.status === 'normal' ? 'Normal' : 'Hors normes'}
@@ -1180,10 +1211,10 @@ export default function PatientRecords() {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end flex-shrink-0">
+              <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex items-center justify-end flex-shrink-0">
                 <button
                   onClick={() => setSelectedLabModal(null)}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-5 py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Fermer
                 </button>
@@ -1201,9 +1232,14 @@ export default function PatientRecords() {
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-md w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden text-center"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-md w-full max-h-[90dvh] sm:max-h-[88vh] flex flex-col overflow-hidden text-center"
             >
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-teal-50/70 flex-shrink-0">
+              {/* Mobile grab handle */}
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="px-5 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-teal-50/70 flex-shrink-0">
                 <div className="flex items-center gap-2 text-left">
                   <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xs">
                     <Lock className="w-4 h-4" />
@@ -1215,13 +1251,14 @@ export default function PatientRecords() {
                 </div>
                 <button
                   onClick={() => setIsShareModalOpen(false)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  aria-label="Fermer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 overscroll-contain flex flex-col items-center">
+              <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain flex flex-col items-center">
                 <p className="text-xs text-slate-600 max-w-xs">
                   Communiquez ce code PIN à 6 chiffres à votre médecin ou spécialiste pour lui donner accès à votre dossier de consultation.
                 </p>
@@ -1257,10 +1294,10 @@ export default function PatientRecords() {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-center flex-shrink-0">
+              <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex items-center justify-center flex-shrink-0">
                 <button
                   onClick={() => setIsShareModalOpen(false)}
-                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="w-full py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Fermer
                 </button>
@@ -1278,9 +1315,14 @@ export default function PatientRecords() {
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full h-[90dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden"
             >
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-teal-50/70 flex-shrink-0">
+              {/* Mobile grab handle */}
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="px-5 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-teal-50/70 flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xs">
                     <Upload className="w-4 h-4" />
@@ -1292,14 +1334,15 @@ export default function PatientRecords() {
                 </div>
                 <button
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                  aria-label="Fermer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleUploadSubmit} className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 overscroll-contain">
+              <form onSubmit={handleUploadSubmit} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700 block">Titre du document</label>
                     <input
@@ -1340,17 +1383,17 @@ export default function PatientRecords() {
                   </div>
                 </div>
 
-                <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 flex-shrink-0">
+                <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setIsUploadModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition-colors cursor-pointer"
+                    className="px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition-colors cursor-pointer"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs font-bold transition-all shadow-sm shadow-teal-700/20 cursor-pointer"
+                    className="px-5 py-2.5 min-h-[44px] rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs font-bold transition-all shadow-sm shadow-teal-700/20 cursor-pointer"
                   >
                     Ajouter le document
                   </button>
@@ -1369,9 +1412,14 @@ export default function PatientRecords() {
               initial={{ opacity: 0, y: 50, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.98 }}
-              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-sm w-full p-6 text-center space-y-4"
+              className="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-sm w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden text-center"
             >
-              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              {/* Mobile grab handle */}
+              <div className="pt-2 sm:hidden flex justify-center flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="flex justify-between items-center border-b border-slate-100 px-5 py-3.5 flex-shrink-0">
                 <div className="flex items-center gap-2 text-left">
                   <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs">
                     <QrCode className="w-4 h-4" />
@@ -1383,47 +1431,52 @@ export default function PatientRecords() {
                 </div>
                 <button
                   onClick={() => setSelectedQrExam(null)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  aria-label="Fermer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* QR Code Container */}
-              <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 flex flex-col items-center gap-3">
-                <div className="p-3 bg-white rounded-2xl shadow-sm border border-purple-100">
-                  <img
-                    src={selectedQrExam.qrCodeUrl}
-                    alt={`QR Code ${selectedQrExam.id}`}
-                    className="w-48 h-48 object-contain"
-                  />
+              {/* QR Code Container défilable si besoin */}
+              <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 overscroll-contain">
+                <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 flex flex-col items-center gap-3">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm border border-purple-100">
+                    <img
+                      src={selectedQrExam.qrCodeUrl}
+                      alt={`QR Code ${selectedQrExam.id}`}
+                      className="w-44 h-44 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <span className="font-mono text-xs font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md">
+                      {selectedQrExam.id}
+                    </span>
+                    <p className="text-xs font-bold text-slate-900 mt-1">{selectedQrExam.type}</p>
+                    <p className="text-[11px] text-slate-500">Prescrit par {selectedQrExam.doctor}</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-mono text-xs font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md">
-                    {selectedQrExam.id}
-                  </span>
-                  <p className="text-xs font-bold text-slate-900 mt-1">{selectedQrExam.type}</p>
-                  <p className="text-[11px] text-slate-500">Prescrit par {selectedQrExam.doctor}</p>
+
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-left space-y-1">
+                  <p className="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>Présentez ce QR Code au centre</span>
+                  </p>
+                  <p className="text-[10px] text-amber-800 leading-relaxed">
+                    Le radiologue ou le manipulateur scannera cet écran pour charger automatiquement le protocole d'examen et vos antécédents médicaux.
+                  </p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-left space-y-1">
-                <p className="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                  <span>Présentez ce QR Code au centre</span>
-                </p>
-                <p className="text-[10px] text-amber-800 leading-relaxed">
-                  Le radiologue ou le manipulateur scannera cet écran pour charger automatiquement le protocole d'examen et vos antécédents médicaux.
-                </p>
+              <div className="p-3.5 sm:p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-slate-50 flex items-center justify-center flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedQrExam(null)}
+                  className="w-full py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Fermer
+                </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedQrExam(null)}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                Fermer
-              </button>
             </motion.div>
           </div>
         )}

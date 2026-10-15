@@ -35,6 +35,7 @@ interface AuthState {
   createStaffAccount: (email: string, passwordHash: string, role: UserSession['role'], name: string, details: Record<string, any>) => Promise<boolean>;
   toggleUserSuspension: (email: string) => Promise<boolean>;
   transferUserAffiliation: (email: string, newAffiliation: string) => Promise<boolean>;
+  getFacilities: () => Promise<any[]>;
 }
 
 const isClient = typeof window !== 'undefined';
@@ -249,6 +250,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (e) {
       console.error('Error transferring user affiliation', e);
       return false;
+    }
+  },
+
+  getFacilities: async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/facilities`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.facilities || [];
+    } catch (e) {
+      console.error('Error fetching facilities', e);
+      return [];
     }
   }
 }));

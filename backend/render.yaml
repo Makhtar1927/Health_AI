@@ -1,0 +1,39 @@
+# ==============================================================================
+# 🚀 SUNU SANTÉ / HEALTH AI — CONFIGURATION DE DÉPLOIEMENT RENDER (Blueprint)
+# ==============================================================================
+
+services:
+  - type: web
+    name: sunu-sante-backend
+    runtime: node
+    plan: starter # Recommandé pour éviter la mise en veille (spin-down) sur une app médicale critique
+    region: frankfurt # Plus proche de l'Afrique de l'Ouest (faible latence pour le Sénégal)
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        sync: false # À renseigner avec l'URL Vercel du portail patient
+      - key: ALLOWED_ORIGINS
+        sync: false # Optionnel : URLs séparées par des virgules (ex: https://patient.sunusante.sn,https://admin.sunusante.sn)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true # Render peut générer automatiquement une clé aléatoire sécurisée
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

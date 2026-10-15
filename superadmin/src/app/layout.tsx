@@ -9,10 +9,14 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Sunu Santé - Super-Administration',
-  description: 'Système complet de gestion hospitalière et d\'intelligence artificielle médicale pour les professionnels de santé et les patients.',
-  keywords: ['santé', 'medical', 'ia', 'radiologie', 'senegal', 'dossier medical', 'pacs', 'dicom'],
-  authors: [{ name: 'Sunu Santé Team' }],
+  title: 'Health AI - Super-Administration Globale',
+  description: 'Console centrale de supervision et de contrôle du système Health AI.',
+  keywords: ['health ai', 'santé', 'medical', 'ia', 'intelligence artificielle', 'superadmin'],
+  authors: [{ name: 'Health AI Team' }],
+  icons: {
+    icon: '/HealthAI_symbole.png',
+    apple: '/HealthAI_symbole.png',
+  },
 };
 
 export const viewport: Viewport = {

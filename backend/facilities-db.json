@@ -1,0 +1,478 @@
+[
+  {
+    "id": "hopital-principal-dakar",
+    "name": "Hôpital Principal de Dakar",
+    "type": "hopital",
+    "region": "Dakar",
+    "district": "Dakar Centre",
+    "address": "1 Avenue Nelson Mandela, Dakar Plateau",
+    "phone": "+221 33 839 50 50",
+    "specialties": [
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie & Odontologie",
+        "isActive": true,
+        "ticketPrice": 2000,
+        "availableDays": [2, 4],
+        "startTime": "08:00",
+        "endTime": "13:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Oumy Aidara", "Dr. Cheikh Tidiane Diop"]
+      },
+      {
+        "id": "cardiologie",
+        "name": "Cardiologie",
+        "isActive": true,
+        "ticketPrice": 5000,
+        "availableDays": [1, 3],
+        "startTime": "09:00",
+        "endTime": "14:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Cheikh Tidiane Diop", "Dr. Awa Ndiaye"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:00",
+        "endTime": "16:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Cheikh Tidiane Diop", "Dr. Abdoulaye Diallo", "Dr. Ibrahima Seck"]
+      },
+      {
+        "id": "ophtalmologie",
+        "name": "Ophtalmologie",
+        "isActive": true,
+        "ticketPrice": 3500,
+        "availableDays": [5],
+        "startTime": "08:30",
+        "endTime": "13:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Cheikh Anta Wade"]
+      },
+      {
+        "id": "pediatrie",
+        "name": "Pédiatrie",
+        "isActive": true,
+        "ticketPrice": 2000,
+        "availableDays": [1, 2, 4],
+        "startTime": "08:30",
+        "endTime": "14:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Babacar Seck"]
+      },
+      {
+        "id": "radiologie",
+        "name": "Radiologie & Imagerie",
+        "isActive": true,
+        "ticketPrice": 3000,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:00",
+        "endTime": "16:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 3,
+        "assignedDoctors": ["Dr. Babacar Ndiaye"]
+      }
+    ]
+  },
+  {
+    "id": "centre-sante-gaspard-kamara",
+    "name": "Centre de Santé Gaspard Kamara",
+    "type": "centre_de_sante",
+    "region": "Dakar",
+    "district": "Dakar Centre",
+    "address": "Avenue Cheikh Anta Diop, Dakar",
+    "phone": "+221 33 825 15 20",
+    "specialties": [
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1000,
+        "availableDays": [1, 2, 3, 4, 5, 6],
+        "startTime": "08:00",
+        "endTime": "15:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Mame Diarra Bousso"]
+      },
+      {
+        "id": "pediatrie",
+        "name": "Pédiatrie",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [2, 5],
+        "startTime": "08:30",
+        "endTime": "13:30",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Alioune Badara"]
+      },
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [3, 6],
+        "startTime": "08:00",
+        "endTime": "12:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Souleymane Kane"]
+      }
+    ]
+  },
+  {
+    "id": "poste-sante-medina",
+    "name": "Poste de Santé Médina",
+    "type": "poste_de_sante",
+    "region": "Dakar",
+    "district": "Dakar Centre",
+    "address": "Rue 6 x 11, Médina, Dakar",
+    "phone": "+221 33 821 44 11",
+    "specialties": [
+      {
+        "id": "general",
+        "name": "Consultation Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 500,
+        "availableDays": [1, 2, 3, 4, 5, 6],
+        "startTime": "08:00",
+        "endTime": "14:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Major Lamine Fall"]
+      },
+      {
+        "id": "soins_infirmiers",
+        "name": "Soins Infirmiers & Pansements",
+        "isActive": true,
+        "ticketPrice": 300,
+        "availableDays": [1, 2, 3, 4, 5, 6, 7],
+        "startTime": "08:00",
+        "endTime": "18:00",
+        "slotDuration": 15,
+        "maxPatientsPerSlot": 3,
+        "assignedDoctors": ["Inf. Aida Sylla"]
+      }
+    ]
+  },
+  {
+    "id": "clinique-des-almadies",
+    "name": "Centre Médical & Polyclinique des Almadies",
+    "type": "centre_de_sante",
+    "region": "Dakar",
+    "district": "Almadies",
+    "address": "Route des Almadies, Dakar",
+    "phone": "+221 33 820 44 00",
+    "specialties": [
+      {
+        "id": "cardiologie",
+        "name": "Cardiologie",
+        "isActive": true,
+        "ticketPrice": 6000,
+        "availableDays": [2, 4],
+        "startTime": "10:00",
+        "endTime": "15:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Awa Ndiaye"]
+      },
+      {
+        "id": "dermatologie",
+        "name": "Dermatologie",
+        "isActive": true,
+        "ticketPrice": 4000,
+        "availableDays": [3],
+        "startTime": "09:00",
+        "endTime": "13:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Fatou Kiné Diop"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 2500,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:30",
+        "endTime": "17:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Charles Gomis"]
+      }
+    ]
+  },
+  {
+    "id": "poste-sante-ouakam",
+    "name": "Poste de Santé Ouakam",
+    "type": "poste_de_sante",
+    "region": "Dakar",
+    "district": "Almadies",
+    "address": "Village de Ouakam, Dakar",
+    "phone": "+221 33 860 12 34",
+    "specialties": [
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 500,
+        "availableDays": [1, 2, 3, 4, 5, 6],
+        "startTime": "08:00",
+        "endTime": "14:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Major El Hadji Gueye"]
+      }
+    ]
+  },
+  {
+    "id": "hopital-dalal-jamm",
+    "name": "Hôpital Général Dalal Jamm",
+    "type": "hopital",
+    "region": "Dakar",
+    "district": "Guédiawaye",
+    "address": "Golf Sud, Guédiawaye, Dakar",
+    "phone": "+221 33 879 20 00",
+    "specialties": [
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie",
+        "isActive": true,
+        "ticketPrice": 2000,
+        "availableDays": [1, 4],
+        "startTime": "08:30",
+        "endTime": "13:30",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Mariama Sow"]
+      },
+      {
+        "id": "cardiologie",
+        "name": "Cardiologie",
+        "isActive": true,
+        "ticketPrice": 4000,
+        "availableDays": [2, 5],
+        "startTime": "09:00",
+        "endTime": "14:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Mamadou Ndao"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:00",
+        "endTime": "16:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Ousmane Ly"]
+      }
+    ]
+  },
+  {
+    "id": "hopital-touba",
+    "name": "Hôpital Cheikh Ahmadoul Khadim de Touba",
+    "type": "hopital",
+    "region": "Diourbel",
+    "district": "Touba",
+    "address": "Route de Darou Mouhty, Touba",
+    "phone": "+221 33 978 10 10",
+    "specialties": [
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [1, 3],
+        "startTime": "08:00",
+        "endTime": "13:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Oumy Aidara"]
+      },
+      {
+        "id": "pediatrie",
+        "name": "Pédiatrie",
+        "isActive": true,
+        "ticketPrice": 1500,
+        "availableDays": [2, 4],
+        "startTime": "08:30",
+        "endTime": "14:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Serigne Fallou Dieng"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1000,
+        "availableDays": [1, 2, 3, 4, 5, 6],
+        "startTime": "08:00",
+        "endTime": "16:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Modou Kara"]
+      }
+    ]
+  },
+  {
+    "id": "poste-sante-touba-mosquee",
+    "name": "Poste de Santé Touba Grande Mosquée",
+    "type": "poste_de_sante",
+    "region": "Diourbel",
+    "district": "Touba",
+    "address": "Quartier Mosquée, Touba",
+    "phone": "+221 33 978 40 00",
+    "specialties": [
+      {
+        "id": "general",
+        "name": "Soins Primaires & Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 300,
+        "availableDays": [1, 2, 3, 4, 5, 6, 7],
+        "startTime": "08:00",
+        "endTime": "18:00",
+        "slotDuration": 15,
+        "maxPatientsPerSlot": 3,
+        "assignedDoctors": ["Major Bamba Mbaye"]
+      }
+    ]
+  },
+  {
+    "id": "hopital-mbour",
+    "name": "Établissement Public de Santé de Mbour",
+    "type": "hopital",
+    "region": "Thiès",
+    "district": "Mbour",
+    "address": "Route Nationale 1, Mbour",
+    "phone": "+221 33 957 10 20",
+    "specialties": [
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie",
+        "isActive": true,
+        "ticketPrice": 2000,
+        "availableDays": [4],
+        "startTime": "08:30",
+        "endTime": "13:30",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Yacine Thiam"]
+      },
+      {
+        "id": "chirurgie",
+        "name": "Chirurgie & Traumatologie",
+        "isActive": true,
+        "ticketPrice": 5000,
+        "availableDays": [2],
+        "startTime": "08:00",
+        "endTime": "14:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Pape Saliou Diallo"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1000,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:00",
+        "endTime": "15:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Assane Diop"]
+      }
+    ]
+  },
+  {
+    "id": "chr-saint-louis",
+    "name": "Centre Hospitalier Régional de Saint-Louis",
+    "type": "hopital",
+    "region": "Saint-Louis",
+    "district": "Saint-Louis",
+    "address": "Pointe Nord, Saint-Louis",
+    "phone": "+221 33 961 10 50",
+    "specialties": [
+      {
+        "id": "cardiologie",
+        "name": "Cardiologie",
+        "isActive": true,
+        "ticketPrice": 4000,
+        "availableDays": [1, 3],
+        "startTime": "09:00",
+        "endTime": "13:30",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Mansour Ndiaye"]
+      },
+      {
+        "id": "dentisterie",
+        "name": "Dentisterie",
+        "isActive": true,
+        "ticketPrice": 2000,
+        "availableDays": [2, 5],
+        "startTime": "08:30",
+        "endTime": "13:00",
+        "slotDuration": 30,
+        "maxPatientsPerSlot": 1,
+        "assignedDoctors": ["Dr. Fatou Bintou Wade"]
+      },
+      {
+        "id": "general",
+        "name": "Médecine Générale",
+        "isActive": true,
+        "ticketPrice": 1200,
+        "availableDays": [1, 2, 3, 4, 5],
+        "startTime": "08:00",
+        "endTime": "16:00",
+        "slotDuration": 20,
+        "maxPatientsPerSlot": 2,
+        "assignedDoctors": ["Dr. Ibrahima Diagne"]
+      }
+    ]
+  },
+  {
+    "id": "pharmacie-centrale-dakar-plateau",
+    "name": "Pharmacie Centrale Dakar Plateau",
+    "type": "pharmacie",
+    "region": "Dakar",
+    "district": "Dakar Plateau",
+    "address": "42 Avenue Ponty, Dakar",
+    "phone": "+221 33 821 44 10",
+    "specialties": []
+  },
+  {
+    "id": "pharmacie-de-la-nation",
+    "name": "Pharmacie de la Nation",
+    "type": "pharmacie",
+    "region": "Dakar",
+    "district": "Dakar Médina",
+    "address": "Boulevard Général de Gaulle, Dakar",
+    "phone": "+221 33 822 15 30",
+    "specialties": []
+  },
+  {
+    "id": "pharmacie-point-e",
+    "name": "Pharmacie Point E",
+    "type": "pharmacie",
+    "region": "Dakar",
+    "district": "Dakar Fann",
+    "address": "Avenue Cheikh Anta Diop, Point E",
+    "phone": "+221 33 825 80 40",
+    "specialties": []
+  }
+]

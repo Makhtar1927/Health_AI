@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { LogOut, ShieldCheck } from 'lucide-react';
 
+import Image from 'next/image';
+
 interface StaffHeaderProps {
   title: string;
   subtitle?: string;
@@ -32,12 +34,19 @@ export default function StaffHeader({
   const displayName = user?.name || 'Professionnel';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-2.5 sm:py-3.5 transition-all">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-3 sm:px-6 py-2.5 sm:py-3 transition-all shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Branding & Role */}
         <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
-            H+
+          {/* Logo officiel Health AI */}
+          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center p-1 shrink-0 overflow-hidden">
+            <Image
+              src="/HealthAI_symbole.png"
+              alt="Health AI"
+              width={34}
+              height={34}
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div className="flex items-center gap-2 min-w-0">

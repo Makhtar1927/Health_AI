@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion } from 'framer-motion';
-import { PlusSquare, Lock, Mail, ArrowLeft, Loader2, Sparkles, User, Phone, ShieldCheck, MapPin } from 'lucide-react';
+import { Pill, Lock, Mail, ArrowLeft, Loader2, Sparkles, User, Phone, ShieldCheck, MapPin, Building2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function PharmacistRegister() {
   const router = useRouter();
@@ -17,14 +18,14 @@ export default function PharmacistRegister() {
   const [phone, setPhone] = useState('');
   const [rpps, setRpps] = useState('');
   const [pharmacyName, setPharmacyName] = useState('');
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState('Dakar');
   const [password, setPassword] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     initialize();
     clearError();
-  }, []);
+  }, [initialize, clearError]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -51,28 +52,28 @@ export default function PharmacistRegister() {
       setShowToast(true);
       setTimeout(() => {
         router.push('/pharmacist/dashboard');
-      }, 1500);
+      }, 1200);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-900 via-violet-950 to-slate-950 text-white overflow-hidden py-12">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-50 via-violet-50/30 to-slate-100 text-slate-900 overflow-hidden py-12">
       
       {/* Background Animated Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full bg-violet-500/10 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[5%] left-[10%] w-96 h-96 rounded-full bg-violet-400/10 blur-3xl animate-pulse" />
+        <div className="absolute bottom-[5%] right-[10%] w-96 h-96 rounded-full bg-fuchsia-400/10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 w-full max-w-2xl">
+      <div className="relative z-10 w-full max-w-xl">
         
         {/* Back Link */}
         <Link 
           href="/pharmacist/login" 
-          className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors mb-6 cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors mb-6 cursor-pointer"
         >
-          <ArrowLeft className="h-4.5 w-4.5" />
+          <ArrowLeft className="h-4 w-4" />
           Retour à la connexion
         </Link>
 
@@ -81,13 +82,23 @@ export default function PharmacistRegister() {
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg text-white mb-4"
+            className="inline-flex items-center justify-center p-3 rounded-2xl bg-white shadow-xl border border-slate-200/90 mb-4"
           >
-            <PlusSquare className="h-6 w-6" />
+            <Image
+              src="/HealthAI_symbole.png"
+              alt="Health AI"
+              width={56}
+              height={56}
+              className="object-contain"
+              priority
+            />
           </motion.div>
           
-          <h1 className="text-3xl font-black tracking-tight mb-2">Inscription Pharmacien</h1>
-          <p className="text-xs text-violet-400 font-bold uppercase tracking-widest">Rejoindre le Réseau d'Officines Health AI</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Inscription Officine</h1>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 text-violet-800 border border-violet-200 text-xs font-black uppercase tracking-wider mt-2">
+            <Pill className="h-3.5 w-3.5 text-violet-600" />
+            Création de Compte Pharmacien Titulaire
+          </div>
         </div>
 
         {/* Card Form */}
@@ -95,193 +106,189 @@ export default function PharmacistRegister() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-glass backdrop-blur-glass relative overflow-hidden"
+          className="bg-white/95 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-violet-500/5 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-violet-500/5 blur-2xl pointer-events-none" />
-
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/25 text-xs text-red-400 font-medium">
+            <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-bold">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {showToast && (
+            <div className="mb-6 p-4 rounded-xl bg-violet-50 border border-violet-200 text-xs text-violet-950 font-bold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-600" />
+              Compte créé avec succès ! Accès à l&apos;officine...
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              
-              {/* Prenom */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Prénom</label>
+            {/* Prénom & Nom */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Prénom</label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     required
-                    placeholder="Moustapha"
+                    placeholder="Babacar"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setFirstName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
 
-              {/* Nom */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nom</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Nom</label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     required
-                    placeholder="Seck"
+                    placeholder="Diagne"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setLastName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Adresse Email</label>
+            {/* Email & Téléphone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Adresse Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="email"
                     required
-                    placeholder="moustapha.seck@sunusante.sn"
+                    placeholder="b.diagne@officine.sn"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
 
-              {/* Phone */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">N° de Téléphone</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Téléphone Portable</label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="tel"
                     required
-                    placeholder="+221 77 111 22 33"
+                    placeholder="+221 77 123 45 67"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* RPPS / Ordre */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Numéro d'Ordre des Pharmaciens</label>
+            {/* Numéro RPPS & Nom Officine */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Identifiant RPPS / Ordre</label>
                 <div className="relative">
-                  <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     required
-                    placeholder="PHA-28392"
+                    placeholder="RPPS-849204"
                     value={rpps}
-                    onChange={(e) => setRpps(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setRpps(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
 
-              {/* City */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Ville d'Officine</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Nom de la Pharmacie</label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     required
-                    placeholder="Dakar, Thiès, Saint-Louis, etc."
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Pharmacy Name */}
-              <div className="space-y-2 sm:col-span-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nom de la Pharmacie (Officine ou Hôpital)</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Pharmacie de la Nation, Pharmacie du CHU Fann, etc."
+                    placeholder="Pharmacie Centrale"
                     value={pharmacyName}
-                    onChange={(e) => setPharmacyName(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setPharmacyName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ville & Mot de passe */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Ville d&apos;implantation</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="Dakar"
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
 
-              {/* Password */}
-              <div className="space-y-2 sm:col-span-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Mot de Passe de Sécurité</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Mot de passe de sécurité</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="password"
                     required
-                    placeholder="••••••••••••"
+                    placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-xl text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500 text-white transition-colors"
+                    onChange={e => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-violet-500 focus:bg-white text-slate-900"
                   />
                 </div>
               </div>
-
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading || showToast}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-700 text-white hover:from-violet-500 hover:to-fuchsia-600 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-violet-700/10 transition-all active:scale-95 disabled:opacity-50 mt-6"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4.5 w-4.5 animate-spin" />
-                  Enregistrement officine en cours...
-                </>
-              ) : (
-                'Finaliser mon inscription'
-              )}
-            </button>
+            {/* Bouton validation */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm shadow-violet-600/25 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enregistrement de l&apos;officine...
+                  </>
+                ) : (
+                  <>
+                    Finaliser l&apos;inscription Pharmacien
+                  </>
+                )}
+              </button>
+            </div>
 
           </form>
 
-          {/* Links */}
-          <div className="mt-6 pt-6 border-t border-slate-800/80 text-center">
-            <p className="text-[11px] text-slate-500">
-              Déjà inscrit ?{' '}
-              <Link href="/pharmacist/login" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+          {/* Lien retour connexion */}
+          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-500">
+              Déjà titulaire d&apos;un compte ?{' '}
+              <Link href="/pharmacist/login" className="font-extrabold text-violet-700 hover:underline">
                 Se connecter
               </Link>
             </p>
           </div>
-
         </motion.div>
 
       </div>
-
-      {/* Success Toast */}
-      {showToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-violet-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 font-bold text-xs animate-bounce">
-          <Sparkles className="h-4.5 w-4.5 text-white animate-pulse" />
-          Officine activée ! Redirection en cours...
-        </div>
-      )}
-
-      <footer className="mt-12 text-center text-[10px] text-slate-600 relative z-10">
-        &copy; {new Date().getFullYear()} Health AI - Sécurisation des Prescriptions Électroniques.
-      </footer>
     </div>
   );
 }
