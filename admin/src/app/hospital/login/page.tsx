@@ -52,7 +52,7 @@ export default function AdminHospitalLogin() {
         
         {/* Back Link to global portal switcher on port 3000 */}
         <a 
-          href="http://localhost:3000" 
+          href="https://healthai-sn.vercel.app" 
           className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors mb-6 cursor-pointer no-underline"
         >
           <ArrowLeft className="h-4.5 w-4.5" />

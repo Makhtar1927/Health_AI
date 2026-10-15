@@ -382,7 +382,7 @@ function RadiologyViewerContent() {
 
   const copyPatientLink = () => {
     if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText('http://localhost:3000/patient/records');
+      navigator.clipboard.writeText('https://healthai-sn.vercel.app/patient/records');
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     }
@@ -1086,7 +1086,7 @@ function RadiologyViewerContent() {
               <div className="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-2xl text-xs space-y-2">
                 <div className="flex items-center gap-2 text-emerald-900 font-bold">
                   <Check className="w-4 h-4 text-emerald-600" />
-                  <span>Dossier Patient synchronisé (Port 3000 / DMP)</span>
+                  <span>Dossier Patient synchronisé (DMP - healthai-sn.vercel.app)</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-900 font-bold">
                   <Check className="w-4 h-4 text-emerald-600" />
@@ -1105,7 +1105,7 @@ function RadiologyViewerContent() {
 
               <div className="flex gap-2 pt-2">
                 <a
-                  href="http://localhost:3000/patient/records"
+                  href="https://healthai-sn.vercel.app/patient/records"
                   target="_blank"
                   rel="noreferrer"
                   className="flex-1 h-10 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"

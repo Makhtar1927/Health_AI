@@ -54,7 +54,7 @@ export default function SuperAdminLogin() {
         
         {/* Retour au portail */}
         <a 
-          href="http://localhost:3000" 
+          href="https://healthai-sn.vercel.app" 
           className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors mb-6 no-underline font-bold"
         >
           <ArrowLeft className="h-4 w-4" />

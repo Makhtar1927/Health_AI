@@ -53,7 +53,7 @@ export default function AdminPharmacyLogin() {
         
         {/* Lien retour au portail global */}
         <a 
-          href="http://localhost:3000" 
+          href="https://healthai-sn.vercel.app" 
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors mb-6 cursor-pointer no-underline"
         >
           <ArrowLeft className="h-4 w-4" />

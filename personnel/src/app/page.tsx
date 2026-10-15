@@ -339,7 +339,7 @@ export default function PersonnelLoginPage() {
               {/* Lien vers portail patient */}
               <p className="mt-4 text-center text-xs text-slate-500">
                 Vous êtes un patient ?{' '}
-                <a href="http://localhost:3000" className="text-emerald-700 font-semibold hover:underline cursor-pointer">
+                <a href="https://healthai-sn.vercel.app" className="text-emerald-700 font-semibold hover:underline cursor-pointer">
                   Accéder à votre espace patient
                 </a>
               </p>

@@ -820,7 +820,7 @@ export default function RadiologyDashboard() {
                       <div className="p-3 bg-white rounded-xl border border-emerald-200 space-y-2">
                         <div className="flex items-center gap-2 text-[11px] text-emerald-900">
                           <Check className="w-3.5 h-3.5 text-emerald-600 font-bold" />
-                          <span><strong>Dossier Patient :</strong> Disponible sur <a href="http://localhost:3000/patient/records" target="_blank" rel="noreferrer" className="underline font-bold text-teal-700">http://localhost:3000/patient/records</a></span>
+                          <span><strong>Dossier Patient :</strong> Disponible sur <a href="https://healthai-sn.vercel.app/patient/records" target="_blank" rel="noreferrer" className="underline font-bold text-teal-700">https://healthai-sn.vercel.app/patient/records</a></span>
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-emerald-900">
                           <Check className="w-3.5 h-3.5 text-emerald-600 font-bold" />

@@ -217,8 +217,8 @@ export default function PatientRecords() {
   const fetchDynamicImaging = async () => {
     try {
       const [ordersRes, resultsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/radiology/orders').then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-        fetch('http://localhost:5000/api/radiology/results').then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] }))
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://health-ai-backend-jhie.onrender.com'}/api/radiology/orders`).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://health-ai-backend-jhie.onrender.com'}/api/radiology/results`).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] }))
       ]);
 
       const ordersData: any[] = ordersRes.data || [];
