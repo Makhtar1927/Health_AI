@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -51,10 +51,10 @@ export default function PendingConfirmationPage() {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const origin = window.location.origin;
-      const res = await fetch(${API_URL}/api/auth/forgot-password, {
+      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, redirectTo: ${origin}/auth/confirmed })
+        body: JSON.stringify({ email, redirectTo: `${origin}/auth/confirmed` })
       });
 
       if (res.ok) {
@@ -148,7 +148,7 @@ export default function PendingConfirmationPage() {
           <button onClick={handleResend} disabled={!canResend || resendLoading}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:bg-teal-500/20">
             {resendLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            {canResend ? "Renvoyer l'email de confirmation" : Renvoyer dans s}
+            {canResend ? "Renvoyer l'email de confirmation" : `Renvoyer dans ${countdown}s`}
           </button>
           <p className="text-slate-500 text-xs">Verifiez aussi vos spams / courriers indesirables</p>
         </motion.div>
