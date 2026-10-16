@@ -33,6 +33,8 @@ export default function AuthConfirmedPage() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.email) {
           setConfirmedEmail(session.user.email);
+          // Informer le backend que l'email est confirmé
+          await notifyBackendConfirmation(session.user.email);
         }
       } catch (err) {
         console.warn('Erreur vérification session :', err);
@@ -44,9 +46,11 @@ export default function AuthConfirmedPage() {
     checkSession();
 
     // 2. Écouter les changements d'état d'authentification Supabase
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user?.email) {
         setConfirmedEmail(session.user.email);
+        // Informer le backend que l'email est confirmé
+        await notifyBackendConfirmation(session.user.email);
       }
       setIsVerifying(false);
     });
@@ -55,6 +59,20 @@ export default function AuthConfirmedPage() {
       authListener?.subscription.unsubscribe();
     };
   }, []);
+
+  // Appel backend pour marquer emailConfirmed = true dans users-db.json
+  const notifyBackendConfirmation = async (email: string) => {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      await fetch(`${API_URL}/api/auth/confirm-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch (err) {
+      console.warn('Erreur notification backend confirmation email :', err);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-teal-950 via-slate-900 to-slate-950 text-white flex flex-col justify-between p-4 sm:p-8 relative overflow-hidden">

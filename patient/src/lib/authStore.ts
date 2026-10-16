@@ -153,6 +153,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return false;
       }
 
+      // Si confirmation email requise (patients) : NE PAS connecter, retourner 'pending'
+      if (data.requiresEmailConfirmation) {
+        set({ isLoading: false });
+        return 'pending' as any;
+      }
+
       const session: UserSession = data.user;
       saveLocalSession(session);
       set({ user: session, isAuthenticated: true, isLoading: false });

@@ -116,7 +116,13 @@ export default function PatientRegister() {
     };
 
     const success = await register(email, password, 'patient', fullName, details);
-    if (success) {
+    if (success === ('pending' as any)) {
+      // Email de confirmation envoyé — rediriger vers page d'attente
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('pending-confirmation-email', email);
+      }
+      router.push('/auth/pending-confirmation');
+    } else if (success) {
       setShowToast(true);
       setTimeout(() => {
         router.push('/patient/home');

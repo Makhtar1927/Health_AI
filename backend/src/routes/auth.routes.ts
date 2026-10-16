@@ -8,6 +8,7 @@ router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
+router.post('/confirm-email', AuthController.confirmEmail);
 
 // Admin / Staff Management Endpoints
 router.get('/users', AuthController.getUsersByRoles);

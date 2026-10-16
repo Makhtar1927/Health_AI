@@ -9,6 +9,7 @@ export interface LocalUserRecord {
   role: 'doctor' | 'nurse' | 'radiology' | 'pharmacist' | 'reception' | 'cashier' | 'patient' | 'admin_hospital' | 'admin_pharmacy' | 'superadmin';
   name: string;
   suspended?: boolean;
+  emailConfirmed?: boolean;  // false = en attente de confirmation email, true ou undefined = confirmé
   details: any;
 }
 
@@ -54,6 +55,14 @@ export class AuthController {
         return res.status(401).json({ error: 'Mot de passe incorrect.' });
       }
 
+      // Vérification confirmation email (obligatoire pour les patients)
+      if (matchedUser.role === 'patient' && matchedUser.emailConfirmed === false) {
+        return res.status(403).json({
+          error: 'Votre compte n\'est pas encore activé. Veuillez cliquer sur le lien de confirmation envoyé à votre adresse email.',
+          code: 'EMAIL_NOT_CONFIRMED'
+        });
+      }
+
       return res.status(200).json({
         success: true,
         user: {
@@ -93,18 +102,32 @@ export class AuthController {
         return res.status(400).json({ error: 'Cet email est déjà utilisé par un autre compte.' });
       }
 
+      // Pour les patients, le compte nécessite une confirmation email
+      const requiresEmailConfirmation = role === 'patient';
+
       const newUser: LocalUserRecord = {
         email,
         passwordHash: password,
         role,
         name,
         suspended: false,
+        emailConfirmed: requiresEmailConfirmation ? false : true,
         details
       };
 
       users.push(newUser);
       writeDb(users);
       await DbService.syncUserToSupabase(newUser);
+
+      if (requiresEmailConfirmation) {
+        // Renvoyer une réponse indiquant que la confirmation email est requise
+        return res.status(200).json({
+          success: true,
+          requiresEmailConfirmation: true,
+          message: 'Compte créé avec succès. Veuillez vérifier votre boîte email et cliquer sur le lien de confirmation pour activer votre compte.',
+          email: newUser.email
+        });
+      }
 
       return res.status(200).json({
         success: true,
@@ -380,6 +403,43 @@ export class AuthController {
         success: true,
         message: 'Votre mot de passe a été réinitialisé avec succès.'
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Confirmation d'email — déclenché depuis la page /auth/confirmed
+   * Met à jour emailConfirmed = true dans la base locale
+   */
+  static async confirmEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const confirmSchema = z.object({
+        email: z.string().email()
+      });
+
+      const parsed = confirmSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Email invalide.', details: parsed.error.format() });
+      }
+
+      const { email } = parsed.data;
+      const users = readDb();
+      const userIdx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+
+      if (userIdx === -1) {
+        // L'utilisateur n'existe peut-être que dans Supabase (pas dans users-db.json)
+        // On retourne succès quand même pour ne pas bloquer le flux
+        return res.status(200).json({ success: true, message: 'Email confirmé.' });
+      }
+
+      // Mettre à jour emailConfirmed
+      if (users[userIdx].emailConfirmed === false) {
+        users[userIdx].emailConfirmed = true;
+        writeDb(users);
+      }
+
+      return res.status(200).json({ success: true, message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
     } catch (error) {
       next(error);
     }
