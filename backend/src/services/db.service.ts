@@ -4,6 +4,7 @@ import { supabase, supabaseAdmin } from '../config/supabase';
 import { env } from '../config/env';
 import { HealthFacility, AppointmentRecord, FacilitySpecialty } from '../controllers/facility.controller';
 import { LocalUserRecord } from '../controllers/auth.controller';
+import { DEFAULT_USERS } from '../config/defaultUsers';
 
 const FACILITIES_DB = path.join(__dirname, '../../facilities-db.json');
 const APPOINTMENTS_DB = path.join(__dirname, '../../appointments-db.json');
@@ -60,11 +61,19 @@ export class DbService {
 
   static readLocalUsers(): LocalUserRecord[] {
     try {
-      if (!fs.existsSync(USERS_DB)) return [];
+      if (!fs.existsSync(USERS_DB)) {
+        this.writeLocalUsers(DEFAULT_USERS);
+        return [...DEFAULT_USERS];
+      }
       const data = fs.readFileSync(USERS_DB, 'utf-8');
-      return JSON.parse(data || '[]');
+      const parsed = JSON.parse(data || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+      this.writeLocalUsers(DEFAULT_USERS);
+      return [...DEFAULT_USERS];
     } catch {
-      return [];
+      return [...DEFAULT_USERS];
     }
   }
 
