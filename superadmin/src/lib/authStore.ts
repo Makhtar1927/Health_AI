@@ -42,6 +42,10 @@ interface AuthState {
   createFacility: (facility: any) => Promise<boolean>;
   updateFacility: (id: string, updates: any) => Promise<boolean>;
   deleteFacility: (id: string) => Promise<boolean>;
+
+  // Password Recovery
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (newPassword: string, email?: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const isClient = typeof window !== 'undefined';
@@ -326,6 +330,66 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (e) {
       console.error('Error deleting facility', e);
       return false;
+    }
+  },
+
+  requestPasswordReset: async (email: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const origin = typeof window !== 'undefined' && window.location.origin
+        ? window.location.origin
+        : 'https://healthaisuperadmin-sn.vercel.app';
+      const redirectTo = `${origin}/auth/reset-password`;
+
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        try {
+          await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+        } catch (sbErr) {
+          console.warn('Supabase resetPasswordForEmail warning:', sbErr);
+        }
+      }
+
+      await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectTo })
+      });
+
+      set({ isLoading: false });
+      return { success: true };
+    } catch (err: any) {
+      const msg = err.message || 'Erreur lors de la demande de réinitialisation.';
+      set({ error: msg, isLoading: false });
+      return { success: false, error: msg };
+    }
+  },
+
+  resetPassword: async (newPassword: string, email?: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        try {
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          if (error) throw error;
+        } catch (sbErr: any) {
+          console.warn('Supabase updateUser password warning:', sbErr);
+        }
+      }
+
+      if (email) {
+        await fetch(`${API_URL}/api/auth/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, newPassword })
+        });
+      }
+
+      set({ isLoading: false });
+      return { success: true };
+    } catch (err: any) {
+      const msg = err.message || 'Erreur lors de la réinitialisation du mot de passe.';
+      set({ error: msg, isLoading: false });
+      return { success: false, error: msg };
     }
   }
 }));

@@ -6,6 +6,8 @@ const router = Router();
 // Auth Endpoints
 router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password', AuthController.resetPassword);
 
 // Admin / Staff Management Endpoints
 router.get('/users', AuthController.getUsersByRoles);

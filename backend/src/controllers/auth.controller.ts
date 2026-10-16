@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { DbService } from '../services/db.service';
+import { supabaseAdmin } from '../config/supabase';
 
 export interface LocalUserRecord {
   email: string;
@@ -297,6 +298,88 @@ export class AuthController {
       await DbService.deleteUserFromSupabase(email);
 
       return res.status(200).json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Demande de réinitialisation de mot de passe (Mot de passe oublié)
+   */
+  static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const forgotSchema = z.object({
+        email: z.string().email(),
+        redirectTo: z.string().url().optional()
+      });
+
+      const parsed = forgotSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Adresse email invalide.', details: parsed.error.format() });
+      }
+
+      const { email, redirectTo } = parsed.data;
+
+      // On tente d'envoyer l'email de récupération via Supabase
+      try {
+        await supabaseAdmin.auth.resetPasswordForEmail(email.toLowerCase(), {
+          redirectTo: redirectTo || `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/reset-password`
+        });
+      } catch (sbErr) {
+        console.warn('Supabase resetPasswordForEmail avertissement :', sbErr);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Si cette adresse email est associée à un compte, un lien de réinitialisation vous a été envoyé.'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Réinitialisation effective du mot de passe avec le nouveau mot de passe
+   */
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const resetSchema = z.object({
+        email: z.string().email(),
+        newPassword: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères.')
+      });
+
+      const parsed = resetSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Données invalides.', details: parsed.error.format() });
+      }
+
+      const { email, newPassword } = parsed.data;
+      const users = readDb();
+      const userIdx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+
+      if (userIdx !== -1) {
+        users[userIdx].passwordHash = newPassword;
+        writeDb(users);
+        await DbService.syncUserToSupabase(users[userIdx]);
+      }
+
+      // Tenter également de mettre à jour le mot de passe dans Supabase Auth
+      try {
+        const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+        const authUser = usersData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+        if (authUser) {
+          await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+            password: newPassword
+          });
+        }
+      } catch (authErr) {
+        console.warn('Mise à jour Supabase Auth mot de passe (non bloquant) :', authErr);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Votre mot de passe a été réinitialisé avec succès.'
+      });
     } catch (error) {
       next(error);
     }

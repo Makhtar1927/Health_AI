@@ -131,7 +131,7 @@ export default function CashierLogin() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mot de Passe</label>
-                <a href="#" className="text-[10px] text-emerald-600 hover:text-emerald-700 font-bold transition-colors">Mot de passe oublié ?</a>
+                <Link href="/auth/forgot-password" className="text-[10px] text-emerald-600 hover:text-emerald-700 font-bold transition-colors">Mot de passe oublié ?</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

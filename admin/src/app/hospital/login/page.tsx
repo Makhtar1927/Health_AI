@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion } from 'framer-motion';
@@ -113,6 +114,7 @@ export default function AdminHospitalLogin() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Mot de Passe</label>
+                <Link href="/auth/forgot-password" className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">Mot de passe oublié ?</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />

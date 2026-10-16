@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion } from 'framer-motion';
@@ -140,7 +141,12 @@ export default function SuperAdminLogin() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Mot de Passe</label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Mot de Passe</label>
+                <Link href="/auth/forgot-password" className="text-[10px] font-bold text-amber-600 hover:text-amber-700 hover:underline">
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input

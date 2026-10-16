@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -303,9 +304,9 @@ export default function PersonnelLoginPage() {
 
                 {/* Mot de passe oublié */}
                 <div className="text-right">
-                  <button type="button" className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold hover:underline cursor-pointer">
+                  <Link href="/auth/forgot-password" className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold hover:underline cursor-pointer">
                     Mot de passe oublié ?
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Bouton Connexion */}

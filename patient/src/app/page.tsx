@@ -268,16 +268,12 @@ export default function PatientDirectLogin() {
                     <label className="block text-xs font-semibold text-slate-700">
                       Mot de passe
                     </label>
-                    <a
-                      href="#forgot-password"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        alert('Un SMS ou email de réinitialisation vous sera envoyé après validation de votre identifiant.');
-                      }}
+                    <Link
+                      href="/auth/forgot-password"
                       className="text-xs text-teal-700 hover:text-teal-800 font-medium hover:underline"
                     >
                       Mot de passe oublié ?
-                    </a>
+                    </Link>
                   </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">

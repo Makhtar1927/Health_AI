@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShieldCheck, CheckCircle2, ArrowRight, Lock, Sparkles, UserCheck, Globe, BarChart3, Shield } from 'lucide-react';
-import HealthAILogo from '@/components/HealthAILogo';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthConfirmedPage() {
@@ -37,7 +37,15 @@ export default function AuthConfirmedPage() {
 
       <header className="relative z-10 w-full max-w-xl mx-auto flex items-center justify-between pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <HealthAILogo size="md" />
+          <div className="w-10 h-10 rounded-2xl bg-white p-1 shadow-md flex items-center justify-center">
+            <Image
+              src="/HealthAI_symbole.png"
+              alt="Health AI"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
+          </div>
           <div>
             <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
               HEALTH AI <span className="text-[10px] uppercase font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 rounded-full">Super Admin</span>

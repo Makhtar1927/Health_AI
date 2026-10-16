@@ -127,7 +127,7 @@ export default function PharmacistLogin() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 block">Mot de passe</label>
-                <Link href="#" className="text-[11px] font-bold text-violet-600 hover:underline">
+                <Link href="/auth/forgot-password" className="text-[11px] font-bold text-violet-600 hover:underline">
                   Mot de passe oublié ?
                 </Link>
               </div>
