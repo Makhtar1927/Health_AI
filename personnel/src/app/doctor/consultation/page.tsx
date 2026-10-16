@@ -209,9 +209,10 @@ function ConsultationContent() {
     const activeDrugs = drugs.filter(d => d.name.trim() !== '');
     if (activeDrugs.length === 0) return;
     setIsAiLoading(true); setAiReport(null); setAlertLevel(null);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     try {
       const authHeader = await getAuthHeader();
-      const res = await fetch('http://localhost:5000/api/ai/analyze-prescription', {
+      const res = await fetch(`${API_URL}/api/ai/analyze-prescription`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({ drugs: activeDrugs })
@@ -238,9 +239,10 @@ function ConsultationContent() {
   const suggestDiagnosis = async () => {
     if (!symptoms.trim()) return;
     setIsAiLoading(true); setAiReport(null); setAlertLevel(null);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     try {
       const authHeader = await getAuthHeader();
-      const res = await fetch('http://localhost:5000/api/ai/clinical-assistant', {
+      const res = await fetch(`${API_URL}/api/ai/clinical-assistant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({
@@ -263,9 +265,10 @@ function ConsultationContent() {
     setChatMessages(prev => [...prev, { role: 'user', content: query }]);
     if (!msg) setChatInput('');
     setIsChatLoading(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     try {
       const authHeader = await getAuthHeader();
-      const res = await fetch('http://localhost:5000/api/ai/clinical-assistant', {
+      const res = await fetch(`${API_URL}/api/ai/clinical-assistant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({ query, history: chatMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: m.content })) })

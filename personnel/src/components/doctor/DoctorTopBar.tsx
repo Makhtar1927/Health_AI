@@ -15,6 +15,7 @@ import {
   User,
   Activity
 } from 'lucide-react';
+import HealthAILogo from '@/components/HealthAILogo';
 
 interface DoctorTopBarProps {
   onSearch?: (query: string) => void;
@@ -76,17 +77,15 @@ export default function DoctorTopBar({ onSearch }: DoctorTopBarProps) {
           
           {/* ── Left: Branding ────────────────────────────────────────── */}
           <Link href="/doctor/dashboard" className="flex items-center gap-2.5 min-w-0 group shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-sm shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
-              H+
-            </div>
+            <HealthAILogo size={38} className="group-hover:scale-105 transition-transform" />
             <div className="min-w-0 leading-tight">
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight block">Health AI</span>
-                <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider border border-emerald-200">
                   MÉDECIN
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-medium truncate max-w-[140px] sm:max-w-[220px]">
+              <p className="text-[10px] text-slate-500 font-medium truncate max-w-[140px] sm:max-w-[220px]">
                 {hospitalName}
               </p>
             </div>

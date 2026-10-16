@@ -23,6 +23,7 @@ import {
   HeartPulse,
   ArrowRight,
 } from 'lucide-react';
+import HealthAILogo from '@/components/HealthAILogo';
 
 /* ────────────────────────────────────────────────────────────────────────────
    Redirection basée sur le rôle retourné par le serveur
@@ -115,9 +116,7 @@ export default function PersonnelLoginPage() {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg animate-pulse">
-            H+
-          </div>
+          <HealthAILogo size="lg" pulse />
           <p className="text-xs text-slate-500 font-medium">Connexion sécurisée...</p>
         </div>
       </main>
@@ -207,9 +206,7 @@ export default function PersonnelLoginPage() {
 
             {/* Logo + titre mobile */}
             <div className="flex flex-col items-center mb-6 lg:hidden">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-lg shadow-md mb-3">
-                H+
-              </div>
+              <HealthAILogo size="lg" className="mb-3 shadow-md" />
               <h1 className="text-xl font-extrabold text-slate-900 text-center">
                 Connexion Personnel Médical
               </h1>
@@ -222,9 +219,7 @@ export default function PersonnelLoginPage() {
 
               {/* Icône logo desktop */}
               <div className="hidden lg:flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
-                  H+
-                </div>
+                <HealthAILogo size="md" className="shadow-xs" />
                 <div>
                   <p className="text-sm font-extrabold text-slate-900 leading-tight">Health AI</p>
                   <p className="text-[10px] text-emerald-700 font-semibold uppercase tracking-wider">Portail Professionnel</p>

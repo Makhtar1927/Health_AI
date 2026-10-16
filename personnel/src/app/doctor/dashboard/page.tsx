@@ -40,6 +40,7 @@ import {
 import Link from 'next/link';
 import DoctorTopBar from '@/components/doctor/DoctorTopBar';
 import DoctorNavBar from '@/components/doctor/DoctorNavBar';
+import HealthAILogo from '@/components/HealthAILogo';
 import { getAuthHeader, useAuthStore } from '@/lib/authStore';
 
 interface PatientQueue {
@@ -207,7 +208,8 @@ export default function DoctorDashboard() {
       }));
 
       const authHeader = await getAuthHeader();
-      const res = await fetch('http://localhost:5000/api/ai/clinical-assistant', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${API_URL}/api/ai/clinical-assistant`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -222,14 +224,14 @@ export default function DoctorDashboard() {
       } else {
         setChatMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: "⚠️ Assistant indisponible temporairement. Veuillez vérifier que le serveur backend est démarré sur le port 5000." 
+          content: "⚠️ Assistant indisponible temporairement. Veuillez vérifier la connexion au serveur central." 
         }]);
       }
     } catch (error) {
       console.error(error);
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "⚠️ Erreur de connexion avec le serveur d'IA médical. Assurez-vous que l'API tourne sur localhost:5000." 
+        content: "⚠️ Erreur de connexion avec le serveur d'IA médical. Veuillez vérifier votre connexion." 
       }]);
     } finally {
       setIsAiLoading(false);
@@ -298,27 +300,30 @@ export default function DoctorDashboard() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             
             {/* Doctor Greeting & Service */}
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium">
-                <span className="capitalize flex items-center gap-1.5 font-semibold text-slate-700">
-                  <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                  {currentDateStr}
-                </span>
-                <span>&bull;</span>
-                <span className="inline-flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                  Garde Active &bull; Box 1
-                </span>
-              </div>
+            <div className="flex items-center gap-3.5 sm:gap-4">
+              <HealthAILogo size={56} className="shadow-xs border border-slate-200 hidden sm:inline-flex" />
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium">
+                  <span className="capitalize flex items-center gap-1.5 font-semibold text-slate-700">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                    {currentDateStr}
+                  </span>
+                  <span>&bull;</span>
+                  <span className="inline-flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                    Garde Active &bull; Box 1
+                  </span>
+                </div>
 
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                {doctorDisplayName}
-              </h2>
-              
-              <p className="text-xs sm:text-sm text-slate-500">
-                Vous avez <strong className="text-slate-900 font-bold">{totalWaiting} patient(s)</strong> dans votre file, dont{' '}
-                <strong className="text-rose-600 font-extrabold">{criticalCases} urgence(s) vitale(s)</strong> à examiner en priorité.
-              </p>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+                  {doctorDisplayName}
+                </h2>
+                
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Vous avez <strong className="text-slate-900 font-bold">{totalWaiting} patient(s)</strong> dans votre file, dont{' '}
+                  <strong className="text-rose-600 font-extrabold">{criticalCases} urgence(s) vitale(s)</strong> à examiner en priorité.
+                </p>
+              </div>
             </div>
 
             {/* Quick Primary Actions */}
