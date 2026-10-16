@@ -156,55 +156,7 @@ export default function AdminPharmacyDashboard() {
 
   const loadPharmacists = async () => {
     const data = await getUsersByRoles(['pharmacist']);
-    // Si aucun pharmacien, injecter une équipe témoin pour la démonstration
-    if (data.length === 0) {
-      setPharmacists([
-        {
-          name: "Dr. Babacar Diagne",
-          email: "b.diagne@officine.sn",
-          passwordHash: "demo_hash_diagne",
-          role: "pharmacist",
-          suspended: false,
-          details: {
-            rpps: "RPPS-849204",
-            phone: "+221 77 450 88 12",
-            pharmacyName: "Pharmacie Centrale Dakar Plateau",
-            city: "Dakar",
-            roleTitle: "Pharmacien Adjoint"
-          }
-        },
-        {
-          name: "Dr. Fatou Kiné Fall",
-          email: "f.fall@officine.sn",
-          passwordHash: "demo_hash_fall",
-          role: "pharmacist",
-          suspended: false,
-          details: {
-            rpps: "RPPS-912450",
-            phone: "+221 78 320 14 55",
-            pharmacyName: "Pharmacie Centrale Dakar Plateau",
-            city: "Dakar",
-            roleTitle: "Pharmacienne Assistante"
-          }
-        },
-        {
-          name: "Moussa Seck",
-          email: "m.seck@officine.sn",
-          passwordHash: "demo_hash_seck",
-          role: "pharmacist",
-          suspended: false,
-          details: {
-            rpps: "PREP-55201",
-            phone: "+221 77 890 23 11",
-            pharmacyName: "Pharmacie Centrale Dakar Plateau",
-            city: "Dakar",
-            roleTitle: "Préparateur en Pharmacie"
-          }
-        }
-      ]);
-    } else {
-      setPharmacists(data);
-    }
+    setPharmacists(data);
   };
 
   const triggerToast = (msg: string, type: 'success' | 'error' = 'success') => {

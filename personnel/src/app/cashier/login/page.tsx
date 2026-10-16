@@ -176,12 +176,7 @@ export default function CashierLogin() {
 
         </motion.div>
 
-        {/* Info Mode Démo */}
-        <div className="mt-5 p-3 rounded-2xl bg-white border border-slate-200/80 shadow-xs text-center">
-          <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-            💡 <strong className="text-emerald-700">Test Rapide</strong> : Saisissez n'importe quel email et mot de passe pour ouvrir la caisse.
-          </p>
-        </div>
+
 
       </div>
 

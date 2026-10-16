@@ -174,12 +174,7 @@ export default function ReceptionLogin() {
 
         </motion.div>
 
-        {/* Demo Alert */}
-        <div className="mt-5 p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200/70 text-center">
-          <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-            💡 <strong className="text-blue-800">Compte démo</strong> : Saisissez n'importe quel email/mot de passe pour tester. Il sera auto-configuré.
-          </p>
-        </div>
+
 
       </div>
 

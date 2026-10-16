@@ -16,7 +16,7 @@ import {
   CheckCircle2, 
   Calendar, 
   FileText, 
-  Activity, 
+  Activity,
   HeartHandshake,
   Sparkles,
   AlertCircle
@@ -74,15 +74,7 @@ export default function PatientDirectLogin() {
     }
   };
 
-  // Connexion démo express en 1 clic
-  const handleQuickDemo = async () => {
-    setIdentifier('moussa.diop@healthai.sn');
-    setPassword('Patient2026!');
-    const success = await login('moussa.diop@healthai.sn', 'Patient2026!', 'patient');
-    if (success) {
-      router.push('/patient/home');
-    }
-  };
+
 
   // Prevent hydration mismatch: same root tag <main> on server & client
   if (!mounted) {
@@ -344,18 +336,7 @@ export default function PatientDirectLogin() {
                 </button>
               </form>
 
-              {/* Bouton Test Rapide Démo Patient */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleQuickDemo}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-3 rounded-xl bg-teal-50/70 hover:bg-teal-100/70 text-teal-800 border border-teal-200/50 text-xs font-semibold transition-all flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Tester avec le compte démo Patient (1 clic)</span>
-                </button>
-              </div>
+
 
               {/* S'INSCRIRE EN BAS (Mise en avant claire exigée par l'utilisateur) */}
               <div className="mt-6 pt-5 border-t border-slate-200/80 text-center">

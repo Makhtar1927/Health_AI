@@ -36,19 +36,8 @@ export class AuthController {
       const users = readDb();
       let matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-      // Auto-creation behavior for mock database convenience
       if (!matchedUser) {
-        const defaultName = email.split('@')[0].toUpperCase();
-        matchedUser = {
-          email,
-          passwordHash: password, // Store in plain text for mock simplicity
-          role: role || 'doctor',
-          name: defaultName,
-          suspended: false,
-          details: { mock: true }
-        };
-        users.push(matchedUser);
-        writeDb(users);
+        return res.status(401).json({ error: 'Identifiants invalides ou compte introuvable.' });
       }
 
       // Validations
@@ -114,6 +103,7 @@ export class AuthController {
 
       users.push(newUser);
       writeDb(users);
+      await DbService.syncUserToSupabase(newUser);
 
       return res.status(200).json({
         success: true,

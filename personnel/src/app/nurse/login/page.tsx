@@ -159,12 +159,7 @@ export default function NurseLogin() {
 
         </motion.div>
 
-        {/* Demo Alert */}
-        <div className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-          <p className="text-[10px] text-slate-400 leading-relaxed">
-            💡 <strong className="text-rose-400">Mode Maquette</strong> : Saisissez n'importe quelle adresse email et mot de passe pour tester.
-          </p>
-        </div>
+
 
       </div>
 

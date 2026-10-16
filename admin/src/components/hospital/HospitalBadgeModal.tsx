@@ -22,7 +22,7 @@ export const HospitalBadgeModal: React.FC<Props> = ({ isOpen, onClose, onPunch }
 
   if (!isOpen) return null;
 
-  const handleSimulate = (name: string, role: StaffRole, dept: string, email: string) => {
+  const handleRecordPunch = (name: string, role: StaffRole, dept: string, email: string) => {
     const now = new Date();
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const dateStr = now.toISOString().split('T')[0];
@@ -55,7 +55,7 @@ export const HospitalBadgeModal: React.FC<Props> = ({ isOpen, onClose, onPunch }
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!matriculeOrCode.trim()) return;
-    handleSimulate(
+    handleRecordPunch(
       `Agent ${matriculeOrCode.toUpperCase()}`,
       'nurse',
       'Urgences',
@@ -137,49 +137,10 @@ export const HospitalBadgeModal: React.FC<Props> = ({ isOpen, onClose, onPunch }
               </button>
             </div>
 
-            {/* Quick Simulation Badges for Demo */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Badge Rapide (Simulation en 1-Clic)</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleSimulate('Dr. Cheikh Anta Diop', 'doctor', 'Urgences', 'dr.diop@sunusante.sn')}
-                  className="p-3 bg-slate-50 hover:bg-emerald-50/70 border border-slate-200 hover:border-emerald-300 rounded-2xl text-left transition-all cursor-pointer group shadow-sm"
-                >
-                  <p className="text-xs font-bold text-slate-900 group-hover:text-emerald-700">Dr. Cheikh Anta Diop</p>
-                  <p className="text-[10px] text-slate-500">Urgences · Matr. URG-042</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSimulate('Aminata Fall', 'nurse', 'Réanimation', 'a.fall@sunusante.sn')}
-                  className="p-3 bg-slate-50 hover:bg-rose-50/70 border border-slate-200 hover:border-rose-300 rounded-2xl text-left transition-all cursor-pointer group shadow-sm"
-                >
-                  <p className="text-xs font-bold text-slate-900 group-hover:text-rose-700">Aminata Fall (IDE)</p>
-                  <p className="text-[10px] text-slate-500">Réanimation · Matr. REA-112</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSimulate('Dr. Abdoulaye Diallo', 'radiology', 'Radiologie', 'dr.diallo@sunusante.sn')}
-                  className="p-3 bg-slate-50 hover:bg-purple-50/70 border border-slate-200 hover:border-purple-300 rounded-2xl text-left transition-all cursor-pointer group shadow-sm"
-                >
-                  <p className="text-xs font-bold text-slate-900 group-hover:text-purple-700">Dr. Abdoulaye Diallo</p>
-                  <p className="text-[10px] text-slate-500">Radiologie · Matr. RAD-009</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSimulate('Mamadou Seck', 'reception', 'Accueil', 'm.seck@sunusante.sn')}
-                  className="p-3 bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 rounded-2xl text-left transition-all cursor-pointer group shadow-sm"
-                >
-                  <p className="text-xs font-bold text-slate-900 group-hover:text-blue-700">Mamadou Seck</p>
-                  <p className="text-[10px] text-slate-500">Accueil · Matr. ACC-201</p>
-                </button>
-              </div>
-            </div>
-
             {/* Manual matricule or badge input */}
             <form onSubmit={handleManualSubmit} className="space-y-3">
               <label className="text-[10px] uppercase font-bold text-slate-600 tracking-wider block">
-                Ou scanner par Code Badge / Matricule
+                Scanner par Code Badge / Matricule
               </label>
               <div className="flex gap-2">
                 <input

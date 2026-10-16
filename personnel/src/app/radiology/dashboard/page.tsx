@@ -714,26 +714,6 @@ export default function RadiologyDashboard() {
                     <p className="text-[10px] text-slate-400">Détection automatique en cours...</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                      Ou testez un QR Code en 1 clic :
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {orders.slice(0, 4).map(o => (
-                        <button
-                          key={o.id}
-                          type="button"
-                          onClick={() => processFoundOrder(o)}
-                          className="p-2.5 bg-purple-50/70 hover:bg-purple-100/90 border border-purple-200 rounded-xl text-left transition-colors cursor-pointer"
-                        >
-                          <span className="font-mono text-[10px] font-bold text-purple-700 block">{o.id}</span>
-                          <span className="text-xs font-bold text-slate-900 block truncate">{o.patientName}</span>
-                          <span className="text-[10px] text-slate-500 truncate block">{o.type}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
                   <div className="text-center">
                     <button

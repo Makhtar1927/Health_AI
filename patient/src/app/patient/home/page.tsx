@@ -197,7 +197,7 @@ export default function PatientHome() {
                 <Activity className="w-4 h-4 text-teal-600" />
                 Services Médicaux Rapides
               </h2>
-              <span className="text-[11px] text-slate-400 font-medium">Accès 1-clic</span>
+              <span className="text-[11px] text-slate-400 font-medium">Accès directs</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
