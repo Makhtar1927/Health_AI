@@ -113,10 +113,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // 1. Attempt Supabase Auth Sign Up if configured
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         try {
+          const origin = typeof window !== 'undefined' && window.location.origin
+            ? window.location.origin
+            : 'https://healthai-sn.vercel.app';
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
+              emailRedirectTo: `${origin}/auth/confirmed`,
               data: {
                 name,
                 role,
