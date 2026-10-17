@@ -1,44 +1,102 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../config/env';
 
-// Initialiser le SDK Gemini
-const ai = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+// ─────────────────────────────────────────────────────────────────────────────
+// Configuration Gemini API REST v1
+// On utilise l'API REST directement (v1) pour compatibilité maximale des clés.
+// Le SDK @google/generative-ai utilise v1beta, qui a des restrictions plus
+// strictes sur certains types de clés d'API.
+// ─────────────────────────────────────────────────────────────────────────────
+const GEMINI_API_KEY = env.GEMINI_API_KEY;
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1';
+const GEMINI_MODEL = 'gemini-3.8-flash';
+
+/** Appelle l'API Gemini via REST v1 (prompt simple). */
+async function callGeminiREST(prompt: string): Promise<string> {
+  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
+  };
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API HTTP ${response.status}: ${errorText}`);
+  }
+  const data = await response.json() as any;
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Reponse Gemini vide ou mal formatee');
+  return text;
+}
+
+/** Appelle l'API Gemini avec historique de conversation multi-tour. */
+async function callGeminiChatREST(
+  query: string,
+  history: Array<{ role: 'user' | 'model'; parts: string }>,
+  systemInstruction: string
+): Promise<string> {
+  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const contents: any[] = [];
+  if (systemInstruction) {
+    contents.push({ role: 'user', parts: [{ text: `[INSTRUCTION SYSTEME]\n${systemInstruction}` }] });
+    contents.push({ role: 'model', parts: [{ text: 'Compris. Je suis pret a vous assister en tant qu\'Assistant Clinique Intelligent de Health AI.' }] });
+  }
+  for (const h of history) {
+    contents.push({ role: h.role, parts: [{ text: h.parts }] });
+  }
+  contents.push({ role: 'user', parts: [{ text: query }] });
+  const body = {
+    contents,
+    generationConfig: { maxOutputTokens: 1500, temperature: 0.3 }
+  };
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API HTTP ${response.status}: ${errorText}`);
+  }
+  const data = await response.json() as any;
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Reponse Gemini vide ou mal formatee');
+  return text;
+}
 
 export class AIService {
   /**
    * Analyse les interactions médicamenteuses d'une liste de médicaments prescrits.
    */
   static async analyzeDrugInteractions(drugs: Array<{ name: string; dosage?: string }>): Promise<string> {
+    const drugsString = drugs.map(d => `${d.name} (${d.dosage || 'Dosage non spécifié'})`).join(', ');
+    const prompt = `
+En tant qu'assistant de pharmacologie clinique senior de Health AI, analysez les interactions et contre-indications potentielles pour ces médicaments prescrits à un même patient :
+
+Médicaments : [ ${drugsString} ]
+
+Retournez un rapport structuré en français Markdown contenant :
+1. **Niveau d'alerte global** : (VERT: aucun risque majeur / ORANGE: précautions requises / ROUGE: contre-indication absolue)
+2. **Détails des interactions** : Mécanisme pharmacologique et effets indésirables possibles.
+3. **Suggestions alternatives** : Substitutions sûres si alerte rouge/orange.
+4. **Conseils au patient** : Précautions de prise.
+Réponse concise adaptée à un médecin pressé.`;
+
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
-      
-      const drugsString = drugs.map(d => `${d.name} (${d.dosage || 'Dosage non spécifié'})`).join(', ');
-      
-      const prompt = `
-        En tant qu'assistant de pharmacologie clinique senior de Health AI, analysez de manière critique les interactions négatives ou contre-indications potentielles pour la liste de médicaments suivante prescrite à un même patient :
-        
-        Médicaments : [ ${drugsString} ]
-        
-        Veuillez retourner un rapport structuré en français contenant :
-        1. **Niveau d'alerte global** : (VERT: aucun risque majeur, ORANGE: risques modérés - précautions requises, ROUGE: contre-indication absolue - changer de traitement).
-        2. **Détails des interactions** : Pour chaque paire problématique, expliquez le mécanisme pharmacologique et l'effet indésirable possible.
-        3. **Suggestions alternatives** : Proposez des substitutions plus sûres si une alerte rouge/orange est émise.
-        4. **Conseils au patient** : Précautions de prise (ex: alimentation, horaires).
-        
-        Formatez votre réponse en Markdown propre, clair et concis adapté à la lecture d'un médecin pressé.
-      `;
-
-      const result = await model.generateContent(prompt);
-      return result.response.text();
+      const result = await callGeminiREST(prompt);
+      console.log('✅ Gemini API: Analyse interactions médicamenteuses réussie');
+      return result;
     } catch (error: any) {
-      console.warn('⚠️ Gemini API indisponible ou quota (bascule sur moteur clinique expert intégré) :', error.message);
-
+      console.warn('⚠️ Gemini API indisponible (bascule sur moteur clinique expert intégré) :', error.message);
       // Moteur clinique expert interne de pharmacovigilance
       const drugNames = drugs.map(d => d.name.toLowerCase());
-      const hasAmox = drugNames.some(d => d.includes('amox') || d.includes('clamoxyl') || d.includes('augmentin'));
-      const hasPara = drugNames.some(d => d.includes('para') || d.includes('doli') || d.includes('efferalgan'));
-      const hasNsaid = drugNames.some(d => d.includes('ibu') || d.includes('kétoprof') || d.includes('diclo'));
+      const hasNsaid = drugNames.some(d => d.includes('ibu') || d.includes('kétoprof') || d.includes('diclo') || d.includes('ibupro'));
       const hasAspirin = drugNames.some(d => d.includes('aspir') || d.includes('kardegic'));
+      const hasCortico = drugNames.some(d => d.includes('corti') || d.includes('predniso') || d.includes('dexameth'));
+      const hasAnticoag = drugNames.some(d => d.includes('warfar') || d.includes('héparin') || d.includes('rivaroxa'));
 
       let alertLevel = 'VERT';
       let interactionsText = 'Aucune interaction pharmacologique défavorable majeure identifiée pour cette association.';
@@ -46,9 +104,13 @@ export class AIService {
 
       if (hasNsaid && hasAspirin) {
         alertLevel = 'ROUGE';
-        interactionsText = 'Association déconseillée : Cumul d\'AINS et d\'Aspirine augmentant drastiquement le risque d\'ulcérations gastro-intestinales et d\'hémorragies digestives.';
-        alternativesText = 'Remplacer l\'un des anti-inflammatoires par du Paracétamol en 1ère intention antalgique/antipyrétique.';
-      } else if (hasNsaid && drugNames.some(d => d.includes('corti') || d.includes('predniso'))) {
+        interactionsText = 'Association déconseillée : Cumul d\'AINS et d\'Aspirine augmentant le risque d\'ulcérations gastro-intestinales et d\'hémorragies digestives.';
+        alternativesText = 'Remplacer l\'un des anti-inflammatoires par du Paracétamol en 1ère intention.';
+      } else if (hasNsaid && hasAnticoag) {
+        alertLevel = 'ROUGE';
+        interactionsText = 'Contre-indication majeure : AINS + Anticoagulant = risque hémorragique majeur (digestif, cérébral).';
+        alternativesText = 'Substituer l\'AINS par Paracétamol. Surveillance INR rapprochée si maintenu.';
+      } else if (hasNsaid && hasCortico) {
         alertLevel = 'ORANGE';
         interactionsText = 'Précaution : Association AINS + Corticoïde majorant le risque ulcérogène gastro-duodénal.';
         alternativesText = 'Co-prescription impérative d\'un IPP protecteur gastrique (Oméprazole 20mg).';
@@ -70,69 +132,68 @@ ${interactionsText}
 #### 3. Conseils d'administration au patient
 * Prendre au milieu des repas pour optimiser la tolérance gastrique.
 * Hydratation abondante recommandée (1.5 à 2L d'eau par jour).
-* Informer le médecin traitant en cas d'éruption cutanée ou de troubles digestifs inhabituels.`;
+* Informer le médecin traitant en cas d'éruption cutanée ou de troubles digestifs inhabituels.
+
+> ⚠️ *Analyse générée par le moteur clinique expert local (Gemini temporairement indisponible).*`;
     }
   }
 
   /**
-   * Analyse une image de radiologie (X-Ray, IRM, Scanner) pour y déceler des pathologies (Fractures, Pneumonie).
+   * Analyse une image de radiologie (X-Ray, IRM, Scanner) pour y déceler des pathologies.
    */
   static async analyzeMedicalImaging(imageUrl: string, examType: string): Promise<any> {
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
-
-      // Télécharger l'image depuis l'URL de stockage pour la transmettre au modèle
-      const response = await fetch(imageUrl);
-      const arrayBuffer = await response.arrayBuffer();
+      // Télécharger l'image depuis l'URL de stockage
+      const imgResponse = await fetch(imageUrl);
+      const arrayBuffer = await imgResponse.arrayBuffer();
       const imageBytes = Buffer.from(arrayBuffer).toString('base64');
+      const mimeType = imgResponse.headers.get('content-type') || 'image/jpeg';
 
-      const imagePart = {
-        inlineData: {
-          data: imageBytes,
-          mimeType: response.headers.get('content-type') || 'image/jpeg'
-        }
+      const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const body = {
+        contents: [{
+          parts: [
+            {
+              text: `Vous êtes un système d'IA spécialisé en radiologie clinique (Health AI).
+Analysez ce cliché médical de type [ ${examType} ] et fournissez une évaluation clinique structurée.
+Renvoyez uniquement un JSON valide avec ces clés :
+{"hasPathology":bool,"pathologyType":"Fracture"|"Pneumonia"|"None"|"Other","confidenceScore":float,"findings":"description","severity":"low"|"medium"|"high"|"none","measurements":"si applicable","recommendations":"examens conseillés"}`
+            },
+            { inlineData: { mimeType, data: imageBytes } }
+          ]
+        }],
+        generationConfig: { maxOutputTokens: 1024, temperature: 0.1 }
       };
 
-      const prompt = `
-        Vous êtes un système d'intelligence artificielle spécialisé en radiologie clinique pour la plateforme Health AI.
-        Analysez ce cliché médical de type [ ${examType} ] et fournissez une évaluation clinique détaillée et structurée.
-        
-        Renvoyez obligatoirement un format JSON valide avec les clés suivantes :
-        {
-          "hasPathology": true/false (indiquant si une anomalie est détectée),
-          "pathologyType": "Fracture" / "Pneumonia" / "None" / "Other",
-          "confidenceScore": (décimal entre 0 et 1),
-          "findings": "Une description textuelle détaillée et professionnelle de ce qui est visible (opacités, foyers, trait de fracture, déplacement osseux, etc.)",
-          "severity": "low" / "medium" / "high" / "none",
-          "measurements": "Des estimations biométriques si applicables (taille de lésion, angle, etc.)",
-          "recommendations": "Examens complémentaires conseillés ou surveillance spécifique"
-        }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
 
-        Ne mettez aucun texte en dehors du bloc de code JSON. Assurez-vous que le JSON soit parfaitement valide et parsable.
-      `;
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`Gemini Imaging HTTP ${response.status}: ${err}`);
+      }
 
-      const result = await model.generateContent([prompt, imagePart]);
-      const responseText = result.response.text();
-      
-      // Nettoyer la réponse pour extraire uniquement le JSON
+      const data = await response.json() as any;
+      const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const jsonStart = responseText.indexOf('{');
       const jsonEnd = responseText.lastIndexOf('}') + 1;
       if (jsonStart !== -1 && jsonEnd !== -1) {
-        const jsonString = responseText.slice(jsonStart, jsonEnd);
-        return JSON.parse(jsonString);
+        return JSON.parse(responseText.slice(jsonStart, jsonEnd));
       }
-
-      throw new Error('Réponse de l\'IA non convertible en JSON');
+      throw new Error('Réponse JSON non parseable');
     } catch (error: any) {
       console.error('Erreur d\'analyse d\'imagerie par l\'IA :', error.message);
       return {
         hasPathology: false,
-        pathologyType: "Error",
+        pathologyType: 'Error',
         confidenceScore: 0,
-        findings: "L'analyse d'imagerie assistée par l'IA n'a pas pu aboutir en raison d'une erreur de traitement technique.",
-        severity: "none",
-        measurements: "N/A",
-        recommendations: "Veuillez procéder à une interprétation visuelle classique de l'image."
+        findings: 'L\'analyse d\'imagerie assistée par l\'IA n\'a pas pu aboutir en raison d\'une erreur technique.',
+        severity: 'none',
+        measurements: 'N/A',
+        recommendations: 'Veuillez procéder à une interprétation visuelle classique de l\'image.'
       };
     }
   }
@@ -140,86 +201,91 @@ ${interactionsText}
   /**
    * Assistant clinique intelligent de dialogue pour le personnel médical.
    */
-  static async getClinicalAssistantResponse(query: string, chatHistory: Array<{ role: 'user' | 'model'; parts: string }>): Promise<string> {
+  static async getClinicalAssistantResponse(
+    query: string,
+    chatHistory: Array<{ role: 'user' | 'model'; parts: string }>
+  ): Promise<string> {
+    const systemInstruction = `Vous êtes l'Assistant Clinique Intelligent de Health AI. Vous interagissez avec des médecins, des infirmiers et des radiologues au Sénégal.
+Votre rôle est de fournir des résumés d'informations scientifiques, des définitions, des protocoles de soins de référence, et des conseils basés sur la médecine factuelle.
+Règles :
+1. Ton hautement professionnel, factuel, respectueux.
+2. Vos réponses sont une aide à la décision, pas un substitut au jugement clinique.
+3. Français médical précis.
+4. Contexte épidémiologique sénégalais (paludisme, fièvre typhoïde) quand pertinent.`;
+
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-3.8-flash' });
-      
-      const systemInstruction = `
-        Vous êtes l'Assistant Clinique Intelligent de Health AI. Vous interagissez avec des médecins, des infirmiers et des radiologues.
-        Votre rôle est de fournir des résumés d'informations scientifiques, des définitions, des protocoles de soins de référence, et des conseils basés sur la médecine factuelle (Evidence-Based Medicine).
-        
-        Règles cruciales :
-        1. Votre ton doit être hautement professionnel, factuel, respectueux et constructif.
-        2. Rappelez discrètement aux professionnels de santé que vos réponses constituent une aide à la décision, mais ne remplacent en aucun cas leur propre jugement clinique.
-        3. Exprimez vos réponses en français médical précis.
-      `;
-
-      const chat = model.startChat({
-        history: chatHistory.map(h => ({
-          role: h.role,
-          parts: [{ text: h.parts }]
-        })),
-        generationConfig: {
-          maxOutputTokens: 1000,
-        }
-      });
-
-      const prompt = `${systemInstruction}\n\nQuestion du professionnel : ${query}`;
-      const result = await chat.sendMessage(prompt);
-      return result.response.text();
+      const result = await callGeminiChatREST(query, chatHistory, systemInstruction);
+      console.log('✅ Gemini API: Réponse assistant clinique réussie');
+      return result;
     } catch (error: any) {
-      console.warn('⚠️ Gemini API indisponible ou quota (bascule sur moteur diagnostique expert intégré) :', error.message);
+      console.warn('⚠️ Gemini API indisponible (bascule sur moteur diagnostique expert intégré) :', error.message);
 
       const q = query.toLowerCase();
       const isRespiratory = q.includes('toux') || q.includes('respirat') || q.includes('poumon') || q.includes('bronch') || q.includes('dyspnée');
       const isCardio = q.includes('thorac') || q.includes('palpitat') || q.includes('tension') || q.includes('coeur') || q.includes('infarct');
       const isFever = q.includes('fièvre') || q.includes('fébrile') || q.includes('température') || q.includes('palu');
+      const isPrescription = q.includes('ordonnance') || q.includes('posologie') || q.includes('dose') || q.includes('médicament');
 
-      if (isRespiratory || isFever) {
+      if (isPrescription) {
+        return `### 💊 Aide à la Prescription (Co-Pilote Médical Health AI)
+
+#### Posologies de référence (adulte 70kg)
+| Médicament | Indication | Posologie standard |
+|---|---|---|
+| Amoxicilline | Infection bactérienne | 1g × 2-3/j, 7 jours |
+| Paracétamol | Douleur/Fièvre | 1g × 3/j, max 3g/24h |
+| Ibuprofène | Anti-inflammatoire | 400mg × 3/j avec repas |
+| Métronidazole | Parasitose/Anaérobie | 500mg × 3/j, 7 jours |
+| ACT (Artéméther) | Paludisme simple | Selon poids, 3 jours |
+
+> ⚠️ *Moteur expert local actif — Gemini temporairement indisponible.*`;
+      } else if (isRespiratory || isFever) {
         return `### 🩺 Synthèse d'Aide Diagnostique (Co-Pilote Médical Health AI)
 
 #### 1. Hypothèses Diagnostiques Différentielles
-1. **Bronchite aiguë infectieuse** (Probabilité : Forte) : Tableau clinique fébrile avec toux productive sans détresse respiratoire aiguë.
-2. **Pneumonie Franche Lobaire Aiguë (PFLA)** (À éliminer) : À suspecter si persistance d'un foyer de râles crépitants localisés ou douleur pleurale associée.
-3. **Syndrome d'allure grippale / Viropathie saisonnière** : Myalgies diffuses, céphalées et asthénie fébrile.
-4. **Paludisme d'accès palustre simple** : Contexte épidémiologique sous-régional sénégalais nécessitant une vérification systématique si fièvre continue.
+1. **Bronchite aiguë infectieuse** (Probabilité : Forte) : Tableau clinique fébrile avec toux productive.
+2. **Pneumonie Franche Lobaire Aiguë (PFLA)** (À éliminer) : Foyer de râles crépitants localisés.
+3. **Syndrome grippal / Viropathie saisonnière** : Myalgies, céphalées, asthénie fébrile.
+4. **Paludisme d'accès simple** *(Contexte sénégalais)* : TDR systématique si fièvre continue.
 
 #### 2. Bilan Paraclinique Préconisé
-* **Biologie** : Goutte épaisse / TDR Paludisme, NFS/Plaquettes (hyperleucocytose à PNN ?) et CRP (dosage du syndrome inflammatoire).
-* **Imagerie** : Cliché de Radiographie Thoracique (Face et Profil) si auscultation anormale ou fièvre persistante au-delà de 72h.
+* **Biologie** : Goutte épaisse / TDR Paludisme, NFS/Plaquettes, CRP.
+* **Imagerie** : Radiographie Thoracique si auscultation anormale ou fièvre >72h.
 
 #### 3. Plan Thérapeutique de Première Intention
-* **Antipyrétique & Antalgique** : Paracétamol 1g per os toutes les 8h (max 3g/24h).
-* **Antibiothérapie ciblée** *(si suspicion bactérienne ou crachats purulents)* : Amoxicilline 1g matin et soir pendant 7 jours.
-* **Mesures adjuvantes** : Hydratation abondante (>2L/j), repos strict, lavages de nez au sérum physiologique.
+* **Antipérétique** : Paracétamol 1g × 3/j (max 3g/24h).
+* **Antibiothérapie** *(si suspicion bactérienne)* : Amoxicilline 1g × 2/j, 7 jours.
+* **Mesures adjuvantes** : Hydratation >2L/j, repos, lavages nasaux.
 
-#### 4. Critères de Réévaluation Immédiate
-* Apparition d'une polypnée (>24/min), d'un tirage intercostal ou d'une SpO2 < 94% à l'air ambiant.
-* Altération de l'état général ou vomissements incoercibles.`;
+> ⚠️ *Moteur expert local actif — Gemini temporairement indisponible.*`;
       } else if (isCardio) {
         return `### 🩺 Synthèse d'Aide Diagnostique Cardiologique (Health AI)
 
 #### 1. Hypothèses Diagnostiques Prioritaires
-1. **Syndrome Coronarien Aigu (SCA)** : À éliminer en priorité devant toute douleur rétrosternale constrictive.
-2. **Embolie Pulmonaire (EP)** : À suspecter en présence de dyspnée aiguë ou tachycardie sinusale.
-3. **Péricardite aiguë** : Douleur augmentée à l'inspiration et soulagée en antéflexion.
+1. **Syndrome Coronarien Aigu (SCA)** : À éliminer en priorité.
+2. **Embolie Pulmonaire (EP)** : Dyspnée aiguë ou tachycardie sinusale.
+3. **Péricardite aiguë** : Douleur augmentée à l'inspiration.
 
-#### 2. Prise en Charge Immédiate & Examens
-* **ECG 12 dérivations** immédiat (< 10 minutes).
-* **Biologie d'urgence** : Troponine ultrasensible à H0/H1, D-Dimères, Ionogramme sanguin complet.
-* **Surveillance monitorée** : TA, SpO2, Fréquence cardiaque continue.`;
+#### 2. Prise en Charge Immédiate
+* **ECG 12 dérivations** immédiat (<10 min).
+* **Biologie d'urgence** : Troponine H0/H1, D-Dimères, Ionogramme.
+* **Surveillance** : TA, SpO2, FC continue.
+
+> ⚠️ *Moteur expert local actif — Gemini temporairement indisponible.*`;
       }
 
       return `### 🩺 Synthèse Clinique & Conduite à Tenir (Health AI)
 
 #### 1. Démarche Diagnostique Initiale
-* Examen physique complet (constantes hémodynamiques, examen des appareils ciblés).
-* Prise en compte du terrain (antécédents cardiovasculaires, diabète, allergies).
+* Examen physique complet (constantes hémodynamiques, appareils ciblés).
+* Prise en compte du terrain (antécédents, allergies connues).
 
 #### 2. Prise en Charge Générale
 * Traitement symptomatique de confort.
 * Surveillance clinique à 48 heures.
-* Prescription d'un bilan biologique adapté si persistance des symptômes.`;
+* Bilan biologique adapté si persistance des symptômes.
+
+> ⚠️ *Moteur expert local actif — Gemini temporairement indisponible. Reformulez votre question pour une réponse plus précise.*`;
     }
   }
 }

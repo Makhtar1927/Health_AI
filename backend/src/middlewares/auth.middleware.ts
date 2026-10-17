@@ -8,7 +8,7 @@ declare global {
       user?: {
         id: string;
         email?: string;
-        role: 'admin' | 'doctor' | 'radiologue' | 'cashier' | 'accueil' | 'patient';
+        role: string; // DB roles: doctor | radiology | reception | cashier | pharmacist | admin_hospital | superadmin | patient
       };
     }
   }
@@ -32,17 +32,19 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       const feRole = parts[2];
       const email = parts.slice(3).join('-');
 
-      let role: 'admin' | 'doctor' | 'radiologue' | 'cashier' | 'accueil' | 'patient' = 'doctor';
-      if (feRole === 'radiology') {
-        role = 'radiologue';
-      } else if (feRole === 'reception') {
-        role = 'accueil';
-      } else if (feRole === 'cashier') {
+      let role: string = 'doctor';
+      if (feRole === 'radiology' || feRole === 'radiologue') {
+        role = 'radiology';
+      } else if (feRole === 'reception' || feRole === 'accueil') {
+        role = 'reception';
+      } else if (feRole === 'cashier' || feRole === 'caisse') {
         role = 'cashier';
+      } else if (feRole === 'pharmacist' || feRole === 'pharmacien') {
+        role = 'pharmacist';
       } else if (feRole === 'patient') {
         role = 'patient';
-      } else if (feRole === 'admin_hospital' || feRole === 'admin_pharmacy' || feRole === 'superadmin' || feRole === 'admin') {
-        role = 'admin';
+      } else if (feRole === 'admin_hospital' || feRole === 'superadmin' || feRole === 'admin') {
+        role = feRole;
       }
 
       req.user = {
@@ -94,7 +96,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 };
 
 // Middleware pour restreindre l'accès à des rôles spécifiques
-export const requireRole = (allowedRoles: ('admin' | 'doctor' | 'radiologue' | 'cashier' | 'accueil' | 'patient')[]) => {
+export const requireRole = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({

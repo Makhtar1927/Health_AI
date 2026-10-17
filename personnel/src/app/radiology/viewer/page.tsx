@@ -56,6 +56,8 @@ import {
   getResultForOrder 
 } from '@/lib/radiologyResultStore';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 function RadiologyViewerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -283,7 +285,7 @@ function RadiologyViewerContent() {
     setIsAiLoading(true);
     try {
       const authHeader = await getAuthHeader();
-      const res = await fetch('http://localhost:5000/api/ai/analyze-imaging', {
+      const res = await fetch(`${API_URL}/api/ai/analyze-imaging`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({
@@ -363,7 +365,7 @@ function RadiologyViewerContent() {
 
       // 2. Transmission au backend si joignable
       try {
-        await fetch('http://localhost:5000/api/radiology/transmit', {
+        await fetch(`${API_URL}/api/radiology/transmit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(resultPayload)
