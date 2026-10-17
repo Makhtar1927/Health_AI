@@ -89,20 +89,17 @@ function LoginContent() {
         
         {/* Brand/Role Header */}
         <div className="text-center mb-6">
-          <div className="relative inline-flex items-center justify-center gap-2 mb-3">
-            <HealthAILogo size="lg" className="shadow-md" />
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
-              <Stethoscope className="w-5 h-5" />
-            </div>
+          <div className="flex justify-center mb-3">
+            <HealthAILogo size="lg" withText subtitle="Cabinet Médical & Télémédecine" />
           </div>
           
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Espace Médecin Clinique
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
+            Espace Praticien Médical
           </h1>
           <p className="text-xs text-slate-500 mt-1 flex items-center justify-center gap-1.5">
             <span className="font-semibold text-emerald-700">Health AI Sénégal</span>
             <span>&bull;</span>
-            <span>Dossier Patient & Téléconsultation</span>
+            <span>Consultations, Ordonnances & Diagnostic IA</span>
           </p>
         </div>
 
@@ -119,6 +116,18 @@ function LoginContent() {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Raccourci Démo Praticien */}
+          <div className="mb-4 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+            <span className="text-[11px] font-semibold text-slate-500">Compte test :</span>
+            <button
+              type="button"
+              onClick={() => { setEmail('medecin@sunusante.sn'); setPassword('Medecin2026!'); }}
+              className="text-[11px] font-bold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-50 transition-colors cursor-pointer"
+            >
+              Pré-remplir Dr. Aidara
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             
