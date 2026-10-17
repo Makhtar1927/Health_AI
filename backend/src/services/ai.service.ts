@@ -1,25 +1,26 @@
 import { env } from '../config/env';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Configuration Gemini API REST v1
-// On utilise l'API REST directement (v1) pour compatibilité maximale des clés.
-// Le SDK @google/generative-ai utilise v1beta, qui a des restrictions plus
-// strictes sur certains types de clés d'API.
+// Configuration Gemini API REST (Alignée sur Google AI Studio officiel)
+// Utilise v1beta avec le modèle officiel 'gemini-flash-latest' et le header 'X-goog-api-key'.
 // ─────────────────────────────────────────────────────────────────────────────
 const GEMINI_API_KEY = env.GEMINI_API_KEY;
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1';
-const GEMINI_MODEL = 'gemini-3.8-flash';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
+const GEMINI_MODEL = 'gemini-flash-latest';
 
-/** Appelle l'API Gemini via REST v1 (prompt simple). */
+/** Appelle l'API Gemini via REST (prompt simple). */
 async function callGeminiREST(prompt: string): Promise<string> {
-  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: { maxOutputTokens: 2048, temperature: 0.4 }
   };
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-goog-api-key': GEMINI_API_KEY
+    },
     body: JSON.stringify(body)
   });
   if (!response.ok) {
@@ -38,7 +39,7 @@ async function callGeminiChatREST(
   history: Array<{ role: 'user' | 'model'; parts: string }>,
   systemInstruction: string
 ): Promise<string> {
-  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`;
   const contents: any[] = [];
   if (systemInstruction) {
     contents.push({ role: 'user', parts: [{ text: `[INSTRUCTION SYSTEME]\n${systemInstruction}` }] });
@@ -54,7 +55,10 @@ async function callGeminiChatREST(
   };
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-goog-api-key': GEMINI_API_KEY
+    },
     body: JSON.stringify(body)
   });
   if (!response.ok) {
@@ -149,7 +153,7 @@ ${interactionsText}
       const imageBytes = Buffer.from(arrayBuffer).toString('base64');
       const mimeType = imgResponse.headers.get('content-type') || 'image/jpeg';
 
-      const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const url = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent`;
       const body = {
         contents: [{
           parts: [
@@ -167,7 +171,10 @@ Renvoyez uniquement un JSON valide avec ces clés :
 
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY
+        },
         body: JSON.stringify(body)
       });
 
