@@ -367,21 +367,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   resetPassword: async (newPassword: string, email?: string) => {
     set({ isLoading: true, error: null });
     try {
+      // Récupérer l'email depuis la session Supabase si non fourni
+      let resolvedEmail = email;
+      if (!resolvedEmail && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.email) {
+            resolvedEmail = session.user.email;
+          }
+        } catch (_) {}
+      }
+
+      // 1. Mettre à jour le mot de passe dans Supabase Auth (session de récupération active)
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         try {
           const { error } = await supabase.auth.updateUser({ password: newPassword });
-          if (error) throw error;
+          if (error) console.warn('Supabase updateUser warning:', error.message);
         } catch (sbErr: any) {
           console.warn('Supabase updateUser password warning:', sbErr);
         }
       }
 
-      if (email) {
-        await fetch(`${API_URL}/api/auth/reset-password`, {
+      // 2. TOUJOURS synchroniser avec le backend local (users-db.json)
+      if (resolvedEmail) {
+        const backendRes = await fetch(`${API_URL}/api/auth/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, newPassword })
+          body: JSON.stringify({ email: resolvedEmail, newPassword })
         });
+        if (!backendRes.ok) {
+          const errData = await backendRes.json().catch(() => ({}));
+          console.warn('Backend reset-password failed:', errData);
+        }
+      } else {
+        console.error('reset-password: email introuvable - impossible de synchroniser users-db.json');
       }
 
       set({ isLoading: false });

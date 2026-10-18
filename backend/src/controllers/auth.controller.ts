@@ -210,6 +210,20 @@ export class AuthController {
       writeDb(users);
       await DbService.syncUserToSupabase(newRecord);
 
+      // Créer également dans Supabase Auth pour permettre le reset password par email
+      try {
+        await supabaseAdmin.auth.admin.createUser({
+          email: email.toLowerCase(),
+          password,
+          email_confirm: true, // Pas besoin de confirmation, compte créé par l'admin
+          user_metadata: { name, role }
+        });
+      } catch (authErr: any) {
+        // Non bloquant : l'utilisateur peut toujours se connecter via le backend local
+        // (Supabase Auth peut rejeter si l'email existe déjà, c'est OK)
+        console.warn('Supabase Auth createUser (non bloquant) :', authErr?.message || authErr);
+      }
+
       return res.status(200).json({ success: true });
     } catch (error) {
       next(error);
@@ -342,10 +356,43 @@ export class AuthController {
       }
 
       const { email, redirectTo } = parsed.data;
+      const emailLower = email.toLowerCase();
 
-      // On tente d'envoyer l'email de récupération via Supabase
+      // Vérifier que le compte existe dans la base locale
+      const users = readDb();
+      const localUser = users.find(u => u.email.toLowerCase() === emailLower);
+
+      if (!localUser) {
+        // On ne révèle pas si le compte existe ou non pour des raisons de sécurité
+        return res.status(200).json({
+          success: true,
+          message: 'Si cette adresse email est associée à un compte, un lien de réinitialisation vous a été envoyé.'
+        });
+      }
+
+      // S'assurer que l'utilisateur existe dans Supabase Auth pour pouvoir envoyer l'email
       try {
-        await supabaseAdmin.auth.resetPasswordForEmail(email.toLowerCase(), {
+        const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+        const authUser = usersData?.users?.find(u => u.email?.toLowerCase() === emailLower);
+        
+        if (!authUser) {
+          // Créer l'utilisateur dans Supabase Auth s'il n'y est pas encore
+          await supabaseAdmin.auth.admin.createUser({
+            email: emailLower,
+            password: localUser.passwordHash, // Mot de passe actuel de la base locale
+            email_confirm: true,
+            user_metadata: { name: localUser.name, role: localUser.role }
+          });
+          console.log(`Utilisateur ${emailLower} créé dans Supabase Auth pour le reset password.`);
+        }
+      } catch (createErr: any) {
+        // Si la création échoue (ex: email déjà utilisé), on continue quand même
+        console.warn('Supabase Auth sync avant reset (non bloquant) :', createErr?.message);
+      }
+
+      // Envoyer l'email de récupération via Supabase
+      try {
+        await supabaseAdmin.auth.resetPasswordForEmail(emailLower, {
           redirectTo: redirectTo || `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/reset-password`
         });
       } catch (sbErr) {

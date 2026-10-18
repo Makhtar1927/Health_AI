@@ -30,7 +30,19 @@ export default function ResetPasswordPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Tenter d'extraire la session de récupération Supabase
+    // Supabase envoie le token dans le fragment URL : #access_token=...&type=recovery
+    // On écoute l'événement auth pour attraper PASSWORD_RECOVERY
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      }
+      // PASSWORD_RECOVERY ou SIGNED_IN après le clic sur le lien e-mail
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        setIsReady(true);
+      }
+    });
+
+    // Aussi récupérer la session active (cas où la page est rechargée)
     const initRecovery = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -45,13 +57,6 @@ export default function ResetPasswordPage() {
     };
 
     initRecovery();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user?.email) {
-        setUserEmail(session.user.email);
-      }
-      setIsReady(true);
-    });
 
     return () => {
       authListener?.subscription.unsubscribe();

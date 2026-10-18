@@ -30,6 +30,16 @@ export default function StaffResetPasswordPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    // Supabase envoie le token dans le fragment URL : #access_token=...&type=recovery
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      }
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        setIsReady(true);
+      }
+    });
+
     const initRecovery = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -44,13 +54,6 @@ export default function StaffResetPasswordPage() {
     };
 
     initRecovery();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user?.email) {
-        setUserEmail(session.user.email);
-      }
-      setIsReady(true);
-    });
 
     return () => {
       authListener?.subscription.unsubscribe();
