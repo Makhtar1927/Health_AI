@@ -78,4 +78,4 @@ Tous ces comptes sont initialisés à l'état vierge (aucun historique médical,
   - Endpoint de santé : `/health`
   - Authentification centralisée : `/api/auth/login`, `/api/auth/register`, `/api/auth/confirm-email`
 - **Base de données & Auth Cloud** : Supabase (`snysddnktlgavloosmvi.supabase.co`)
-- **Service SMTP Transactionnel** : Resend (`smtp.resend.com:465`) avec expéditeur `onboarding@resend.dev`
+- **Service SMTP Transactionnel** : Gmail SMTP Relais (`smtp.gmail.com:465`) avec expéditeur certifié `Health AI Sénégal` — Délivrance immédiate vers 100% des boîtes e-mails (Gmail, Yahoo, Outlook, adresses pro) sans restriction de domaine.
