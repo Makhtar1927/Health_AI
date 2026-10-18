@@ -283,4 +283,53 @@ export class DbService {
       console.warn('Suppression Supabase non bloquante :', err);
     }
   }
+
+  /**
+   * Synchronise tous les profils depuis Supabase Cloud vers le fichier local
+   * (indispensable pour préserver les comptes après redémarrage Render)
+   */
+  static async syncAllProfilesFromSupabase(): Promise<void> {
+    try {
+      const client = this.isServiceKeyConfigured() ? supabaseAdmin : supabase;
+      const { data: profiles, error } = await client.from('profiles').select('*');
+      if (error || !profiles || profiles.length === 0) return;
+
+      const currentUsers = this.readLocalUsers();
+      let changed = false;
+
+      for (const p of profiles) {
+        if (!p.email) continue;
+        const existingIdx = currentUsers.findIndex(u => u.email.toLowerCase() === p.email.toLowerCase());
+        const userObj: LocalUserRecord = {
+          email: p.email,
+          passwordHash: p.password_hash || '',
+          role: p.role,
+          name: p.name || p.email.split('@')[0],
+          suspended: p.suspended || false,
+          emailConfirmed: p.email_confirmed !== false,
+          details: p.details || {}
+        };
+        if (existingIdx !== -1) {
+          if (p.password_hash && currentUsers[existingIdx].passwordHash !== p.password_hash) {
+            currentUsers[existingIdx].passwordHash = p.password_hash;
+            changed = true;
+          }
+          if (p.role && currentUsers[existingIdx].role !== p.role) {
+            currentUsers[existingIdx].role = p.role;
+            changed = true;
+          }
+        } else {
+          currentUsers.push(userObj);
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        this.writeLocalUsers(currentUsers);
+        console.log(`✅ Base locale synchronisée depuis Supabase profiles (${profiles.length} profils traités)`);
+      }
+    } catch (err) {
+      console.warn('Sync profiles initiale depuis Supabase (non bloquante) :', err);
+    }
+  }
 }

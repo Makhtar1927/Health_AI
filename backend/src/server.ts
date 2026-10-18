@@ -12,6 +12,7 @@ import mediaRoutes from './routes/media.routes';
 import authRoutes from './routes/auth.routes';
 import radiologyRoutes from './routes/radiology.routes';
 import facilityRoutes from './routes/facility.routes';
+import { DbService } from './services/db.service';
 
 const app = express();
 
@@ -117,6 +118,11 @@ const server = app.listen(PORT, () => {
   🔌 Port d'écoute : http://localhost:${PORT}
   ==========================================================
   `);
+
+  // Synchronisation des profils existants depuis Supabase (évite la perte de comptes après redémarrage Render)
+  DbService.syncAllProfilesFromSupabase().catch(err => {
+    console.warn('Erreur au chargement initial des profils Supabase :', err);
+  });
 });
 
 // Arrêt propre (Graceful Shutdown)

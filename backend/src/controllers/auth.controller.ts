@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { DbService } from '../services/db.service';
-import { supabaseAdmin } from '../config/supabase';
+import { supabase, supabaseAdmin } from '../config/supabase';
 
 export interface LocalUserRecord {
   email: string;
@@ -38,6 +38,33 @@ export class AuthController {
       const users = readDb();
       let matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
+      // Fallback Supabase profiles si absent du fichier local (redémarrage Render)
+      if (!matchedUser) {
+        try {
+          const { data: profileData } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+          if (profileData) {
+            matchedUser = {
+              email: profileData.email,
+              passwordHash: profileData.password_hash || '',
+              role: profileData.role,
+              name: profileData.name || profileData.email.split('@')[0],
+              suspended: profileData.suspended || false,
+              emailConfirmed: profileData.email_confirmed !== false,
+              details: profileData.details || {}
+            };
+            users.push(matchedUser);
+            writeDb(users);
+          }
+        } catch (supabaseErr) {
+          console.warn('Fallback Supabase login lookup failed:', supabaseErr);
+        }
+      }
+
       if (!matchedUser) {
         return res.status(401).json({ error: 'Identifiants invalides ou compte introuvable.' });
       }
@@ -51,7 +78,30 @@ export class AuthController {
         return res.status(400).json({ error: `Identifiants corrects, mais ce compte n'a pas le rôle de ${role}.` });
       }
 
-      if (matchedUser.passwordHash !== password) {
+      // Vérification mot de passe : comparaison directe OU validation via Supabase Auth
+      let passwordValid = matchedUser.passwordHash === password;
+      if (!passwordValid) {
+        try {
+          const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+            email: email.toLowerCase(),
+            password
+          });
+          if (authData?.user && !authErr) {
+            passwordValid = true;
+            matchedUser.passwordHash = password;
+            const uIdx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+            if (uIdx !== -1) {
+              users[uIdx].passwordHash = password;
+              writeDb(users);
+            }
+            await DbService.syncUserToSupabase(matchedUser);
+          }
+        } catch (authVerifyErr) {
+          console.warn('Supabase auth fallback verification error:', authVerifyErr);
+        }
+      }
+
+      if (!passwordValid) {
         return res.status(401).json({ error: 'Mot de passe incorrect.' });
       }
 
@@ -358,9 +408,35 @@ export class AuthController {
       const { email, redirectTo } = parsed.data;
       const emailLower = email.toLowerCase();
 
-      // Vérifier que le compte existe dans la base locale
+      // Vérifier que le compte existe dans la base locale ou Supabase profiles
       const users = readDb();
-      const localUser = users.find(u => u.email.toLowerCase() === emailLower);
+      let localUser = users.find(u => u.email.toLowerCase() === emailLower);
+
+      if (!localUser) {
+        try {
+          const { data: profileData } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('email', emailLower)
+            .maybeSingle();
+
+          if (profileData) {
+            localUser = {
+              email: profileData.email,
+              passwordHash: profileData.password_hash || '',
+              role: profileData.role,
+              name: profileData.name || profileData.email.split('@')[0],
+              suspended: profileData.suspended || false,
+              emailConfirmed: true,
+              details: profileData.details || {}
+            };
+            users.push(localUser);
+            writeDb(users);
+          }
+        } catch (sbErr) {
+          console.warn('Fallback profiles pour forgotPassword:', sbErr);
+        }
+      }
 
       if (!localUser) {
         // On ne révèle pas si le compte existe ou non pour des raisons de sécurité
@@ -431,6 +507,36 @@ export class AuthController {
         users[userIdx].passwordHash = newPassword;
         writeDb(users);
         await DbService.syncUserToSupabase(users[userIdx]);
+      } else {
+        try {
+          const { data: profileData } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+          if (profileData) {
+            const recovered: LocalUserRecord = {
+              email: profileData.email,
+              passwordHash: newPassword,
+              role: profileData.role,
+              name: profileData.name || profileData.email.split('@')[0],
+              suspended: profileData.suspended || false,
+              emailConfirmed: true,
+              details: profileData.details || {}
+            };
+            users.push(recovered);
+            writeDb(users);
+            await DbService.syncUserToSupabase(recovered);
+          } else {
+            await supabaseAdmin.from('profiles').update({
+              password_hash: newPassword,
+              updated_at: new Date().toISOString()
+            }).eq('email', email.toLowerCase());
+          }
+        } catch (sbErr) {
+          console.warn('Erreur mise à jour password dans profiles Supabase:', sbErr);
+        }
       }
 
       // Tenter également de mettre à jour le mot de passe dans Supabase Auth
@@ -475,9 +581,30 @@ export class AuthController {
       const userIdx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
 
       if (userIdx === -1) {
-        // L'utilisateur n'existe peut-être que dans Supabase (pas dans users-db.json)
-        // On retourne succès quand même pour ne pas bloquer le flux
-        return res.status(200).json({ success: true, message: 'Email confirmé.' });
+        try {
+          const { data: profileData } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+          if (profileData) {
+            const recovered: LocalUserRecord = {
+              email: profileData.email,
+              passwordHash: profileData.password_hash || '',
+              role: profileData.role,
+              name: profileData.name || profileData.email.split('@')[0],
+              suspended: profileData.suspended || false,
+              emailConfirmed: true,
+              details: profileData.details || {}
+            };
+            users.push(recovered);
+            writeDb(users);
+          }
+        } catch (sbErr) {
+          console.warn('Fallback Supabase confirmEmail lookup failed:', sbErr);
+        }
+        return res.status(200).json({ success: true, message: 'Email confirmé avec succès. Vous pouvez maintenant vous connecter.' });
       }
 
       // Mettre à jour emailConfirmed
